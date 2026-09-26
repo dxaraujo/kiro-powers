@@ -1,0 +1,18 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "alm-power",
+  "version": "1.0.0",
+  "description": "IBM ELM (EWM/RTC, DOORS Next, ETM) via OSLC: work items, requisitos, testes, configuração global e rastreabilidade, com o MCP mcp-alm",
+  "author": {
+    "name": "Daniel Xavier Araújo",
+    "email": "danielxaraujo@gmail.com"
+  },
+  "repository": "https://github.com/dxaraujo/kiro-powers/alm",
+  "license": "MIT",
+  "keywords": [
+    "alm", "elm", "ibm", "oslc", "jazz", "ewm", "rtc", "ccm", "doors", "doors next", "rm", "etm", "rqm", "qm",
+    "work item", "workitem", "item de backlog", "tarefa", "defeito", "sprint", "iteração", "plano",
+    "requisito", "história de usuário", "caso de uso", "regra", "caso de teste", "plano de teste",
+    "ib", "tr", "df", "dt", "uc", "hu", "hf", "hnf", "rn", "req", "msg", "ct", "pt", "ter"
+  ]
+}
