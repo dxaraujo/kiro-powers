@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dxaraujo/kiro-powers/tree/main/alm/skills/alm-setup/assets/pa.schema.json",
+  "title": "ALM Project Area Configuration",
+  "description": "Arquivo de configuração alm/pa_<nome>.json gerado pela skill alm-setup. Um arquivo por project area. As chaves de todos os mapas são os name devolvidos pelas tools do MCP alm, em kebab-case.",
+  "type": "object",
+  "additionalProperties": false,
+  "minProperties": 1,
+  "properties": {
+    "ccm": {
+      "$ref": "#/$defs/ccm"
+    },
+    "rm": {
+      "$ref": "#/$defs/rm"
+    }
+  },
+  "$defs": {
+    "ccm": {
+      "type": "object",
+      "description": "Configuração do EWM/RTC (Change and Configuration Management).",
+      "additionalProperties": false,
+      "required": [
+        "project-area",
+        "project-area-identifier",
+        "team-areas",
+        "members",
+        "workitem-types",
+        "iterations"
+      ],
+      "properties": {
+        "project-area": {
+          "type": "string",
+          "description": "Nome (name) da project area CCM.",
+          "minLength": 1
+        },
+        "project-area-identifier": {
+          "$ref": "#/$defs/uuid",
+          "description": "UUID da project area CCM (project_area_uuid), prefixado por '_'."
+        },
+        "team-areas": {
+          "type": "object",
+          "description": "Mapa {name do time: {identifier, categories}}.",
+          "additionalProperties": {
+            "$ref": "#/$defs/teamArea"
+          }
+        },
+        "members": {
+          "$ref": "#/$defs/members",
+          "description": "Mapa {login: Nome do Membro}."
+        },
+        "workitem-types": {
+          "type": "object",
+          "description": "Mapa {name do tipo: {identifier, fields}}.",
+          "additionalProperties": {
+            "$ref": "#/$defs/workitemType"
+          }
+        },
+        "iterations": {
+          "type": "object",
+          "description": "Mapa {name da iteração: {identifier, plans}}.",
+          "additionalProperties": {
+            "$ref": "#/$defs/iteration"
+          }
+        }
+      }
+    },
+    "rm": {
+      "type": "object",
+      "description": "Configuração do DOORS Next (Requirements Management).",
+      "additionalProperties": false,
+      "required": [
+        "project-area",
+        "project-area-identifier",
+        "component",
+        "configuration",
+        "members",
+        "folders",
+        "requirements-types"
+      ],
+      "properties": {
+        "project-area": {
+          "type": "string",
+          "description": "Nome (name) da project area RM.",
+          "minLength": 1
+        },
+        "project-area-identifier": {
+          "$ref": "#/$defs/uuid",
+          "description": "UUID da project area RM, prefixado por '_'."
+        },
+        "component": {
+          "$ref": "#/$defs/uuid",
+          "description": "UUID do componente RM, prefixado por '_'."
+        },
+        "configuration": {
+          "$ref": "#/$defs/uuid",
+          "description": "UUID da stream (configuração), prefixado por '_'."
+        },
+        "members": {
+          "$ref": "#/$defs/members",
+          "description": "Mapa {login: Nome do Membro}."
+        },
+        "folders": {
+          "type": "object",
+          "description": "Mapa {name da pasta (caminho sem 'root/'): identifier 'FR_...'}.",
+          "additionalProperties": {
+            "$ref": "#/$defs/folderId"
+          }
+        },
+        "requirements-types": {
+          "type": "object",
+          "description": "Mapa {name do tipo de requisito: identifier 'OT_...'}.",
+          "additionalProperties": {
+            "$ref": "#/$defs/objectTypeId"
+          }
+        }
+      }
+    },
+    "teamArea": {
+      "type": "object",
+      "description": "Time do CCM com suas categorias vinculadas.",
+      "additionalProperties": false,
+      "required": [
+        "identifier",
+        "categories"
+      ],
+      "properties": {
+        "identifier": {
+          "$ref": "#/$defs/uuid",
+          "description": "UUID do time."
+        },
+        "categories": {
+          "type": "object",
+          "description": "Mapa {nome da categoria: itemId} das categorias cujo defaultTeamArea.itemId é igual ao identifier do time.",
+          "additionalProperties": {
+            "$ref": "#/$defs/uuid"
+          }
+        }
+      }
+    },
+    "workitemType": {
+      "type": "object",
+      "description": "Tipo de work item e seus campos configurados.",
+      "additionalProperties": false,
+      "required": [
+        "identifier",
+        "fields"
+      ],
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "Identifier do tipo (ex.: 'task', 'defect'). Não é UUID.",
+          "minLength": 1
+        },
+        "fields": {
+          "type": "object",
+          "description": "Mapa {name do campo: attribute}. Inclui sempre 'Categoria'/'category'; nunca inclui 'Team Area' (rtc_cm:teamArea).",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          },
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "Team Area"
+                ]
+              },
+              {
+                "type": "object",
+                "patternProperties": {
+                  ".*": {
+                    "const": "rtc_cm:teamArea"
+                  }
+                },
+                "minProperties": 1,
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      }
+    },
+    "iteration": {
+      "type": "object",
+      "description": "Iteração e seus planos escolhidos. Iteração sem plano fica com 'plans': {}.",
+      "additionalProperties": false,
+      "required": [
+        "identifier",
+        "plans"
+      ],
+      "properties": {
+        "identifier": {
+          "$ref": "#/$defs/uuid",
+          "description": "UUID da iteração."
+        },
+        "plans": {
+          "type": "object",
+          "description": "Mapa {name do plano: {identifier, team-area?}}.",
+          "additionalProperties": {
+            "$ref": "#/$defs/plan"
+          }
+        }
+      }
+    },
+    "plan": {
+      "type": "object",
+      "description": "Plano de iteração. A chave 'team-area' só é gravada quando o dono não é a própria project area (team-area não nulo).",
+      "additionalProperties": false,
+      "required": [
+        "identifier"
+      ],
+      "properties": {
+        "identifier": {
+          "$ref": "#/$defs/uuid",
+          "description": "UUID do plano."
+        },
+        "team-area": {
+          "$ref": "#/$defs/uuid",
+          "description": "UUID do time dono do plano. Omitido quando o dono é a própria project area."
+        }
+      }
+    },
+    "members": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "uuid": {
+      "type": "string",
+      "description": "Identifier prefixado por '_', como devolvido pelas tools do MCP.",
+      "pattern": "^_.+"
+    },
+    "folderId": {
+      "type": "string",
+      "description": "Identifier de pasta RM.",
+      "pattern": "^FR_.+"
+    },
+    "objectTypeId": {
+      "type": "string",
+      "description": "Identifier de tipo de requisito RM.",
+      "pattern": "^OT_.+"
+    }
+  }
+}

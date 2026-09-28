@@ -83,6 +83,10 @@ Mostre o JSON completo, peça confirmação e grave `alm/pa_<nome>.json` na raiz
 mudou num arquivo existente, grave com o novo nome e apague o antigo). Formato: todas as seções são
 mapas cujas chaves são os `name` devolvidos pelas tools, em kebab-case, sem campos a mais.
 
+O formato exato é definido pelo JSON Schema #[[file:assets/pa.schema.json]]. O arquivo gerado deve validar contra
+esse schema; use-o como fonte da verdade sobre campos obrigatórios, prefixos de identifier e o que não pode
+aparecer (ex.: `Team Area` nos fields, `team-area: null` ou `iteration` nos planos).
+
 ```json
 {
   "ccm": {
@@ -143,8 +147,16 @@ mapas cujas chaves são os `name` devolvidos pelas tools, em kebab-case, sem cam
 
 ## 5. Conferir
 
-Para cada plano gravado em cada iteração, chame `ccm_list_workitems(pa, iteration=iteração.identifier, team_areas=[plano.team-area])` (sem `team_areas` se o plano não tiver `team-area`) e
-mostre quantos work items vieram. Isso confirma que os ids funcionam. Só leitura: não crie itens de teste.
+Depois de gravar (ou alterar) o arquivo, confira o formato contra o JSON Schema #[[file:assets/pa.schema.json]]: releia
+o schema e o arquivo gravado e verifique campo a campo que o JSON satisfaz o schema — seções e campos obrigatórios
+presentes, sem propriedades a mais, prefixos de identifier corretos (`_`, `FR_`, `OT_`), `team-areas` como
+`{nome: {identifier, categories}}`, planos só com `identifier` e, se houver, `team-area` (nunca `null` nem
+`iteration`) e nenhum `Team Area`/`rtc_cm:teamArea` nos fields. Se algo não bater, corrija o arquivo e confira de
+novo antes de seguir. Esta é uma conferência de estrutura feita por você, sem ferramenta externa.
+
+Em seguida, confirme que os ids funcionam: para cada plano gravado em cada iteração, chame
+`ccm_list_workitems(pa, iteration=iteração.identifier, team_areas=[plano.team-area])` (sem `team_areas` se o plano
+não tiver `team-area`) e mostre quantos work items vieram. Só leitura: não crie itens de teste.
 
 ## Erros comuns
 
