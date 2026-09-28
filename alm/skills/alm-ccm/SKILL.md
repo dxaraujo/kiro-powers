@@ -88,6 +88,30 @@ Fluxos:
 - **Mudar estado:** passe `state` pelo nome em `ccm_update_workitem`; ele escolhe a ação. Se falhar, a mensagem
   lista os estados válidos. `ccm_list_workitem_states` só é necessário para mostrar as opções ao usuário.
 
+## Criar plano de iteração
+
+`ccm_create_iteration_plan(project_area_identifier, name, iteration, plan_type, team_area?)` cria um plano,
+como o 'Create Plan' da UI web. Só há **dois tipos de plano** aceitos — mostre ao usuário o nome em português
+e passe o `plan_type` (id) à tool:
+
+| Nome (mostrar ao usuário) | `plan_type` (passar à tool) |
+|---|---|
+| Quadro de tarefas Kanban | `com.ibm.team.apt.plantype.kanbanBoard` |
+| Backlog do Produto | `com.ibm.team.apt.plantype.product.backlog` |
+
+- `plan_type` é **obrigatório**: pergunte ao usuário qual dos dois quer (Kanban ou Backlog) e passe o id
+  correspondente. Qualquer outro valor é recusado com `ValueError`.
+- `iteration`: identifier de `ccm_list_iterations` (ou `iterations[nome].identifier` do alm.json).
+- `team_area` (opcional): identifier do time dono (`ccm_list_team_areas` ou `team-areas[nome].identifier`
+  do alm.json). Omita para o plano pertencer à própria project area.
+- Retorna `{name, identifier, team-area, iteration}`. Mostre ao usuário o nome do plano e a iteração, nunca
+  UUIDs.
+- O servidor pode normalizar o tipo conforme a configuração de processo da project area: o `plan_type`
+  enviado nem sempre é o que fica gravado. Se o usuário questionar o tipo do plano, confirme com
+  `ccm_list_iteration_plans` / na UI web.
+
+Não crie planos de teste para "verificar" algo: use `ccm_list_iteration_plans` para leitura.
+
 ## Tools genéricas
 
 Retornam o recurso OSLC `{url, id, title, types, properties: {qname: valor}, links: {qname: [{url, title?}]}}`.
@@ -145,5 +169,6 @@ enumeração (`priority.literal.l01`); id de estado (`com.ibm.team.workitem.task
 | `O servidor não mudou o estado` | A transição não parte do estado atual; mostre `ccm_list_workitem_states` |
 | HTTP 400/409 ao criar | Faltou campo obrigatório ou valor inválido; confira `required` em `ccm_list_field_values` |
 | `Operador OR entre expressões não é suportado` | Troque por `in` ou faça duas buscas |
+| `plan_type 'x' não é suportado` | Use `com.ibm.team.apt.plantype.kanbanBoard` (Kanban) ou `com.ibm.team.apt.plantype.product.backlog` (Backlog) |
 
 Não crie work items de teste para "verificar" algo: use leitura.
