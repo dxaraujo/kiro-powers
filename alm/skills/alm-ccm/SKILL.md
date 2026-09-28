@@ -1,6 +1,10 @@
 ---
-name: alm-ccm
-description: Use when the user asks about IBM EWM/RTC (CCM) work items through the `alm` MCP — consultar, listar, buscar, criar, atualizar, mudar o estado ou comentar um item de trabalho (work item, WI), tarefa (task), defeito (bug, defect), item de backlog (IB, story), tarefa (TR), defeito (DF), dívida técnica (DT), impedimento (IMP), risco (RSC) ou reunião (REU); itens de uma sprint, iteração ou plano; "me mostre o ib:123456", "baixar ib 123", "tr 456", "df 789", "tarefas de <pessoa>", "crie um defeito", "mova para Em Desenvolvimento".
+name: "alm-ccm"
+description: "Query, list, search, create, update, change state or comment IBM EWM/RTC (CCM) work items through the `alm` MCP. Use when the user asks about um item de trabalho (work item, WI), tarefa (task), defeito (bug, defect), item de backlog (IB, story), tarefa (TR), defeito (DF), dívida técnica (DT), impedimento (IMP), risco (RSC) ou reunião (REU); itens de uma sprint, iteração ou plano; \"me mostre o ib:123456\", \"baixar ib 123\", \"tr 456\", \"df 789\", \"tarefas de <pessoa>\", \"crie um defeito\", \"mova para Em Desenvolvimento\"."
+license: "MIT"
+metadata:
+  author: "Daniel Xavier Araújo"
+  version: "1.0.0"
 ---
 
 # alm-ccm

@@ -1,6 +1,10 @@
 ---
-name: alm-rm
-description: Use when the user asks about IBM DOORS Next (RM) artifacts through the `alm` MCP — consultar, buscar, listar, criar ou atualizar um requisito (REQ, RF, RNF), história de usuário (HU, HF, HNF), caso de uso (UC), regra (RN, REG), mensagem (MSG), especificação técnica (ET), especificação de leiaute (EL), protótipo (PRT), diagrama (DG), termo de glossário (GL), imagem (IMG) ou documento de visão (DV); pastas, tipos de artefato, componentes, streams e baselines do RM; "me mostre o requisito 123456", "me mostre o uc 123456", "baixar hu 123", "requisitos da pasta 01-Requisitos", "crie uma HU".
+name: "alm-rm"
+description: "Query, search, list, create or update IBM DOORS Next (RM) artifacts through the `alm` MCP. Use when the user asks about um requisito (REQ, RF, RNF), história de usuário (HU, HF, HNF), caso de uso (UC), regra (RN, REG), mensagem (MSG), especificação técnica (ET), especificação de leiaute (EL), protótipo (PRT), diagrama (DG), termo de glossário (GL), imagem (IMG) ou documento de visão (DV); pastas, tipos de artefato, componentes, streams e baselines do RM; \"me mostre o requisito 123456\", \"me mostre o uc 123456\", \"baixar hu 123\", \"requisitos da pasta 01-Requisitos\", \"crie uma HU\"."
+license: "MIT"
+metadata:
+  author: "Daniel Xavier Araújo"
+  version: "1.0.0"
 ---
 
 # alm-rm

@@ -1,6 +1,10 @@
 ---
-name: alm-setup
-description: Use when the user wants to configure, create, update or review the IBM ALM/ELM (EWM, DOORS Next) settings of a project — "configurar o ALM", "setup do ALM", "atualizar o alm.json", trocar project area, times, membros, tipos de work item, iterações, planos, pastas ou tipos de requisito.
+name: "alm-setup"
+description: "Configure, create, update or review the IBM ALM/ELM (EWM, DOORS Next) settings of a project. Use when the user says \"configurar o ALM\", \"setup do ALM\", \"atualizar o alm.json\", or wants to change project area, times, membros, tipos de work item, iterações, planos, pastas ou tipos de requisito."
+license: "MIT"
+metadata:
+  author: "Daniel Xavier Araújo"
+  version: "1.0.0"
 ---
 
 # alm-setup

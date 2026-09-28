@@ -1,6 +1,10 @@
 ---
-name: alm-gc
-description: Use when the user needs cross-application IBM ELM data through the `alm` MCP — quem sou eu / testar conexão, buscar usuário (login, nome, UUID), listar ou abrir project areas (PA) do CCM/RM/QM/GC, times (team areas), timelines, associações entre EWM, DOORS Next e ETM, configuração global (GC, stream, baseline global) e rastreabilidade (links entre work item, requisito e caso de teste — implementa, afeta, rastreia, valida, testa).
+name: "alm-gc"
+description: "Access cross-application IBM ELM data through the `alm` MCP: users, project areas, global configuration and traceability links. Use when the user needs quem sou eu / testar conexão, buscar usuário (login, nome, UUID), listar ou abrir project areas (PA) do CCM/RM/QM/GC, times (team areas), timelines, associações entre EWM, DOORS Next e ETM, configuração global (GC, stream, baseline global) e rastreabilidade (links entre work item, requisito e caso de teste — implementa, afeta, rastreia, valida, testa)."
+license: "MIT"
+metadata:
+  author: "Daniel Xavier Araújo"
+  version: "1.0.0"
 ---
 
 # alm-gc

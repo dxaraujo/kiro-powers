@@ -1,6 +1,10 @@
 ---
-name: alm-qm
-description: Use when the user asks about IBM ETM/RQM (QM) test artifacts through the `alm` MCP — consultar, buscar ou listar caso de teste (CT, test case), plano de teste (PT, test plan), suíte de teste (ST), script de teste (SCT), registro de execução (TER, execution record), resultado de teste (RT, resultado de execução), atributos/schema de artefato de teste, componentes, streams e baselines do QM; "me mostre o caso de teste 123", "baixar ct 123", "pt 45", "casos de teste de <pessoa>", "planos de teste da PA".
+name: "alm-qm"
+description: "Query, search or list IBM ETM/RQM (QM) test artifacts through the `alm` MCP (read-only). Use when the user asks about caso de teste (CT, test case), plano de teste (PT, test plan), suíte de teste (ST), script de teste (SCT), registro de execução (TER, execution record), resultado de teste (RT, resultado de execução), atributos/schema de artefato de teste, componentes, streams e baselines do QM; \"me mostre o caso de teste 123\", \"baixar ct 123\", \"pt 45\", \"casos de teste de <pessoa>\", \"planos de teste da PA\"."
+license: "MIT"
+metadata:
+  author: "Daniel Xavier Araújo"
+  version: "1.0.0"
 ---
 
 # alm-qm
