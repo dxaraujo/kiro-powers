@@ -1,12 +1,17 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/dxaraujo/kiro-powers/tree/main/alm/skills/alm-setup/assets/pa.schema.json",
+  "$id": "https://raw.githubusercontent.com/dxaraujo/kiro-powers/main/alm/skills/alm-setup/assets/pa.schema.json",
   "title": "ALM Project Area Configuration",
   "description": "Arquivo de configuração alm/pa_<nome>.json gerado pela skill alm-setup. Um arquivo por project area. As chaves de todos os mapas são os name devolvidos pelas tools do MCP alm, em kebab-case.",
   "type": "object",
   "additionalProperties": false,
   "minProperties": 1,
   "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "URL do JSON Schema deste arquivo, para validação no editor. Deve apontar para o schema no GitHub.",
+      "format": "uri"
+    },
     "ccm": {
       "$ref": "#/$defs/ccm"
     },

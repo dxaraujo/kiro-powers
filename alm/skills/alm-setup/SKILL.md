@@ -87,12 +87,22 @@ Mostre o JSON completo, peça confirmação e grave `alm/pa_<nome>.json` na raiz
 mudou num arquivo existente, grave com o novo nome e apague o antigo). Formato: todas as seções são
 mapas cujas chaves são os `name` devolvidos pelas tools, em kebab-case, sem campos a mais.
 
+Grave sempre, como **primeira** propriedade do arquivo, a chave `$schema` apontando para o schema no GitHub:
+
+```json
+"$schema": "https://raw.githubusercontent.com/dxaraujo/kiro-powers/main/alm/skills/alm-setup/assets/pa.schema.json"
+```
+
+Assim o editor valida o arquivo automaticamente. Ao atualizar um arquivo existente que ainda não tenha `$schema`,
+adicione-a; se já existir, mantenha/atualize para essa URL.
+
 O formato exato é definido pelo JSON Schema #[[file:assets/pa.schema.json]]. O arquivo gerado deve validar contra
 esse schema; use-o como fonte da verdade sobre campos obrigatórios, prefixos de identifier e o que não pode
 aparecer (ex.: `Team Area` nos fields, `team-area: null` ou `iteration` nos planos).
 
 ```json
 {
+  "$schema": "https://raw.githubusercontent.com/dxaraujo/kiro-powers/main/alm/skills/alm-setup/assets/pa.schema.json",
   "ccm": {
     "project-area": "<PROJETO>",
     "project-area-identifier": "_<uuid-pa-ccm>",
@@ -152,7 +162,8 @@ aparecer (ex.: `Team Area` nos fields, `team-area: null` ou `iteration` nos plan
 ## 5. Conferir
 
 Depois de gravar (ou alterar) o arquivo, confira o formato contra o JSON Schema #[[file:assets/pa.schema.json]]: releia
-o schema e o arquivo gravado e verifique campo a campo que o JSON satisfaz o schema — seções e campos obrigatórios
+o schema e o arquivo gravado e verifique campo a campo que o JSON satisfaz o schema — a propriedade `$schema`
+presente e apontando para a URL do schema no GitHub, seções e campos obrigatórios
 presentes, sem propriedades a mais, prefixos de identifier corretos (`_`, `FR_`, `OT_`), `team-areas` como
 `{nome: {identifier, categories}}`, planos só com `identifier` e, se houver, `team-area` (nunca `null` nem
 `iteration`) e nenhum `Team Area`/`rtc_cm:teamArea` nos fields. Se algo não bater, corrija o arquivo e confira de
