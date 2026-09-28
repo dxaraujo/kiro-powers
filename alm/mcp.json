@@ -4,10 +4,7 @@
     "alm": {
       "type": "stdio",
       "command": "uvx",
-      "args": [
-        "--system-certs",
-        "mcp-alm"
-      ]
+      "args": [ "mcp-alm" ]
     }
   }
 }
