@@ -4,7 +4,10 @@
     "alm": {
       "type": "stdio",
       "command": "uvx",
-      "args": [ "mcp-alm@latest" ]
+      "args": [ "mcp-alm@latest" ],
+      "env": {
+        "UV_NATIVE_TLS": "true"
+      }
     }
   }
 }
