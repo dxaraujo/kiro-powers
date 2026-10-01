@@ -17,11 +17,11 @@ Power do Kiro para o **IBM Engineering Lifecycle Management (ELM)** via OSLC, us
 | `plugin.json` | Manifesto e keywords de ativação |
 | `mcp.json` | Servidor MCP `alm` (`uvx mcp-alm@latest`) |
 | `steering/steering.md` | Visão geral do power, sempre carregada |
-| `skills/alm-setup/` | Cria/atualiza `alm/pa_<nome>.json` do projeto |
-| `skills/alm-ccm/` | Work items (EWM) |
-| `skills/alm-rm/` | Requisitos (DOORS Next) |
+| `skills/alm-setup/` | Cria/atualiza `alm/pa_<nome>.json` do projeto; cria iterações e planos |
+| `skills/alm-ccm/` | Work items (EWM); `reference.md` com as tools genéricas |
+| `skills/alm-rm/` | Requisitos (DOORS Next); `reference.md` com as tools genéricas |
 | `skills/alm-qm/` | Testes (ETM) |
-| `skills/alm-gc/` | Usuários, project areas, GC e rastreabilidade |
+| `skills/alm-gc/` | Usuários, project areas, GC e rastreabilidade; `reference.md` com project areas, GC e qnames |
 
 ## Pré-requisitos
 

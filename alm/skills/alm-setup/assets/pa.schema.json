@@ -17,6 +17,9 @@
     },
     "rm": {
       "$ref": "#/$defs/rm"
+    },
+    "qm": {
+      "$ref": "#/$defs/qm"
     }
   },
   "$defs": {
@@ -65,6 +68,14 @@
           "description": "Mapa {name da iteração: {identifier, plans}}.",
           "additionalProperties": {
             "$ref": "#/$defs/iteration"
+          }
+        },
+        "link-types": {
+          "type": "object",
+          "description": "Mapa {nome do link no projeto: attribute} de ccm_list_link_types. Vale para todos os tipos; é passado em link_types de ccm_get_workitem.",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
           }
         }
       }
@@ -117,6 +128,26 @@
           "additionalProperties": {
             "$ref": "#/$defs/objectTypeId"
           }
+        }
+      }
+    },
+    "qm": {
+      "type": "object",
+      "description": "Project area do ETM (Quality Management) associada à área CCM.",
+      "additionalProperties": false,
+      "required": [
+        "project-area",
+        "project-area-identifier"
+      ],
+      "properties": {
+        "project-area": {
+          "type": "string",
+          "description": "Nome (name) da project area QM.",
+          "minLength": 1
+        },
+        "project-area-identifier": {
+          "$ref": "#/$defs/uuid",
+          "description": "UUID da project area QM, prefixado por '_'."
         }
       }
     },

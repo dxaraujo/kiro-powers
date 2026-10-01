@@ -1,107 +1,94 @@
 ---
 name: "alm-gc"
-description: "Access cross-application IBM ELM data through the `alm` MCP: users, project areas, global configuration and traceability links. Use when the user needs quem sou eu / testar conexão, buscar usuário (login, nome, UUID), listar ou abrir project areas (PA) do CCM/RM/QM/GC, times (team areas), timelines, associações entre EWM, DOORS Next e ETM, configuração global (GC, stream, baseline global) e rastreabilidade (links entre work item, requisito e caso de teste — implementa, afeta, rastreia, valida, testa)."
+description: "Access cross-application IBM ELM data through the `alm` MCP: users, project areas, global configuration and traceability links. Use when the user needs quem sou eu / testar conexão, buscar usuário (login, nome, UUID), listar ou abrir project areas (PA) do CCM/RM/QM/GC, times (team areas), timelines, associações entre EWM, DOORS Next e ETM, configuração global (GC, stream, baseline global) e rastreabilidade (links entre work item, requisito e caso de teste — implementa, afeta, rastreia, valida, testa; \"o que está ligado a\", \"liga o WI ao requisito\")."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # alm-gc
 
-Guia das tools comuns do MCP `alm` (módulo `mcp_alm/ibm/common.py`): usuários, project areas, global
-configuration e links de rastreabilidade. As tools específicas estão em **alm-ccm** (work items), **alm-rm**
-(requisitos) e **alm-qm** (testes).
+Tools comuns do MCP `alm`: usuários, rastreabilidade entre apps, project areas e configuração global. Work items →
+**alm-ccm**; requisitos (inclusive links entre requisitos) → **alm-rm**; testes → **alm-qm**.
+
+Project areas em detalhe (`include_*`, associações), configuração global (GC), formato do recurso OSLC e qnames dos
+links estão em [reference.md](reference.md): leia-o **só** quando o pedido for sobre isso.
 
 ## Antes de chamar
 
-1. **Leia `alm/pa_*.json` do projeto** (criado pela skill alm-setup). Ele já tem os UUIDs de project area, times,
-   membros, iterações, pastas e tipos. Com ele, **não** chame `list_project_areas`/`get_project_area` só para
-   descobrir id.
-2. Só descubra ids no servidor quando o arquivo não existir ou não tiver o dado.
-3. Mostre ao usuário **nomes**, nunca URLs. A exceção é a coluna de código (veja "Como responder").
+1. **Leia `alm/pa_*.json`**: já tem os uuids de project area (ccm, rm, qm), times, membros e iterações. Com ele,
+   **não** chame `list_project_areas`/`get_project_area` só para descobrir id.
+2. Descubra no servidor só o que o arquivo não tem; se for algo recorrente, sugira a **alm-setup**.
+3. Mostre **nomes**, nunca URLs/uuids (exceção: a coluna Código).
 
 ## Como responder
 
-Toda lista (usuários, project areas, times, GCs, itens ligados) sai como tabela Código | Título:
+Toda lista sai como tabela markdown que começa por **Código | Título**, mesmo com um resultado; pode acrescentar
+colunas que a tool já devolveu. Sem resultado: "Nenhum item encontrado" + filtros. Um item só: `**<código>** —
+<título>`.
 
-| Código | Título |
-|---|---|
-| 123456 | Corrigir validação do formulário de cadastro |
-
-| Lista | Código (o valor que as tools recebem) | Título |
+| Lista | Código | Título |
 |---|---|---|
 | Usuários (`get_user`, `matching_users`) | `userId` (login) | `name` |
 | Project areas / times | `project_area_uuid` / `team_area_uuid` | `name` |
 | Configurações globais | id numérico (`gc_config_id`) | `title` |
-| `list_linked_*` | id do item ligado (número do work item/requisito, id web do teste), tirado do `title` do link ou do fim da `url` | `title` sem o id |
-
-Em toda lista ou busca, mesmo com um só resultado: **sempre** uma tabela markdown que comece pelas colunas
-**Código | Título**, nesta ordem, e nada de lista só com títulos. Pode acrescentar outras colunas úteis que a
-tool já devolveu (ex.: estado, responsável, iteração). Sem resultado,
-diga "Nenhum item encontrado" e mostre os filtros usados. Ao ler um item só, comece por `**<código>** — <título>`.
-
-## Formato de recurso OSLC
-
-Várias tools devolvem o recurso cru:
-`{url, id, title, types: [qname], properties: {qname: valor}, links: {qname: [{url, title?}]}}`.
-Chaves em qname (`dcterms:title`, `rtc_cm:state`). `title` do link vem quando o servidor o expõe.
+| `list_linked_*` | id do item ligado (número do WI/requisito, id web do teste), do `title` do link ou do fim da `url` | `title` sem o id; acrescente a coluna **Link** com o `link_type` traduzido (implementa, afeta, valida...) |
 
 ## Usuários
 
 | Tool | Entrada | Saída |
 |---|---|---|
 | `whoami()` | — | `{userUUID, userId (login), name, emailAddress, archived}`. Testa a conexão |
-| `get_user(user_uuid? \| search_term?)` | exatamente um: UUID `'_...'` ou termo ≥3 chars (login ou nome) | 1 achado: mesmo formato de `whoami`. Vários: `{error_message, requires_selection: true, matching_users: [até 5]}` → pergunte ao usuário e chame de novo com `user_uuid` |
+| `get_user(user_uuid? \| search_term?)` | exatamente um: uuid `_...` ou termo ≥3 (login ou nome) | 1 achado: como `whoami`. Vários: `{requires_selection: true, matching_users: [≤5]}` → pergunte e repita com `user_uuid` |
 
-- A primeira chamada carrega **todos** os usuários (≈5 s); as seguintes usam cache do processo.
-- Nas tools de work item, `owner` aceita o **login** (`<login>`) direto: não chame `get_user` antes.
+- Pessoa do projeto → `members` do alm.json (`{login: nome}`), sem chamada. `get_user` só para quem não está lá.
+- As tools de work item recebem o **login** direto: não chame `get_user` antes.
+- A primeira `get_user` carrega todos os usuários (≈5 s) e fica em cache no processo: usuário novo só aparece
+  depois de reiniciar o cliente.
 
-## Project areas
+## Rastreabilidade
 
-| Tool | Entrada | Saída |
-|---|---|---|
-| `list_project_areas(app_type, search_name?, cm_enabled?)` | `app_type`: `"CCM"`, `"RM"`, `"QM"` ou `"GC"`; `search_name` ≥3 chars; `cm_enabled` bool (não vale para GC) | `[{name, project_area_uuid, url, summary, description, cm_enabled}]` ordenado por nome |
-| `get_project_area(app_type, project_area_uuid? \| name?, include_team_areas=False, include_timelines=False, include_associations=False)` | exatamente um: uuid ou trecho do nome | `{name, project_area_uuid, summary, description, cm_enabled, team_areas?, timelines?, associations?}`. Vários nomes: `{error_message, requires_selection, matching_project_areas: [{name, project_area_uuid}]}` |
-
-Detalhe dos `include_*` (só peça o que vai usar: cada um é uma requisição a mais):
-
-- `team_areas`: árvore `[{name, team_area_uuid, children: [...]}]`.
-- `timelines`: `[{id, label, timeline_uuid, iterations: [{id, label, iteration_uuid, start_date, end_date, children}]}]`.
-- `associations`: `{rm|ccm|qm|gc: [{project_area_name, project_area_uuid, link_type}]}`. É o caminho para achar a
-  área RM/QM ligada a uma área CCM (ex.: `link_type` `implements`, `tracks-rm`, `tested-by`).
-
-Para times/iterações em lista plana com ids prontos para o alm.json, prefira `ccm_list_team_areas` e
-`ccm_list_iterations` (skill alm-setup).
-
-## Global configuration (GC)
+Todas recebem **URLs**, não ids. Pegue sem chamada extra: `url` das listas (`ccm_list_workitems`,
+`rm_search_requirements`, `search_testartifact`) ou do cabeçalho YAML de `ccm_get_workitem`/`rm_get_requirement`.
 
 | Tool | Entrada | Saída |
 |---|---|---|
-| `search_global_configuration(gc_project_area_uuid, search_term="*", configuration_type="*")` | uuid da área **GC**; trecho do título; `"Stream"`, `"Baseline"` ou `"*"` | `[{url, title, types, ...}]` |
-| `get_global_configuration(gc_config_id)` | id **numérico** (> 0) da GC | recurso OSLC + `contributedConfigs: [{url, title}]` (GCs filhas) e `localConfigs: [{url, title}]` (streams/baselines de rm/qm/ccm) |
-
-A `url` de uma GC serve como `global_configuration_url` (alm-rm) e `gc_uri`/`gc_context`.
-
-## Links de rastreabilidade
-
-Todas recebem **URLs** (a `url` devolvida pelas tools de leitura), não ids.
-
-| Tool | Entrada | Saída |
-|---|---|---|
-| `list_linked_requirements(source_url)` | URL de work item ou artefato de teste | `[{link_type (qname), url, title?}]` |
-| `list_linked_workitems(source_url)` | URL de artefato de teste ou requisito | idem |
+| `list_linked_requirements(source_url)` | URL de work item ou teste | `[{link_type, url, title?}]` |
+| `list_linked_workitems(source_url)` | URL de requisito ou teste | idem |
 | `list_linked_testartifacts(source_url)` | URL de work item ou requisito | idem |
-| `link_workitem_and_requirement(workitem_url, requirement_url, link_type="implements")` | `implements`, `affects`, `tracks` (as formas `*by` gravam o mesmo link) | work item atualizado (recurso OSLC) |
-| `link_workitem_and_testartifact(workitem_url, testartifact_url, link_type="affects")` | `affects`, `blocks`, `related`, `tests` (+ formas `*by`) | work item atualizado |
-| `link_testartifact_and_requirement(testartifact_url, requirement_url, link_type="validates", gc_context?)` | `validates`/`validatedby`; `gc_context` = URL de stream/baseline GC (se omitido, vem do `oslc_config.context` de uma das URLs) | artefato de teste atualizado |
+| `link_workitem_and_requirement(workitem_url, requirement_url, link_type="implements")` | `implements`, `affects`, `tracks` (formas `*by` gravam o mesmo) | work item atualizado |
+| `link_workitem_and_testartifact(workitem_url, testartifact_url, link_type="affects")` | `affects`, `blocks`, `related`, `tests` (+ `*by`) | work item atualizado |
+| `link_testartifact_and_requirement(testartifact_url, requirement_url, link_type="validates", gc_context?)` | `validates`/`validatedby`; `gc_context` = URL da GC se o ETM usar configurações | teste atualizado |
 
-- O link é gravado **no work item** ou **no teste**; o DOORS Next mostra o backlink sozinho. Por isso
-  `list_linked_workitems(url de requisito)` pode vir vazio mesmo com link: consulte pelo lado do work item.
-- Os links só **acrescentam**; não há tool para remover.
-- Mapeamento: implements → `calm:implementsRequirement`, affects → `oslc_cm:affectsRequirement`,
-  tracks → `oslc_cm:tracksRequirement`, tests → `oslc_cm:testedByTestCase`, validates →
-  `oslc_qm:validatesRequirement`.
+Escolha do `link_type` pelo pedido:
+
+| Pedido | Tool e `link_type` |
+|---|---|
+| "o WI implementa / atende o requisito" | `link_workitem_and_requirement`, `implements` |
+| "o defeito afeta o requisito" | `link_workitem_and_requirement`, `affects` |
+| "o WI rastreia / acompanha o requisito" | `link_workitem_and_requirement`, `tracks` |
+| "o CT valida / cobre o requisito" | `link_testartifact_and_requirement`, `validates` |
+| "o WI é testado pelo CT" | `link_workitem_and_testartifact`, `tests` |
+| "o defeito afeta / bloqueia o teste" | `link_workitem_and_testartifact`, `affects` / `blocks` |
+
+- O link é gravado **no work item** ou **no teste**; o DOORS Next mostra o backlink. Por isso
+  `list_linked_workitems(url de requisito)` pode vir vazio mesmo havendo link: consulte pelo lado do work item ou
+  do teste antes de afirmar que não há.
+- As tools só **acrescentam**: não há como remover pelo MCP. Antes de ligar, liste os links existentes para não
+  duplicar e **confirme** mostrando `<código> — <título>` dos dois lados e o tipo do link.
+
+**Exemplo — "liga o TR 1234 ao REQ 2001 como implementa":**
+
+```text
+ccm_get_workitem("1234", fields, link_types) → cabeçalho url (WI)
+rm_get_requirement("2001")                   → cabeçalho url (requisito)
+list_linked_requirements(<url do WI>)        → 2001 ainda não está ligado
+(confirmação: "TR 1234 — <título> implementa REQ 2001 — <título>?")
+link_workitem_and_requirement(<url do WI>, <url do requisito>, "implements")
+```
+
+Se a conversa já trouxe as URLs (listas, leituras anteriores), não leia de novo.
 
 ## Erros
 
@@ -109,6 +96,7 @@ Todas recebem **URLs** (a `url` devolvida pelas tools de leitura), não ids.
 |---|---|
 | `Informe exatamente um entre: ...` | Passe só um dos parâmetros alternativos |
 | `O termo de busca precisa de ao menos 3 caracteres` | Peça um trecho maior |
-| `requires_selection: true` | Não é erro: mostre as opções pelo nome e chame de novo com o uuid |
-| `HTTP 401` / falha de login | Credencial em `~/.config/mcp-alm/alm.properties` (veja alm-setup); nunca leia o arquivo |
-| `HTTP 403` | O usuário não tem acesso àquela área/app; informe e pare |
+| `requires_selection: true` | Não é erro: mostre as opções pelo nome e repita com o uuid |
+| `HTTP 401` / falha de login | Credencial em `~/.config/mcp-alm/alm.properties` (alm-setup); nunca leia o arquivo |
+| `HTTP 403` | Sem acesso àquela área/app: informe e pare |
+| Erro de configuração em `link_testartifact_and_requirement` | Passe `gc_context` com a URL da GC ([reference.md](reference.md)) |

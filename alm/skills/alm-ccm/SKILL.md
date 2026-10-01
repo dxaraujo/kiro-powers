@@ -1,174 +1,185 @@
 ---
 name: "alm-ccm"
-description: "Query, list, search, create, update, change state or comment IBM EWM/RTC (CCM) work items through the `alm` MCP. Use when the user asks about um item de trabalho (work item, WI), tarefa (task), defeito (bug, defect), item de backlog (IB, story), tarefa (TR), defeito (DF), dívida técnica (DT), impedimento (IMP), risco (RSC) ou reunião (REU); itens de uma sprint, iteração ou plano; \"me mostre o ib:123456\", \"baixar ib 123\", \"tr 456\", \"df 789\", \"tarefas de <pessoa>\", \"crie um defeito\", \"mova para Em Desenvolvimento\"."
+description: "Query, list, read, create, update, change state or comment IBM EWM/RTC (CCM) work items through the `alm` MCP. Use when the user asks about um item de trabalho (work item, WI), tarefa (task, TR, TF), defeito (bug, defect, erro, DF), item de backlog (IB, backlog, story, PBI), dívida técnica (DT), impedimento (IMP), risco (RSC) ou reunião (REU); itens de uma sprint, iteração, plano ou time; estimativa, responsável, prioridade, descrição ou comentário de um WI; \"me mostre o ib:123456\", \"baixar ib 123\", \"tr 456\", \"df 789\", \"minhas tarefas\", \"tarefas de <pessoa>\", \"crie um defeito\", \"mova para Em Desenvolvimento\", \"muda a estimativa para 6h\"."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # alm-ccm
 
-Guia das tools de work item (EWM/CCM) do MCP `alm`. Há dois grupos:
-
-- **`ccm_*`** (`mcp_alm/ccm.py`): usam os ids do `alm/pa_*.json` e devolvem saída enxuta. **Prefira estas.**
-- **Genéricas** (`mcp_alm/ibm/workitems.py`, nomes do IBM Engineering AI Hub): recurso OSLC completo, filtros
-  livres. Use quando precisar de algo que as `ccm_*` não cobrem.
-
-Usuários, project areas e links com requisitos/testes estão em **alm-gc**.
-
-## Siglas
-
-"ib 123456", "ib:123456", "baixar ib 123456" ou "tarefa 123456" = work item de número 123456. O número é global:
-leia com `get_workitem(workitem_id="123456")` qualquer que seja a sigla, e use a sigla só para conferir o tipo
-(`properties.dcterms:type`) ou para criar/filtrar. "Baixar"/"abrir"/"me mostre" = ler (`fetch_all=True` se pedir
-detalhes, comentários ou links).
-
-| Sigla | Tipo (`workitem-types`) | identifier |
-|---|---|---|
-| **IB** | Item de Backlog | `com.ibm.team.apt.workItemType.story` |
-| **TR**, TAREFA | Tarefa | `task` |
-| **DF**, BUG | Defeito | `defect` |
-| **DT** | Dívida Técnica | — |
-| **IMP** | Impedimento | `com.ibm.team.workitem.workItemType.impediment` |
-| **RSC** | Risco | `com.ibm.team.workitem.workItemType.risk` |
-| **REU** | Reunião | `com.ibm.team.workitem.workItemType.retrospective` |
-| **WI** | qualquer work item | — |
-
-Sem identifier na tabela (tipo customizado): use `workitem-types["<nome>"].identifier` do `pa_*.json`; se não
-estiver lá, rode a alm-setup para incluir o tipo.
-
-Siglas de requisito (UC, HU, RN...) estão em **alm-rm**; de teste (CT, PT, TER...) em **alm-qm**.
+Work items do EWM pelo MCP `alm`, com as tools `ccm_*`: recebem os ids do `alm/pa_*.json` e devolvem saída
+enxuta. As tools genéricas do IBM AI Hub (`get_workitem`, `search_workitems`, `create_workitem`,
+`get_workitem_schema`...) estão em [reference.md](reference.md): leia-o **só** se as `ccm_*` não cobrirem o pedido.
+Criar iteração/plano é na **alm-setup**; usuários e links com requisitos/testes, na **alm-gc**.
 
 ## Antes de chamar
 
-1. **Leia `alm/pa_*.json`** (vários → pergunte qual; um → use). Dele saem, sem consultar o servidor:
-   `ccm.project-area-identifier` (pa), `team-areas`, `members` (logins), `workitem-types[nome].identifier`
-   (`task`, `defect`...), `workitem-types[nome].fields` (`{nome do campo: attribute}`), `iterations` (cada uma com seus `plans`).
-2. Sem o arquivo, sugira a skill **alm-setup** antes de sair descobrindo ids.
-3. Mostre ao usuário **nomes** (estado, iteração, pessoa), nunca URLs/UUIDs. A exceção é o código do item (veja
-   "Como responder").
+1. **Leia `alm/pa_*.json`** (um → use; vários → pergunte qual). Sem arquivo → ofereça a **alm-setup** em vez de sair
+   descobrindo ids. Dele saem, sem chamar o servidor (`pa` = `ccm.project-area-identifier`):
+
+   | Preciso de | Onde está |
+   |---|---|
+   | tipo (`task`, `defect`...) | `workitem-types[nome].identifier` |
+   | campos do tipo (nome → attribute) | `workitem-types[nome].fields` |
+   | tipos de link (nome → attribute) | `link-types` |
+   | iteração / sprint | `iterations[nome].identifier` |
+   | plano | `iterations[it].plans[nome]` → `{identifier, team-area?}` |
+   | time | `team-areas[nome].identifier` |
+   | categoria (Filed Against) | `team-areas[time].categories[nome]` |
+   | pessoa (login) | `members` `{login: nome}`; "minhas" = `userId` do `whoami` |
+
+2. Nome que não está no arquivo → não invente: ofereça a alm-setup para mapeá-lo.
+3. Mostre **nomes** ao usuário, nunca UUIDs/URLs/attributes (exceção: o código do item).
+
+## Siglas e sinônimos
+
+O termo do usuário indica o **tipo**; o número é o id global do work item ("baixar ib 123456" = WI 123456). O tipo
+escolhe o mapa `fields` na leitura e o `workitem_type` ao criar ou filtrar.
+
+| Sigla | Termos do usuário | Tipo (`workitem-types`) | identifier usual |
+|---|---|---|---|
+| **WI** | work item, item de trabalho, item, workitem | qualquer tipo | — |
+| **IB** | item de backlog, backlog, story, user story (no EWM), PBI | Item de Backlog | `com.ibm.team.apt.workItemType.story` |
+| **TR** | tarefa, task, tf, tsk, atividade | Tarefa | `task` |
+| **DF** | defeito, bug, defect, erro, falha, incidente | Defeito | `defect` |
+| **DT** | dívida técnica, débito técnico, tech debt, débito | Dívida Técnica | do alm.json |
+| **IMP** | impedimento, impediment, bloqueio | Impedimento | `com.ibm.team.workitem.workItemType.impediment` |
+| **RSC** | risco, risk | Risco | `com.ibm.team.workitem.workItemType.risk` |
+| **REU** | reunião, retrospectiva, retro, meeting, cerimônia | Reunião | `com.ibm.team.workitem.workItemType.retrospective` |
+
+Reconheça o termo sem diferenciar maiúsculas, acentos, singular/plural ou separador: "ib 123", "IB123",
+"ib:123", "ib-123", "item de backlog 123", "os IBs da sprint". Responda sempre com a **sigla canônica** (1ª
+coluna). Termo que não está aqui nem em `workitem-types` → pergunte o tipo; não adivinhe.
+
+- O identifier válido é sempre o do alm.json; a coluna "usual" é só referência.
+- **"História"/"HU" é do RM** (alm-rm), não IB. Só trate como IB se o usuário disser "story" ou "item de backlog",
+  ou se falar de sprint/plano/backlog do EWM; na dúvida, pergunte.
+- Siglas de outras skills: requisitos (REQ, HU, UC, RN...) → **alm-rm**; testes (CT, PT, TER...) → **alm-qm**.
 
 ## Como responder
 
-Listas e buscas de work items (`ccm_list_workitems`, `search_workitems`, itens de plano, filhos, links):
+- **Listas** (mesmo com um resultado): tabela markdown que começa por **Código | Título** (`id` | `title`); pode
+  acrescentar colunas que a tool já devolveu (tipo, estado, responsável, iteração). Sem resultado: "Nenhum item
+  encontrado" + os filtros usados. Vieram **1000** itens → avise que a lista pode estar truncada e sugira filtrar
+  mais (estado, tipo, time).
+- **Um item:** comece por `**<código>** — <título>` e mostre o documento de `ccm_get_workitem` como veio.
 
-| Código | Título |
-|---|---|
-| 123456 | Corrigir validação do formulário de cadastro |
+## Tools
 
-`Código` = `id` numérico do work item (o mesmo que vai em `get_workitem(workitem_id=...)`); `Título` = `title`.
-Em `search_workitems`, inclua sempre `id,summary` em `attributes`, senão a tabela fica sem código.
-
-Em toda lista ou busca, mesmo com um só resultado: **sempre** uma tabela markdown que comece pelas colunas
-**Código | Título**, nesta ordem, e nada de lista só com títulos. Pode acrescentar outras colunas úteis que a
-tool já devolveu (ex.: estado, responsável, iteração). Sem resultado,
-diga "Nenhum item encontrado" e mostre os filtros usados. Ao ler um item só, comece por `**<código>** — <título>`.
-
-## Tools `ccm_*` (preferidas)
-
-Saída comum de work item (`resumo`): `{id, title, type, state, owner (login ou "unassigned"), iteration, url}`.
+`resumo` = `{id, title, type, state, owner (login ou "unassigned"), iteration, url}`.
 
 | Tool | Entrada | Saída |
 |---|---|---|
-| `ccm_list_workitems(project_area_identifier, iteration?, team_areas?, owner?, state?, workitem_type?)` | ao menos um entre `iteration` (id), `team_areas` ([ids], inclui subtimes) e `owner` (login). `state`: **nome** (`"Novo"`). `workitem_type`: identifier (`"task"`) | `[resumo]` (até 1000) |
-| `ccm_list_field_values(project_area_identifier, workitem_type, attribute)` | `attribute` = valor de `fields` no alm.json (`"rtc_cm:filedAgainst"`) | `{kind, required, values: [{identifier, name, default}]}`. `values` vazio para text/integer/date/member |
-| `ccm_create_workitem(project_area_identifier, workitem_type, summary, description?, fields?, parent?)` | `fields`: `{attribute: identifier de ccm_list_field_values ou valor}`; membro = login; `parent`: id do pai | `resumo` do item criado |
-| `ccm_list_workitem_states(workitem_id)` | id numérico (string) | `{state, actions: [{name, result-state}]}` |
-| `ccm_update_workitem(workitem_id, fields?, state?)` | `fields` como no create; `state`: **nome** do estado destino (`"Em Desenvolvimento"`) | `resumo` atualizado |
+| `ccm_list_workitems(project_area_identifier, iteration?, team_areas?, owner?, state?, workitem_type?)` | ≥1 de `iteration` (id), `team_areas` ([ids], inclui subtimes), `owner` (login). `state` = **nome** ("Novo"); `workitem_type` = identifier | `[resumo]` (≤1000, sem aviso de corte) |
+| `ccm_get_workitem(workitem_id, fields, link_types?)` | `fields` = `workitem-types[tipo].fields`; `link_types` = `link-types` | Markdown + YAML (abaixo) |
+| `ccm_list_field_values(project_area_identifier, workitem_type, attribute)` | attribute do mapa `fields` | `{kind, required, values: [{identifier, name, default}]}`; `values` vazio para text/integer/date/member |
+| `ccm_create_workitem(project_area_identifier, workitem_type, summary, description?, fields?, parent?)` | `description` em Markdown; `fields` `{attribute: valor}`; `parent` = id do pai | `resumo` |
+| `ccm_update_workitem(workitem_id, fields?, description?, state?)` | `description` **substitui** a inteira; `state` = **nome** do estado destino (a tool acha a ação e confere a mudança) | `resumo` |
+| `ccm_list_workitem_states(workitem_id)` | — | `{state, actions: [{name, result-state}]}` |
+| `add_comment_to_workitem(workitem_id, comment, mentions?)` | `mentions` = logins (viram `@login`) | comentário |
 
-Fluxos:
+### Leitura (`ccm_get_workitem`)
 
-- **Itens de um plano:** ache o plano em `iterations[iteração].plans[nome]` e chame
-  `ccm_list_workitems(pa, iteration=iterations[iteração].identifier, team_areas=[plano.team-area])`.
-  Se o plano não tiver `team-area` (dono é a própria pa), omita `team_areas`. Itens da iteração sem o time do plano não aparecem.
-- **Criar:** para cada campo obrigatório do tipo no alm.json, chame `ccm_list_field_values` **só** para os de
-  kind category/iteration/team-area/release/enumeration, mostre os `name`, e passe o `identifier` escolhido.
-  Iteração e time também podem vir direto do alm.json (`iterations[nome].identifier`, `team-areas[nome].identifier`).
-- **Mudar estado:** passe `state` pelo nome em `ccm_update_workitem`; ele escolhe a ação. Se falhar, a mensagem
-  lista os estados válidos. `ccm_list_workitem_states` só é necessário para mostrar as opções ao usuário.
+```markdown
+---
+id: 1001
+type: Tarefa
+title: Implementar cadastro de clientes
+state: Em Desenvolvimento
+url: "https://alm.example.com/ccm/resource/itemName/com.ibm.team.workitem.WorkItem/1001"
+attributes:
+  Responsável: Bruno Lima
+  Estimativa: "4h"
+links:
+  Pai:
+    - "1000: Épico de cadastro"
+---
+<descrição em Markdown>
 
-## Criar plano de iteração
-
-`ccm_create_iteration_plan(project_area_identifier, name, iteration, plan_type, team_area?)` cria um plano,
-como o 'Create Plan' da UI web. Só há **dois tipos de plano** aceitos — mostre ao usuário o nome em português
-e passe o `plan_type` (id) à tool:
-
-| Nome (mostrar ao usuário) | `plan_type` (passar à tool) |
-|---|---|
-| Quadro de tarefas Kanban | `com.ibm.team.apt.plantype.kanbanBoard` |
-| Backlog do Produto | `com.ibm.team.apt.plantype.product.backlog` |
-
-- `plan_type` é **obrigatório**: pergunte ao usuário qual dos dois quer (Kanban ou Backlog) e passe o id
-  correspondente. Qualquer outro valor é recusado com `ValueError`.
-- `iteration`: identifier de `ccm_list_iterations` (ou `iterations[nome].identifier` do alm.json).
-- `team_area` (opcional): identifier do time dono (`ccm_list_team_areas` ou `team-areas[nome].identifier`
-  do alm.json). Omita para o plano pertencer à própria project area.
-- Retorna `{name, identifier, team-area, iteration}`. Mostre ao usuário o nome do plano e a iteração, nunca
-  UUIDs.
-- O servidor pode normalizar o tipo conforme a configuração de processo da project area: o `plan_type`
-  enviado nem sempre é o que fica gravado. Se o usuário questionar o tipo do plano, confirme com
-  `ccm_list_iteration_plans` / na UI web.
-
-Não crie planos de teste para "verificar" algo: use `ccm_list_iteration_plans` para leitura.
-
-## Tools genéricas
-
-Retornam o recurso OSLC `{url, id, title, types, properties: {qname: valor}, links: {qname: [{url, title?}]}}`.
-O `title` de cada link traz o nome (estado "Novo", prioridade "Alta", iteração, pessoa).
-
-| Tool | Entrada | Saída |
-|---|---|---|
-| `get_workitem(workitem_id? \| workitem_oslc_url?, fetch_all=False, gc_uri?)` | um dos dois; `project_area_id` é ignorado | recurso. Sem `fetch_all`: tipo (`properties.dcterms:type`), id, título, descrição, responsável (`links.dcterms:contributor`), estado (`links.rtc_cm:state`), prioridade, severidade, modificação. Com `fetch_all`: todos os campos e links + `comments: [recurso]` |
-| `search_workitems(project_area_item_id, filter, attributes?, gc_uri?)` | `filter`: **string JSON** (abaixo); `attributes`: chaves separadas por vírgula | `[recurso]` (até 1000), só com os campos pedidos |
-| `create_workitem(project_area_id, work_item_type, attributes?, links?)` | `attributes`: string JSON `{chave: valor}`; `links`: string JSON `[{endpointId, targetWorkItemId}]` | recurso criado |
-| `add_comment_to_workitem(workitem_id, comment, mentions?)` | `mentions`: logins, viram `@login` no início | recurso do comentário |
-| `get_workitem_schema(project_area_item_id, workitem_type?, include?)` | `include` ⊂ `attributes`, `enumerations`, `workflows`, `linkTypes`, `createMetadata` (este exige `workitem_type`); padrão `["attributes","enumerations"]` | `{projectAreaId, workItemTypes: [{id, title, attributes?: [{id, name, predicate, valueType, required, readOnly}], enumerations?: {nome: [{id, url, title}]}, workflows?: {states, actions}, linkTypes?, createMetadata?: {requiredProperties}}]}` |
-| `list_workitem_categories(project_area_item_id, include_archived=False, limit=100, offset=0)` | `limit` 1–500 | `[{itemId, name, archived}]` |
-| `list_workitem_releases(...)` | idem | `[{itemId, name, archived}]` |
-
-`get_workitem_schema` sem `workitem_type` percorre **todos** os tipos (lento). Sempre passe o tipo.
-
-### Chaves de atributo (search/create)
-
-`id`, `summary`, `description`, `workItemType`, `owner`, `creator`, `created`, `modified`, `tags`,
-`internalState`, `internalPriority`, `internalSeverity`, `category` (Atendido por), `target` (Planejado para),
-`foundIn`, `teamArea`, `projectArea`. Também aceitam o `oslc:name` do shape ou um qname (`rtc_cm:plannedFor`);
-chave desconhecida vira `rtc_ext:<chave>` (atributo custom).
-
-Valores: UUID `_...` para category/target/teamArea/foundIn; login ou UUID para owner/creator; literal de
-enumeração (`priority.literal.l01`); id de estado (`com.ibm.team.workitem.taskWorkflow.state.s1`); ou URL.
-
-### filter de `search_workitems`
-
-```json
-{"operator": "AND", "attributeExpressions": [
-  {"attributeId": "target", "operator": "is", "values": ["<identifier-da-iteração>"]},
-  {"attributeId": "owner", "operator": "is", "values": ["<login>"]},
-  {"attributeId": "summary", "operator": "contains", "values": ["login"]},
-  {"attributeId": "modified", "operator": "after", "values": ["2026-01-01T00:00:00Z"]}]}
+## Comentários
+**bruno.lima · 2026-01-12 14:30**
+Iniciado.
 ```
 
-- Operadores: `is`/`equals`, `is not`, `in` (vários valores), `before`/`after` (datas ISO), `contains` (só
-  `summary`/`description`, busca textual).
-- `OR` só com uma expressão; para "A ou B" no mesmo campo use `in`.
-- Não suportados: `termExpressions`, `similarityExpressions`.
+- `attributes`/`links` trazem só os campos de `fields` e os links de `link_types`, com os nomes do alm.json. Campo
+  vazio é omitido. Datas em Brasília (`AAAA-MM-DD HH:MM`).
+- Tipo do item desconhecido: use o mapa da sigla (ou o do tipo mais comum) e confira o `type` do cabeçalho; se for
+  outro tipo do alm.json, chame **uma** vez de novo com o mapa certo.
+- O `url` do cabeçalho é o que as tools de link da alm-gc recebem.
 
-### links de `create_workitem`
+### Gravação: do nome lido para o valor gravado
 
-`endpointId`: `parent`, `children`, `related`, `blocks`, `dependsOn`, `predecessor`, `successor`, `duplicateOf`,
-`duplicates`, `resolves`, `resolvedBy`. `targetWorkItemId`: número do outro work item.
+`fields` usa o **attribute** como chave. Ache-o no mesmo mapa da leitura: `workitem-types[tipo].fields["Estimativa"]`
+→ `rtc_cm:estimate`. O valor depende do `kind`:
+
+| kind | Valor em `fields` | Origem (sem chamada, quando possível) |
+|---|---|---|
+| category | uuid `_...` | `team-areas[time].categories[nome]` |
+| iteration | uuid `_...` | `iterations[nome].identifier` |
+| member | **login** (a leitura mostra o nome) | `members` |
+| enumeration, release, team-area | `identifier` | `ccm_list_field_values` (mostre os `name`; sugira `default: true`) |
+| duração (estimativa) | **ms** (a leitura mostra `4h`): `h × 3600000` | — |
+| text, integer, date, boolean | literal (`AAAA-MM-DD` para data) | usuário |
+
+Exemplo — "muda a estimativa do WI 1001 para 6h": `fields["Estimativa"]` → `rtc_cm:estimate`; confirme;
+`ccm_update_workitem("1001", fields={"rtc_cm:estimate": 21600000})`.
+
+### Descrição (Markdown)
+
+- O EWM só guarda texto, `<br/>`, negrito, itálico e links: títulos viram negrito, listas viram linhas `• `/`1. `
+  e sublistas saem planas. Escreva parágrafos e listas simples.
+- Alterar: leia com `ccm_get_workitem`, edite o corpo **sem** o cabeçalho YAML e **sem** `## Comentários`, e mande o
+  corpo inteiro (substitui o atual). Ler → gravar → ler não muda o texto.
+- Citar outro WI: escreva o tipo e o número ("Tarefa 1002"); o EWM cria sozinho o link "Menções". Não há embed.
+
+## Fluxos
+
+- **Itens de um plano:** `ccm_list_workitems(pa, iteration=iterations[it].identifier,
+  team_areas=[plano["team-area"]])`; plano sem `team-area` → omita `team_areas`. É **uma** chamada.
+- **Minhas / de alguém:** `owner=<login>` (+ `iteration` se citada).
+- **Filtro de estado:** `state` aceita **um** nome, por igualdade. Um estado ("os Novos") → passe na tool.
+  Negação ou vários estados ("abertas", "não concluídas", "Novo ou Em Andamento") → chame **sem** `state` e filtre
+  o resultado pela coluna `state`; não faça uma chamada por estado. "Abertas" = estado diferente dos finais do
+  workflow (Concluído, Fechado, Resolvido, Cancelado...); na dúvida sobre quais são finais, pergunte.
+  `workitem_type` vai sempre na tool.
+- **Ler:** `ccm_get_workitem(id, fields, link_types)`. Precisa de campo fora do alm.json → `get_workitem(fetch_all=True)`
+  ([reference.md](reference.md)) e sugira mapear o campo na alm-setup.
+- **Criar:**
+  1. Tipo pelo alm.json. Para cada campo do mapa `fields` que seja obrigatório ou que o usuário citou, resolva o
+     valor pela tabela acima. Só chame `ccm_list_field_values` para kinds que não estão no alm.json — e uma vez
+     por attribute, não para conferir o que o arquivo já tem.
+  2. A categoria define o time do item (não dá para escolher o time direto): use uma categoria do time desejado.
+  3. Mostre o resumo (por nomes) e peça confirmação. Depois `ccm_create_workitem(...)` e responda com código,
+     título e url.
+- **Atualizar / mudar estado:** confirme e chame `ccm_update_workitem(id, fields?, description?, state="<nome>")`;
+  campos e estado podem ir na mesma chamada. Erro de estado → `ccm_list_workitem_states(id)` e ofereça os
+  `result-state`.
+- **Comentar:** `add_comment_to_workitem(id, comment, mentions=[logins])`.
+- **Links entre work items** (pai, filho, relacionado, bloqueia...): o MCP só grava **na criação** —
+  `ccm_create_workitem(..., parent=<id do pai>)` ou, para outros tipos, `create_workitem(..., links=...)`
+  ([reference.md](reference.md)). **Não há tool para ligar dois work items que já existem** nem para remover link:
+  diga isso ao usuário e oriente a fazer na UI web do EWM. Não tente por `fields` nem por `description` (citar
+  "Tarefa 1002" na descrição cria só o link "Menções", não pai/filho). Links com requisitos e testes → alm-gc.
 
 ## Erros
 
-| Mensagem | O que fazer |
+| Mensagem (trecho) | O que fazer |
 |---|---|
-| `Informe ao menos um filtro: iteration, team_areas (time) ou owner` | Use o plano ou o login do alm.json |
-| `Atributo 'x' não existe no tipo 'y'` | Use o attribute do alm.json e o identifier do tipo (`task`, não `Tarefa`) |
+| `Informe ao menos um filtro` | Use iteração/plano, time ou login do alm.json |
+| `Tipo 'x' não existe` / `Atributo 'x' não existe no tipo` | Identifier do tipo (`task`, não `Tarefa`) e attribute do alm.json |
 | `Estado 'x' não existe no workflow. Estados: ...` | Mostre os estados listados e pergunte |
-| `O servidor não mudou o estado` | A transição não parte do estado atual; mostre `ccm_list_workitem_states` |
-| HTTP 400/409 ao criar | Faltou campo obrigatório ou valor inválido; confira `required` em `ccm_list_field_values` |
-| `Operador OR entre expressões não é suportado` | Troque por `in` ou faça duas buscas |
-| `plan_type 'x' não é suportado` | Use `com.ibm.team.apt.plantype.kanbanBoard` (Kanban) ou `com.ibm.team.apt.plantype.product.backlog` (Backlog) |
+| `O servidor não mudou o estado` | Transição não sai do estado atual ou exige campo: mostre `ccm_list_workitem_states` |
+| HTTP 403 `o atributo X precisa ser preenchido` | O processo exige o campo para salvar: peça o valor e repita com ele em `fields` |
+| HTTP 403 / `Permission Denied` (outros) | Falta permissão no processo: informe e pare |
+| HTTP 400/409 ao criar | Faltou obrigatório ou valor inválido: confira com `ccm_list_field_values` |
+| HTTP 412 | Edição concorrente: releia o item e repita **uma** vez |
+| `O servidor aceitou, mas ... não apareceu` | Peça para conferir na UI; não repita às cegas |
 
-Não crie work items de teste para "verificar" algo: use leitura.
+## Regras
+
+- **Confirme toda escrita** (criar, atualizar, mudar estado, comentar) com um resumo por nomes: é visível ao time e
+  não há desfazer pelo MCP. Uma escrita por vez; confirme ao usuário pelo `resumo` devolvido.
+- Nunca invente identifiers, literais de enumeração ou logins.
+- Não crie work items para "testar" algo: use leitura.

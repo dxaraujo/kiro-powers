@@ -1,10 +1,10 @@
 ---
 name: "alm-qm"
-description: "Query, search or list IBM ETM/RQM (QM) test artifacts through the `alm` MCP (read-only). Use when the user asks about caso de teste (CT, test case), plano de teste (PT, test plan), suíte de teste (ST), script de teste (SCT), registro de execução (TER, execution record), resultado de teste (RT, resultado de execução), atributos/schema de artefato de teste, componentes, streams e baselines do QM; \"me mostre o caso de teste 123\", \"baixar ct 123\", \"pt 45\", \"casos de teste de <pessoa>\", \"planos de teste da PA\"."
+description: "Query, search or list IBM ETM/RQM (QM) test artifacts through the `alm` MCP (read-only). Use when the user asks about caso de teste (CT, TC, test case), plano de teste (PT, test plan), suíte de teste (ST), script de teste (SCT), registro de execução (TER, execution record), resultado de teste (RT, resultado de execução), atributos/schema de artefato de teste, componentes, streams e baselines do QM; \"me mostre o caso de teste 123\", \"baixar ct 123\", \"pt 45\", \"casos de teste de <pessoa>\", \"planos de teste da PA\"."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # alm-qm
@@ -13,29 +13,36 @@ Guia das tools de teste (ETM/RQM/QM) do MCP `alm` (`mcp_alm/ibm/test.py`, nomes 
 Não há tools de criação/edição de artefato de teste: só leitura. Links com requisitos e work items
 (`link_testartifact_and_requirement`, `link_workitem_and_testartifact`, `list_linked_*`) estão em **alm-gc**.
 
-## Siglas
+## Siglas e sinônimos
 
-"ct 123" ou "baixar ct 123" = `get_testartifact(pa_qm, "TestCase", id="123")`. O número é o **id web**
-(`oslc:shortId`) e só é único dentro do tipo: a sigla define o `artifact_type`.
+O termo do usuário define o `artifact_type`; o número é o **id web** (`oslc:shortId`), único só dentro do tipo
+("ct 123" = `get_testartifact(pa_qm, "TestCase", id="123")`).
 
-| Sigla | Tipo | `artifact_type` |
-|---|---|---|
-| **CT** | Caso de Teste | `TestCase` |
-| **PT** | Plano de Teste | `TestPlan` |
-| **ST** | Suíte de Teste | `TestSuite` |
-| **SCT** | Script de Teste | `TestScript` |
-| **TER** | Registro de Execução | `TestCaseExecutionRecord` |
-| **RT** | Resultado de Teste | `TestCaseResult` |
+| Sigla | Termos do usuário | Tipo | `artifact_type` |
+|---|---|---|---|
+| **CT** | caso de teste, test case, TC, cenário de teste | Caso de Teste | `TestCase` |
+| **PT** | plano de teste, test plan, TP | Plano de Teste | `TestPlan` |
+| **ST** | suíte de teste, suíte, test suite, TS | Suíte de Teste | `TestSuite` |
+| **SCT** | script de teste, script, test script, roteiro de teste | Script de Teste | `TestScript` |
+| **TER** | registro de execução, execution record, ER | Registro de Execução | `TestCaseExecutionRecord` |
+| **RT** | resultado de teste, resultado de execução, test result | Resultado de Teste | `TestCaseResult` |
+| — | registro de execução de suíte | Registro de Execução de Suíte | `TestSuiteExecutionRecord` |
+| — | resultado de suíte | Resultado de Suíte | `TestSuiteResult` |
 
-**PT** aqui é Plano de Teste; Protótipo é **PRT** (alm-rm).
+Reconheça o termo sem diferenciar maiúsculas, acentos, singular/plural ou separador: "ct 123", "CT123",
+"ct:123", "ct-123", "caso de teste 123", "os CTs do plano". Responda sempre com a **sigla canônica** (1ª
+coluna). Termo que não está aqui nem em `artifact_type` → pergunte o tipo; não adivinhe.
+
+- **PT** aqui é Plano de Teste; Protótipo é **PRT** (alm-rm). "Teste 123" sem tipo → pergunte (CT, PT...), pois o
+  id só é único dentro do tipo.
 
 ## Antes de chamar
 
-1. O alm.json não tem seção de QM. Descubra a área QM uma vez, pela associação da área CCM:
+1. **Leia `alm/pa_*.json`**: `pa_qm` = `qm.project-area-identifier`, sem chamar o servidor.
+   Sem a seção `qm`, descubra a área uma vez pela associação da área CCM:
    `get_project_area(app_type="CCM", project_area_uuid=ccm.project-area-identifier, include_associations=True)`
-   → `associations.qm[0].project_area_uuid`. Não liste todas as áreas QM.
-   A associação pode existir sem o projeto usar QM: se a área não aparece em
-   `list_project_areas(app_type="QM")`, diga que o projeto não tem testes no ETM e pare.
+   → `associations.qm[0].project_area_uuid`, e sugira a **alm-setup** para gravá-la. Não liste todas as áreas QM.
+   Sem associação, ou erro de catálogo/403 → o projeto não tem testes no ETM: diga isso e pare.
 2. `configuration` é opcional: só passe se o usuário pedir uma stream/baseline específica.
 3. Mostre nomes e ids web, nunca URLs (veja "Como responder").
 
@@ -83,6 +90,9 @@ categoria ou atributo custom, peça `properties` com o campo e filtre o resultad
 
 ## Fluxos
 
+- **Casos de teste de alguém:** `search_testartifact(pa_qm, "TestCase", filters={"owner":
+  "https://<servidor>/jts/users/<login>"})`; o servidor sai do `url` de qualquer recurso já lido, e o login, de
+  `members` do alm.json.
 - **CT pelo número:** `get_testartifact(pa_qm, "TestCase", id="123")`. Se for precisar de passos, categorias ou
   links, já chame com `fetch_all=True` (evita uma segunda leitura).
 - **Requisitos que um CT valida:** `list_linked_requirements(url do CT)` (alm-gc).

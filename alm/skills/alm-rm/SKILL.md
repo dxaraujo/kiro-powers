@@ -1,117 +1,215 @@
 ---
 name: "alm-rm"
-description: "Query, search, list, create or update IBM DOORS Next (RM) artifacts through the `alm` MCP. Use when the user asks about um requisito (REQ, RF, RNF), história de usuário (HU, HF, HNF), caso de uso (UC), regra (RN, REG), mensagem (MSG), especificação técnica (ET), especificação de leiaute (EL), protótipo (PRT), diagrama (DG), termo de glossário (GL), imagem (IMG) ou documento de visão (DV); pastas, tipos de artefato, componentes, streams e baselines do RM; \"me mostre o requisito 123456\", \"me mostre o uc 123456\", \"baixar hu 123\", \"requisitos da pasta 01-Requisitos\", \"crie uma HU\"."
+description: "Query, search, read, create or update IBM DOORS Next (RM) artifacts through the `alm` MCP, including attributes, links between requirements and artifacts embedded in the text. Use when the user asks about um requisito (REQ, RF, RNF), história de usuário (HU, HF, HNF), caso de uso (UC, CDU, use case), regra de negócio (RN, REG, BR), mensagem (MSG), especificação técnica (ET), especificação de leiaute (EL), protótipo (PRT, mockup), diagrama (DG), termo de glossário (GL), imagem (IMG) ou documento de visão (DV); pastas, tipos de artefato, componentes, streams e baselines do RM; \"me mostre o requisito 123456\", \"me mostre o uc 123456\", \"baixar hu 123\", \"requisitos da pasta 01-Requisitos\", \"crie uma HU\", \"liga o UC à regra\", \"embute a regra no passo 2\", \"cita a mensagem no fluxo\", \"referencia a ET no texto\"."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # alm-rm
 
-Guia das tools de requisitos (DOORS Next/RM) do MCP `alm`. Há dois grupos:
-
-- **`rm_*`** (`mcp_alm/rm.py`): usam os ids do `alm/pa_*.json` e devolvem saída enxuta, com atributos e
-  valores pelo **nome**. **Prefira estas.**
-- **Genéricas** (`mcp_alm/ibm/requirements.py`, nomes do IBM Engineering AI Hub): URLs e recurso OSLC cru.
-  Use para baselines, change sets, configuração global ou outra project area fora do alm.json.
-
-Links com work items e testes e configuração global estão em **alm-gc**.
-
-## Siglas
-
-"uc 123456", "uc:123456" ou "baixar hu 123456" = requisito de `id` 123456. O número é global: leia com
-`rm_get_requirement(requirement_id="123456")` qualquer que seja a sigla, e use a sigla só para conferir o `type`
-ou para criar/filtrar (tipo em `rm.requirements-types` e, em geral, pasta em `rm.folders`).
-
-| Sigla | Tipo (`rm.requirements-types`) |
-|---|---|
-| **REQ**, RF, RNF | Requisito |
-| **HU**, HF, HNF | História de Usuário |
-| **UC** | Caso de Uso |
-| **RN**, REG | Regra |
-| **MSG** | Mensagem |
-| **ET** | Especificação Técnica |
-| **EL** | Especificação de Leiaute |
-| **PRT** | Protótipo |
-| **DG** | Diagrama |
-| **GL** | Termos de Glossário |
-| **IMG** | Imagem |
-| **DV** | Documento de Visão |
-
-**PT** é Plano de Teste (alm-qm), não Protótipo. Siglas de work item (IB, TR, DF...) estão em **alm-ccm**.
+Requisitos do DOORS Next pelo MCP `alm`, com as tools `rm_*`: recebem os ids do `alm/pa_*.json` e trabalham com
+**nomes** de atributo, valor e link. As tools genéricas do IBM AI Hub (baselines, change sets, configuração global,
+outra project area) estão em [reference.md](reference.md): leia-o **só** quando precisar delas. Links com work
+items e testes → **alm-gc**.
 
 ## Antes de chamar
 
-1. **Leia `alm/pa_*.json`** (vários → pergunte qual; um → use). A seção `rm` tem tudo que as tools `rm_*` pedem:
-   `project-area-identifier`, `component`, `configuration` (stream), `folders` (`{caminho: 'FR_...'}`),
-   `requirements-types` (`{nome: 'OT_...'}`) e `members`.
-2. Sem o arquivo, sugira a skill **alm-setup**.
-3. Mostre ao usuário nomes de tipo e pasta, nunca `FR_`/`OT_`/URLs. A exceção é o código do requisito (veja
-   "Como responder").
+1. **Leia `alm/pa_*.json`** (um → use; vários → pergunte). A seção `rm` dá os três parâmetros fixos de **todas**
+   as `rm_*`: `project_area_identifier` = `rm.project-area-identifier`, `component` = `rm.component`,
+   `configuration` = `rm.configuration` (a stream). Também: `rm.folders` (`{caminho: FR_...}`),
+   `rm.requirements-types` (`{nome: OT_...}`), `rm.members`.
+2. Sem arquivo ou sem seção `rm` → ofereça a **alm-setup**. Pasta/tipo fora do arquivo → não invente: alm-setup.
+3. Mostre nomes de tipo e pasta, nunca `FR_`/`OT_`/URLs (exceção: o código do requisito).
+
+## Siglas e sinônimos
+
+O termo do usuário indica o **tipo** do artefato; o número é o id global ("baixar hu 123" = requisito 123). O tipo
+escolhe o `requirement_type` (e, em geral, a pasta) ao criar ou filtrar.
+
+| Sigla | Termos do usuário | Tipo (`rm.requirements-types`) |
+|---|---|---|
+| **REQ** | requisito, req, requirement, RF, requisito funcional, RNF, requisito não funcional | Requisito |
+| **HU** | história de usuário, história, user story, HF (funcional), HNF (não funcional) | História de Usuário |
+| **UC** | caso de uso, use case, CDU | Caso de Uso |
+| **RN** | regra, regra de negócio, REG, business rule, BR | Regra |
+| **MSG** | mensagem, mensagem de sistema, mensagem de erro | Mensagem |
+| **ET** | especificação técnica, spec técnica, ESP | Especificação Técnica |
+| **EL** | especificação de leiaute, leiaute, layout | Especificação de Leiaute |
+| **PRT** | protótipo, mockup, wireframe | Protótipo |
+| **DG** | diagrama, fluxograma | Diagrama |
+| **GL** | glossário, termo de glossário, termo | Termos de Glossário |
+| **IMG** | imagem, figura, print | Imagem |
+| **DV** | documento de visão, visão | Documento de Visão |
+| — | artefato, artefato do RM | qualquer tipo |
+
+Reconheça o termo sem diferenciar maiúsculas, acentos, singular/plural ou separador: "ib 123", "IB123",
+"ib:123", "ib-123", "item de backlog 123", "os IBs da sprint". Responda sempre com a **sigla canônica** (1ª
+coluna). Termo que não está aqui nem em `rm.requirements-types` → pergunte o tipo; não adivinhe.
+
+- O nome real do tipo é a chave em `rm.requirements-types`; se o projeto usar outro nome (ex.: "Regra de Negócio"),
+  case pela coluna "Tipo" sem diferenciar maiúsculas/acentos.
+- **PT** é Plano de Teste (alm-qm), não Protótipo (**PRT**). **"Story"/"item de backlog"/"IB"** é work item
+  (alm-ccm), não HU.
 
 ## Como responder
 
-Listas e buscas de requisitos (`rm_search_requirements`, `search_requirement`, requisitos de uma pasta, links):
+- **Listas** (mesmo com um resultado): tabela markdown que começa por **Código | Título** (`id` | `title`); pode
+  acrescentar tipo e pasta. Sem resultado: "Nenhum item encontrado" + filtros. Vieram **1000** → avise que pode
+  estar truncada e sugira filtrar por pasta/tipo.
+- **Um requisito:** comece por `**<código>** — <título>` e mostre o documento de `rm_get_requirement` como veio.
 
-| Código | Título |
-|---|---|
-| 123456 | UC01 - Cadastrar usuário |
+## Tools
 
-`Código` = `id` numérico do requisito (o mesmo que vai em `rm_get_requirement(requirement_id=...)`); `Título` =
-`title`.
-
-Em toda lista ou busca, mesmo com um só resultado: **sempre** uma tabela markdown que comece pelas colunas
-**Código | Título**, nesta ordem, e nada de lista só com títulos. Pode acrescentar outras colunas úteis que a
-tool já devolveu (ex.: estado, responsável, iteração). Sem resultado,
-diga "Nenhum item encontrado" e mostre os filtros usados. Ao ler um item só, comece por `**<código>** — <título>`.
-
-## Tools `rm_*` (preferidas)
-
-Parâmetros fixos em todas: `project_area_identifier`, `component`, `configuration` (valores do alm.json).
+Todas com `project_area_identifier`, `component`, `configuration` do alm.json (omitidos abaixo).
 
 | Tool | Entrada extra | Saída |
 |---|---|---|
-| `rm_search_requirements(..., text?, folder?, requirement_type?)` | ao menos um: `text` (busca no título/corpo), `folder` (`FR_...`), `requirement_type` (`OT_...`); combinados com "e" | `[{id, title, type (nome), folder (nome), url}]` (até 1000) |
-| `rm_get_requirement(..., requirement_id)` | id numérico (string) | `{id, title, type, folder, text (texto sem marcação), attributes: {nome do atributo: valor}, links: {qname: [{url, title?}]}, url}` |
-| `rm_create_requirement(..., requirement_type, folder, title, text, attributes?)` | `OT_...`, `FR_...`; `text`: texto ou XHTML; `attributes`: `{nome: valor}` (enumeração pelo nome) | `{id, title, url}` |
-| `rm_update_requirement(..., requirement_id, title?, text?, attributes?)` | ao menos um dos três | `{id, title, url}` |
+| `rm_search_requirements(text? \| folder?, requirement_type?)` | `text` **sozinho**, ou `folder` (`FR_`) e/ou `requirement_type` (`OT_`) | `[{id, title, type, folder, url}]` (≤1000) |
+| `rm_get_requirement(requirement_id)` | id numérico (string) | Markdown + YAML (abaixo) |
+| `rm_create_requirement(requirement_type, folder, title, text, attributes?)` | `OT_`, `FR_`; `text` em Markdown | `{id, title, url}` |
+| `rm_update_requirement(requirement_id, title?, text?, attributes?)` | ≥1 dos três; `text` e cada atributo **substituem** o atual | `{id, title, url}` |
 
-- `rm_search_requirements` exige ao menos um filtro (texto, pasta ou tipo). Prefira pasta e/ou tipo do alm.json;
-  a busca só por texto varre o componente inteiro e pode levar vários segundos.
-- Para saber os atributos válidos de um tipo, envie o nome: em erro a mensagem lista os válidos e, para
-  enumeração, os valores. Não é preciso consultar o schema antes.
-- Para ligar a um work item: `link_workitem_and_requirement(workitem_url, requirement_url)` (alm-gc), com a
-  `url` devolvida aqui.
+**Busca:** `text` + `folder`/`requirement_type` juntos dão **HTTP 400** no DOORS Next. Com texto, busque só pelo
+texto e filtre o resultado pelas colunas `type`/`folder`. Prefira pasta/tipo quando o pedido permitir: a busca por
+texto varre o componente inteiro e é mais lenta.
 
-## Tools genéricas
+### Leitura (`rm_get_requirement`)
 
-Recurso OSLC: `{url, id, title, types, properties: {qname: valor}, links: {qname: [{url, title?}]}}`.
-Texto do requisito em `properties["jazz_rm:primaryText"]`; pasta em `links["nav:parent"]`.
+```markdown
+---
+id: 2010
+type: Caso de Uso
+title: UC - Cadastrar cliente
+folder: "03-Casos de Uso"
+url: "https://alm.example.com/rm/resources/TX_exemplo2010"
+attributes:
+  Prioridade: Alta
+links:
+  Vincular A:
+    - "2002: RN - Cliente deve ser maior de idade"
+  Implementado por:
+    - "1001: Implementar cadastro de clientes"
+embedded:
+  - "2001: RN - Validar CPF do cliente"
+---
+## Fluxo Básico
 
-| Tool | Entrada | Saída |
-|---|---|---|
-| `get_project_components(project_area, component_id?)` | título exato ou UUID da área RM | `[recurso do componente]` |
-| `get_rm_component_configuration(project_area_uuid, component_id, configuration_type="all")` | `stream`, `baseline`, `changeset` ou `all` | `[{url, title, types}]` (1 requisição por configuração) |
-| `get_rm_component_types(project_area_uuid, component_id, configuration_url?)` | — | `[{url (…/types/OT_...), title, describes, properties: [{name, title, predicate, required, value_type, allowed_values, default, ...}]}]` |
-| `list_rm_component_folders(component_url, configuration_url?)` | URLs | `[{url (…/folders/FR_...), title, parent (url ou None na raiz), ...}]` (1 query por pasta) |
-| `get_requirement(project_area_uuid, component_id, requirement_id, configuration_url?, global_configuration_url?)` | id numérico; uma configuração no máximo | recurso OSLC |
-| `search_requirement(project_area_uuid, component_id, search_text, configuration_url?, global_configuration_url?)` | texto | `[recurso resumido]` (**até 100**) |
-| `create_requirement(project_area_url, component_url, artifact_type_url, title, description, primary_text, configuration_url?, folder_url?, global_configuration_url?)` | tudo em URL; `folder_url` de pasta (`FR_`), nunca módulo (`MD_`) | recurso criado |
+1. O usuário informa os dados do cliente.
+2. O sistema valida o documento: ![[2001: RN - Validar CPF do cliente]]
+```
 
-- Sem configuração, as genéricas usam a primeira stream do componente.
-- `create_requirement` recusa baseline: só stream ou change set.
+- Nomes de atributos e links são os do **DOORS Next** (o alm.json não mapeia o RM). Pessoas vêm pelo login; campos
+  vazios são omitidos; datas em Brasília.
+- `![[id: título]]` = artefato **embutido** naquele ponto do texto; `embedded` lista todos.
+- Lê só a stream do alm.json e só os links do próprio artefato: **links de módulo e links que chegam de outros
+  artefatos não aparecem**. Não afirme "não há link"; diga que não há link no artefato e sugira conferir na UI.
+
+### Gravação
+
+- `attributes` usa os **nomes do cabeçalho** como chave: enumeração pelo nome do valor (`"Alta"`), pessoa pelo
+  login, link pelo id (`"2001"` ou `"2001: título"`) ou URL, lista = vários valores. O MCP valida e, em erro, lista
+  os nomes/valores válidos: não consulte o schema antes.
+- **Gravar um link substitui todos os links daquele tipo.** Leia antes e mande a lista completa (atuais + novo).
+  Para remover um link, mande a lista sem ele.
+- **`text` substitui o texto inteiro.** Leia, edite o corpo (sem o cabeçalho YAML), mantenha todos os `![[...]]`
+  existentes e mande tudo. Ler → gravar → ler não muda o texto; só estilos visuais do Word (fonte, cor) se perdem.
+- `text` em Markdown: títulos, listas, negrito e as referências da seção abaixo.
+
+### Referências a outros artefatos do RM
+
+Há três formas de relacionar um artefato a outro. Escolha pelo que o usuário quer ver:
+
+| Forma | Escrita | Onde fica | Quando usar |
+|---|---|---|---|
+| **Embed** | `![[2003]]` no `text` | dentro do texto: o DOORS Next mostra o conteúdo do 2003 naquele ponto | "embute", "inclui a regra no passo", "mostra a mensagem no fluxo" |
+| **Hyperlink no texto** | `[RN 2003](<url do 2003>)` no `text` | dentro do texto, como link clicável | "cita", "referencia", "aponta para" |
+| **Link de rastreabilidade** | `attributes={"Vincular A": [...]}` | fora do texto (aba Links), em `links` do cabeçalho | "liga", "vincula", "relaciona", "rastreia" |
+
+- **Embed:** o id basta (`![[2003]]`); o título é opcional e só ajuda a ler (`![[2003: RN - Validar CPF]]`). O
+  DOORS Next mostra o artefato embutido; na leitura ele volta como `![[id: título]]` e aparece em `embedded`.
+- **Hyperlink:** precisa da **URL** do artefato (`url` de `rm_search_requirements` ou do cabeçalho de
+  `rm_get_requirement`), nunca só o id. É um link comum de texto: **não** cria link de rastreabilidade nem aparece
+  em `links`.
+- Embed e hyperlink vivem no `text`: gravar é mandar o corpo inteiro. Link de rastreabilidade vive em `attributes`:
+  mandar a lista completa daquele tipo.
+- Sem pedido explícito de rastreabilidade, não crie link em `attributes` além do embed/hyperlink pedido.
+
+**Exemplo — "no UC 2010, embute a RN 2003 no passo 3 e cita a MSG 2005 no passo 4":**
+
+1. `rm_get_requirement("2010")` → corpo atual:
+
+   ```markdown
+   ## Fluxo Básico
+
+   1. O usuário informa os dados do cliente.
+   2. O sistema valida o documento: ![[2001: RN - Validar CPF do cliente]]
+   3. O sistema verifica a idade do cliente.
+   4. O sistema grava o cliente.
+   ```
+
+2. URL da MSG 2005: `rm_get_requirement("2005")` (ou `url` de uma busca já feita na conversa).
+3. Novo corpo: mantém o embed 2001, acrescenta o embed 2003 e o hyperlink para a 2005:
+
+   ```markdown
+   ## Fluxo Básico
+
+   1. O usuário informa os dados do cliente.
+   2. O sistema valida o documento: ![[2001: RN - Validar CPF do cliente]]
+   3. O sistema verifica a idade do cliente: ![[2003]]
+   4. O sistema grava o cliente e exibe a [MSG 2005](https://alm.example.com/rm/resources/TX_exemplo2005).
+   ```
+
+4. Mostre o trecho alterado, confirme e chame `rm_update_requirement("2010", text=<corpo inteiro>)`.
+5. Confira lendo de novo: `embedded` deve listar 2001 e 2003.
+
+**Exemplo — criar uma HU já com referências:**
+
+```text
+rm_create_requirement(..., requirement_type=rm.requirements-types["História de Usuário"],
+    folder=rm.folders["02-Histórias"], title="HU - Exportar relatório em PDF",
+    text="Como gestor, quero exportar o relatório em PDF.\n\n"
+         "**Regras**\n\n- ![[2001]]\n- Formato do arquivo: ver [ET 2007](<url do 2007>)",
+    attributes={"Vincular A": ["2010"]})
+```
+
+Aqui o 2001 fica embutido, a ET 2007 é citada por hyperlink e o UC 2010 recebe um link de rastreabilidade.
+
+## Fluxos
+
+- **Buscar:** por pasta/tipo do alm.json; ou só por texto e filtrar localmente.
+- **Ler:** `rm_get_requirement(id)`. Baseline ou outra configuração → `get_requirement` com `configuration_url`
+  ([reference.md](reference.md)).
+- **Ligar requisitos** — "liga o UC 2010 à regra 2003 por Vincular A": leia o 2010 → `links["Vincular A"]` =
+  `["2002: ..."]` → confirme → `rm_update_requirement("2010", attributes={"Vincular A": ["2002", "2003"]})`.
+- **Embutir ou citar no texto:** ver "Referências a outros artefatos do RM".
+- **Criar:**
+  1. Tipo e pasta pelo alm.json (pergunte se o pedido não disser; sugira pela sigla).
+  2. Monte título, `text` em Markdown e `attributes` pelos nomes do DOORS Next. Nomes de atributo do tipo ainda
+     desconhecidos → leia um requisito do mesmo tipo (`rm_search_requirements(requirement_type=...)` + um
+     `rm_get_requirement`) em vez de adivinhar.
+  3. Mostre o resumo e peça confirmação. `rm_create_requirement(...)`; responda com código, título e url.
+  4. Com `attributes` a tool faz POST e depois PUT: se der erro, o requisito **pode já existir sem os atributos**.
+     Busque pelo título (`rm_search_requirements(text=<título>)`) e, achando, complete com `rm_update_requirement`
+     em vez de criar de novo.
+- **Ligar a work item / teste:** alm-gc, com o `url` do cabeçalho ou da busca.
 
 ## Erros
 
-| Mensagem | O que fazer |
+| Mensagem (trecho) | O que fazer |
 |---|---|
 | `Atributo 'x' não existe no tipo. Válidos: ...` | Mostre os válidos pelo nome e pergunte |
 | `Valor 'x' inválido para 'y'. Válidos: ...` | Idem |
-| `requirement_id deve ser numérico` | Use `rm_search_requirements(text=...)` para buscar por texto |
-| `Informe ao menos um filtro` | Pergunte a pasta, o tipo ou um texto |
-| `Requisito N não encontrado` | Confira a stream (`configuration`) e o componente |
-| `folder_url é um módulo (MD_)` | Use uma pasta de `rm.folders` |
-| `Não é possível criar requisito em baseline` | Use a stream do alm.json |
+| HTTP 400 na busca | Não combine `text` com `folder`/`requirement_type` |
+| `Informe ao menos um filtro` | Peça pasta, tipo ou texto |
+| `requirement_id deve ser numérico` | Busque por texto para achar o id |
+| `Requisito N não encontrado` | Pode estar em outro componente/stream: diga isso; não varra outras áreas |
+| HTTP 403 | Sem permissão: informe e pare |
+| HTTP 412 | Edição concorrente: releia e repita **uma** vez |
 
-Não crie requisitos de teste para "verificar" algo: use leitura.
+## Regras
+
+- **Confirme toda escrita** com um resumo por nomes (inclusive a lista final de links). Uma escrita por vez.
+- Nunca invente ids, nomes de atributo ou valores.
+- Não crie requisitos para "testar" algo: use leitura.
