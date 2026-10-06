@@ -77,13 +77,31 @@ texto varre o componente inteiro e é mais lenta.
 
 ### Leitura (`rm_get_requirement`)
 
+A saída de `rm_get_requirement` é um documento no **Open Knowledge Format (OKF) v0.2** — Markdown com cabeçalho YAML
+(frontmatter) + corpo. Cada leitura é **um único concept** OKF (não um bundle): não há `index.md`/`log.md` nem
+hierarquia de diretórios numa leitura unitária. Referências:
+[spec e repositório](https://github.com/GoogleCloudPlatform/open-knowledge-format),
+[SPEC.md v0.2](https://raw.githubusercontent.com/GoogleCloudPlatform/open-knowledge-format/main/SPEC.md),
+[okf.md](https://okf.md/).
+
 ```markdown
 ---
+# --- campos OKF padrão ---
+type: Caso de Uso                                   # OBRIGATÓRIO (OKF §4.1)
+title: UC - Cadastrar cliente                       # recomendado
+description: Cadastro de um novo cliente no sistema. # recomendado (1 linha)
+resource: "https://alm.example.com/rm/resources/TX_exemplo2010"  # recomendado (ex-`url`)
+tags: ["03-Casos de Uso", "Caso de Uso"]            # recomendado (pasta/tipo)
+# --- família trust (OKF §5.2) ---
+generated: { by: "process:alm-mcp/1.0.12", at: "2026-10-06T13:00:00Z" }
+# --- chaves de extensão RM (OKF §4.1 "Extensions") ---
 id: 2010
-type: Caso de Uso
-title: UC - Cadastrar cliente
+url: "https://alm.example.com/rm/resources/TX_exemplo2010"  # alias de `resource`
 folder: "03-Casos de Uso"
-url: "https://alm.example.com/rm/resources/TX_exemplo2010"
+creator: ana.silva
+contributor: joao.souza
+created: "2026-09-01 10:15"                          # Brasília
+modified: "2026-10-05 16:42"                         # Brasília
 attributes:
   Prioridade: Alta
 links:
@@ -98,13 +116,53 @@ embedded:
 
 1. O usuário informa os dados do cliente.
 2. O sistema valida o documento: ![[2001: RN - Validar CPF do cliente]]
+3. O sistema aplica a regra [RN 2002](/rm/resources/TX_exemplo2002) e grava o cliente.
 ```
 
-- Nomes de atributos e links são os do **DOORS Next** (o alm.json não mapeia o RM). Pessoas vêm pelo login; campos
-  vazios são omitidos; datas em Brasília.
+**Campos OKF padrão.** Só `type` é obrigatório (um concept só com `type` já é conforme). `title`, `description`,
+`resource` (o URI canônico do artefato — era o `url`) e `tags` são recomendados. Nomes de atributos e links são os
+do **DOORS Next** (o alm.json não mapeia o RM); pessoas vêm pelo login; campos vazios são omitidos; datas de corpo
+em Brasília, mas os timestamps OKF (`generated.at`) em **ISO 8601 com offset UTC**.
+
+**Trust (OKF §5.2).** `generated: { by, at }` é sempre emitido: `by` é um ator — aqui `process:alm-mcp/<versão>`,
+a geração automática pelo MCP (§7) — e `at` é a última modificação do artefato no DOORS Next (ou o instante da
+leitura), em ISO 8601 UTC. `description` só aparece quando o artefato tem descrição no DOORS Next; senão é omitido.
+
+As demais famílias OKF — `verified`, `status` (lifecycle §5.4) e `stale_after` (§5.5) — **não são emitidas** para
+requisitos do RM: o DOORS Next não expõe um sinal de revisão/estado/validade definido pelo servidor. A ausência é
+conforme (campos opcionais ausentes, §11); por §5.3, sem `verified` o concept é tratado como **unverified**. Se o
+seu DOORS Next tiver um atributo próprio para isso (ex.: "Situação", "Aprovado por"), ele chega em `attributes` com
+o nome do DOORS Next, não nessas chaves padrão.
+
+**Chaves de extensão RM.** `id`, `url`, `folder`, `creator`, `contributor`, `created`, `modified`, `attributes`,
+`links` e `embedded` são chaves extras do produtor (OKF §4.1 "Extensions"): consumidores OKF **preservam** essas
+chaves e **não** rejeitam o documento por não as conhecer (§11). Elas carregam o que o OKF padrão não modela:
+
+- `id` — o id global do DOORS Next (o concept ID "oficial" do OKF seria o caminho do arquivo, que não existe numa
+  leitura unitária).
+- `url` — alias de compatibilidade de `resource` (mesmo valor); mantido para consumidores que já liam `url` do
+  cabeçalho (hyperlinks, alm-gc).
+- `folder` — a pasta do artefato no RM (também refletida em `tags`).
+- `creator` / `contributor` — logins de quem criou e de quem contribuiu no artefato.
+- `created` / `modified` — datas de criação e última modificação em **horário de Brasília** (diferente de
+  `generated.at`, que é UTC); campos vazios são omitidos.
+- `attributes` — atributos do tipo, pelos **nomes do DOORS Next**.
+- `links` — links de rastreabilidade por tipo de link (ver também "Referências a outros artefatos do RM").
+- `embedded` — todos os artefatos embutidos no texto; cada `![[id: título]]` no corpo aparece aqui.
+
+**Relacionamentos no corpo.** De forma idiomática, o OKF expressa relações como links markdown no corpo (o tipo da
+relação vem da prosa, não do link); consumidores toleram links quebrados. No RM isso aparece como `![[id: título]]`
+(embed) e `[RN 2002](<url>)` (hyperlink). O mapa `links` do frontmatter continua sendo a fonte dos links de
+rastreabilidade.
+
 - `![[id: título]]` = artefato **embutido** naquele ponto do texto; `embedded` lista todos.
 - Lê só a stream do alm.json e só os links do próprio artefato: **links de módulo e links que chegam de outros
   artefatos não aparecem**. Não afirme "não há link"; diga que não há link no artefato e sugira conferir na UI.
+
+**Conformance (OKF §11).** O documento é conforme ao OKF v0.2: tem frontmatter YAML parseável e `type` não-vazio.
+Como é um concept único, `index.md`/`log.md` (§8/§9) não se aplicam. Consumidores OKF **não devem** rejeitar o
+documento por campos opcionais ausentes, `type` desconhecido, chaves de extensão (`id`, `url`, `folder`, `creator`,
+`contributor`, `created`, `modified`, `attributes`, `links`, `embedded`) ou links quebrados no corpo.
 
 ### Gravação
 
