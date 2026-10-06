@@ -9,14 +9,14 @@ metadata:
 
 # alm-rm
 
-Requisitos do DOORS Next pelo MCP `alm`, com as tools `rm_*`: recebem os ids do `alm/pa_*.json` e trabalham com
+Requisitos do DOORS Next pelo MCP `alm`, com as tools `rm_*`: recebem os ids do `.kiro/config/alm-power/pa_*.json` e trabalham com
 **nomes** de atributo, valor e link. As tools genéricas do IBM AI Hub (baselines, change sets, configuração global,
 outra project area) estão em [reference.md](reference.md): leia-o **só** quando precisar delas. Links com work
 items e testes → **alm-gc**.
 
 ## Antes de chamar
 
-1. **Leia `alm/pa_*.json`** (um → use; vários → pergunte). A seção `rm` dá os três parâmetros fixos de **todas**
+1. **Leia `.kiro/config/alm-power/pa_*.json`** (um → use; vários → pergunte). A seção `rm` dá os três parâmetros fixos de **todas**
    as `rm_*`: `project_area_identifier` = `rm.project-area-identifier`, `component` = `rm.component`,
    `configuration` = `rm.configuration` (a stream). Também: `rm.folders` (`{caminho: FR_...}`),
    `rm.requirements-types` (`{nome: OT_...}`), `rm.members`.

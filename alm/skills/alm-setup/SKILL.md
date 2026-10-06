@@ -1,6 +1,6 @@
 ---
 name: "alm-setup"
-description: "Configure, create, update or review the IBM ALM/ELM (EWM, DOORS Next, ETM) settings of a project in alm/pa_<nome>.json, and create iterations or iteration plans. Use when the user says \"configurar o ALM\", \"setup do ALM\", \"atualizar o alm.json\", \"falta o campo/link/iteração X no alm.json\", \"criar sprint/iteração\", \"criar plano (Kanban, Backlog)\", or wants to change project area, times, categorias, membros, tipos de work item, campos, tipos de link, iterações, planos, pastas, tipos de requisito ou a área de testes."
+description: "Configure, create, update or review the IBM ALM/ELM (EWM, DOORS Next, ETM) settings of a project in .kiro/config/alm-power/pa_<nome>.json, and create iterations or iteration plans. Use when the user says \"configurar o ALM\", \"setup do ALM\", \"atualizar o alm.json\", \"falta o campo/link/iteração X no alm.json\", \"criar sprint/iteração\", \"criar plano (Kanban, Backlog)\", or wants to change project area, times, categorias, membros, tipos de work item, campos, tipos de link, iterações, planos, pastas, tipos de requisito ou a área de testes."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
@@ -9,7 +9,7 @@ metadata:
 
 # alm-setup
 
-Conduz o usuário, em conversa, na criação ou atualização de `alm/pa_<nome>.json` (o "alm.json"): a memória das
+Conduz o usuário, em conversa, na criação ou atualização de `.kiro/config/alm-power/pa_<nome>.json` (o "alm.json"): a memória das
 skills alm-ccm, alm-rm e alm-qm. Ele guarda nomes → identifiers já descobertos para que as outras skills não
 consultem o servidor a cada pedido. `<nome>` = `ccm.project-area` em snake_case minúsculo, sem acentos
 (`Gestão de Vendas` → `pa_gestao_de_vendas.json`). O MCP não lê esse arquivo: você o grava, no formato exato abaixo.
@@ -35,7 +35,7 @@ arquivo** (tem a senha). Espere o usuário confirmar e chame `whoami` de novo. O
 
 ## 2. Arquivo existente
 
-Procure `alm/pa_*.json` na raiz do projeto do usuário.
+Procure `.kiro/config/alm-power/pa_*.json` no projeto do usuário.
 
 - **Nenhum:** faça todas as etapas.
 - **Um:** use-o sem perguntar. **Vários:** liste pelo `ccm.project-area` (+ "configurar outra project area") e
@@ -89,7 +89,7 @@ Tipos: entradas e saídas são **identifiers** (`_...`, `FR_...`, `OT_...`, `tas
 
 ## 4. Gravar
 
-Mostre o JSON completo, peça confirmação e grave `alm/pa_<nome>.json` na raiz do projeto do usuário (se
+Mostre o JSON completo, peça confirmação e grave `.kiro/config/alm-power/pa_<nome>.json` no projeto do usuário (se
 `ccm.project-area` mudou, grave com o novo nome e apague o antigo). O formato é definido pelo JSON Schema
 #[[file:assets/pa.schema.json]] (fonte da verdade). `$schema` é sempre a **primeira** propriedade:
 
@@ -177,7 +177,7 @@ Mostre o resumo e peça confirmação antes. Depois de criar, inclua o item em `
 
 | Erro | Certo |
 |---|---|
-| Gravar no repositório do MCP ou como `alm.json` | `alm/pa_<nome>.json` na raiz do projeto do usuário |
+| Gravar no repositório do MCP ou como `alm.json` | `.kiro/config/alm-power/pa_<nome>.json` no projeto do usuário |
 | Listas ou objetos com `uuid`/`url` | Mapas com chaves em kebab-case, como no exemplo |
 | Salvar tudo sem perguntar | Mostrar e deixar o usuário escolher |
 | `list_workitem_categories` uma vez por time | Uma chamada com `limit=500` e filtrar por `defaultTeamArea.itemId` |

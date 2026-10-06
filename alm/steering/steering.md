@@ -16,12 +16,12 @@ ordem, de onde vem cada parâmetro).
 | **DOORS Next (RM)** | Buscar, ler, criar e atualizar requisitos (REQ, HU, UC, RN, MSG, ET...), atributos, links entre requisitos e artefatos embutidos | `alm-rm` |
 | **ETM/RQM (QM)** | Consultar artefatos de teste (CT, PT, ST, SCT, TER, RT) — só leitura | `alm-qm` |
 | **Comum / GC** | Quem sou eu, usuários, project areas, configuração global e rastreabilidade entre work item, requisito e teste | `alm-gc` |
-| **Configuração** | Criar/atualizar `alm/pa_<nome>.json`; criar iterações e planos | `alm-setup` |
+| **Configuração** | Criar/atualizar `.kiro/config/alm-power/pa_<nome>.json`; criar iterações e planos | `alm-setup` |
 
 ## Como usar
 
 1. **Carregue a skill da área** antes de chamar as tools.
-2. **alm.json primeiro, servidor depois.** `alm/pa_*.json` (gerado pela `alm-setup`) resolve nomes → identifiers
+2. **alm.json primeiro, servidor depois.** `.kiro/config/alm-power/pa_*.json` (gerado pela `alm-setup`) resolve nomes → identifiers
    sem chamadas de descoberta. Sem o arquivo, ou faltando um nome, ofereça a `alm-setup`.
 3. **Prefira as tools de skill** (`ccm_*`, `rm_*`): saída enxuta e leitura em Markdown + YAML. As genéricas do IBM
    AI Hub ficam no `reference.md` de cada skill, para o que as de skill não cobrem.

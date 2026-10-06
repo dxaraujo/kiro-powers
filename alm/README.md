@@ -17,7 +17,7 @@ Power do Kiro para o **IBM Engineering Lifecycle Management (ELM)** via OSLC, us
 | `plugin.json` | Manifesto e keywords de ativação |
 | `mcp.json` | Servidor MCP `alm` (`uvx mcp-alm@latest`) |
 | `steering/steering.md` | Visão geral do power, sempre carregada |
-| `skills/alm-setup/` | Cria/atualiza `alm/pa_<nome>.json` do projeto; cria iterações e planos |
+| `skills/alm-setup/` | Cria/atualiza `.kiro/config/alm-power/pa_<nome>.json` do projeto; cria iterações e planos |
 | `skills/alm-ccm/` | Work items (EWM); `reference.md` com as tools genéricas |
 | `skills/alm-rm/` | Requisitos (DOORS Next); `reference.md` com as tools genéricas |
 | `skills/alm-qm/` | Testes (ETM) |
@@ -38,5 +38,5 @@ Power do Kiro para o **IBM Engineering Lifecycle Management (ELM)** via OSLC, us
 
 ## Primeiros passos
 
-Peça ao Kiro "configurar o ALM": a skill `alm-setup` valida a conexão e gera `alm/pa_<nome>.json` com os ids da
+Peça ao Kiro "configurar o ALM": a skill `alm-setup` valida a conexão e gera `.kiro/config/alm-power/pa_<nome>.json` com os ids da
 project area. Depois é só pedir, por exemplo, "me mostre o ib 123456" ou "crie uma HU".

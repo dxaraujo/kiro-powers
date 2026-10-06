@@ -9,14 +9,14 @@ metadata:
 
 # alm-ccm
 
-Work items do EWM pelo MCP `alm`, com as tools `ccm_*`: recebem os ids do `alm/pa_*.json` e devolvem saída
+Work items do EWM pelo MCP `alm`, com as tools `ccm_*`: recebem os ids do `.kiro/config/alm-power/pa_*.json` e devolvem saída
 enxuta. As tools genéricas do IBM AI Hub (`get_workitem`, `search_workitems`, `create_workitem`,
 `get_workitem_schema`...) estão em [reference.md](reference.md): leia-o **só** se as `ccm_*` não cobrirem o pedido.
 Criar iteração/plano é na **alm-setup**; usuários e links com requisitos/testes, na **alm-gc**.
 
 ## Antes de chamar
 
-1. **Leia `alm/pa_*.json`** (um → use; vários → pergunte qual). Sem arquivo → ofereça a **alm-setup** em vez de sair
+1. **Leia `.kiro/config/alm-power/pa_*.json`** (um → use; vários → pergunte qual). Sem arquivo → ofereça a **alm-setup** em vez de sair
    descobrindo ids. Dele saem, sem chamar o servidor (`pa` = `ccm.project-area-identifier`):
 
    | Preciso de | Onde está |

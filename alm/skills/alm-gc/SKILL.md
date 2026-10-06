@@ -17,7 +17,7 @@ links estão em [reference.md](reference.md): leia-o **só** quando o pedido for
 
 ## Antes de chamar
 
-1. **Leia `alm/pa_*.json`**: já tem os uuids de project area (ccm, rm, qm), times, membros e iterações. Com ele,
+1. **Leia `.kiro/config/alm-power/pa_*.json`**: já tem os uuids de project area (ccm, rm, qm), times, membros e iterações. Com ele,
    **não** chame `list_project_areas`/`get_project_area` só para descobrir id.
 2. Descubra no servidor só o que o arquivo não tem; se for algo recorrente, sugira a **alm-setup**.
 3. Mostre **nomes**, nunca URLs/uuids (exceção: a coluna Código).
