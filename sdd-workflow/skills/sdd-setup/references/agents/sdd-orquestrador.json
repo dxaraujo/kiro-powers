@@ -1,0 +1,62 @@
+{
+  "name": "sdd-orquestrador",
+  "description": "Orquestrador do fluxo SDD — executa a skill sdd-lote por papel (especificação até o GATE 1, codificação até o GATE 2, ou completo): worktree e branch por IB, documentação (sdd-especificador), validação e judge (sdd-revisor), GATE 1, publicação no ALM, spec e implementação (sdd-codificador ou executores do projeto), retry ≤ 2. Único que marca tasks.md, faz commit e push dos gates.",
+  "prompt": "file://./prompts/sdd-orquestrador.md",
+  "mcpServers": {},
+  "tools": [
+    "glob",
+    "grep",
+    "read",
+    "shell",
+    "subagent",
+    "write"
+  ],
+  "toolAliases": {},
+  "allowedTools": [
+    "glob",
+    "grep",
+    "read",
+    "shell",
+    "subagent",
+    "write"
+  ],
+  "resources": [
+    "file://{{POWER}}/steering/steering.md",
+    "file://.kiro/steering/sdd-projeto.md",
+    "skill://{{POWER}}/skills/sdd-lote/SKILL.md",
+    "skill://{{POWER}}/skills/sdd-tarefa/SKILL.md",
+    "skill://{{POWER}}/skills/sdd-alm-publicar-requisitos/SKILL.md"
+  ],
+  "hooks": [],
+  "toolsSettings": {
+    "subagent": {
+      "availableAgents": [
+        "sdd-especificador",
+        "sdd-codificador",
+        "sdd-revisor"
+      ]
+    }
+  },
+  "useLegacyMcpJson": true,
+  "model": null,
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "effect": "allow"
+      },
+      {
+        "capability": "subagent",
+        "effect": "allow"
+      }
+    ]
+  }
+}

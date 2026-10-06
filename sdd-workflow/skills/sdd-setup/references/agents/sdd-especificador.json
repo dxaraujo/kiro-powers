@@ -1,0 +1,46 @@
+{
+  "name": "sdd-especificador",
+  "description": "Especificador do fluxo SDD — no lote (fase A) gera HF/REG/ET/CT de um IB (sdd-especificar) e corrige os achados da validação, sem perguntas, dentro da worktree recebida. Não gera a spec SDD (é do codificador), não publica no ALM nem faz commit.",
+  "prompt": "file://./prompts/sdd-especificador.md",
+  "mcpServers": {},
+  "tools": [
+    "glob",
+    "grep",
+    "read",
+    "shell",
+    "write"
+  ],
+  "toolAliases": {},
+  "allowedTools": [
+    "glob",
+    "grep",
+    "read",
+    "shell",
+    "write"
+  ],
+  "resources": [
+    "file://{{POWER}}/steering/steering.md",
+    "file://.kiro/steering/sdd-projeto.md",
+    "skill://{{POWER}}/skills/sdd-especificar/SKILL.md"
+  ],
+  "hooks": [],
+  "toolsSettings": {},
+  "useLegacyMcpJson": true,
+  "model": null,
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "effect": "allow"
+      }
+    ]
+  }
+}

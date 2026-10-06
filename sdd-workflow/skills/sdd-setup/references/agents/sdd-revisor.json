@@ -1,0 +1,42 @@
+{
+  "name": "sdd-revisor",
+  "description": "Revisor independente do fluxo SDD, sem escrita em código ou documentação — judge do código (sdd-revisar, rubrica A–N, VEREDITO APROVADO/REVISAR), validação formal da documentação (sdd-validar-requisitos, rubrica V1–V10, RESULTADO PRONTO/AJUSTAR) e análise da spec SDD antes do código (rubrica S1–S6, ANALISE OK/AJUSTAR).",
+  "prompt": "file://./prompts/sdd-revisor.md",
+  "mcpServers": {},
+  "tools": [
+    "glob",
+    "grep",
+    "read",
+    "shell"
+  ],
+  "toolAliases": {},
+  "allowedTools": [
+    "glob",
+    "grep",
+    "read",
+    "shell"
+  ],
+  "resources": [
+    "file://{{POWER}}/steering/steering.md",
+    "file://.kiro/steering/sdd-projeto.md",
+    "skill://{{POWER}}/skills/sdd-revisar/SKILL.md",
+    "skill://{{POWER}}/skills/sdd-validar-requisitos/SKILL.md",
+    "skill://{{POWER}}/skills/sdd-criar-spec/SKILL.md"
+  ],
+  "hooks": [],
+  "toolsSettings": {},
+  "useLegacyMcpJson": true,
+  "model": null,
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "effect": "allow"
+      }
+    ]
+  }
+}

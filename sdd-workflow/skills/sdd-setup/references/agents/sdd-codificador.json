@@ -1,0 +1,46 @@
+{
+  "name": "sdd-codificador",
+  "description": "Codificador do fluxo SDD — cria a spec SDD (sdd-criar-spec) quando falta e implementa os itens do tasks.md de um IB com as skills de código do projeto, testes e gate de cobertura do sdd-projeto.md. Sob orquestração (sdd-orquestrador) NÃO marca tasks.md nem faz commit.",
+  "prompt": "file://./prompts/sdd-codificador.md",
+  "mcpServers": {},
+  "tools": [
+    "glob",
+    "grep",
+    "read",
+    "shell",
+    "write"
+  ],
+  "toolAliases": {},
+  "allowedTools": [
+    "glob",
+    "grep",
+    "read",
+    "shell",
+    "write"
+  ],
+  "resources": [
+    "file://{{POWER}}/steering/steering.md",
+    "file://.kiro/steering/sdd-projeto.md",
+    "skill://{{POWER}}/skills/sdd-criar-spec/SKILL.md"
+  ],
+  "hooks": [],
+  "toolsSettings": {},
+  "useLegacyMcpJson": true,
+  "model": null,
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "effect": "allow"
+      }
+    ]
+  }
+}

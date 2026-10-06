@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "sdd-workflow",
+  "version": "1.0.0",
+  "description": "Fluxo de Spec-Driven Development em três papéis assíncronos (especificador, codificador, testador): requisitos validados (HF/REG/ET/CT), spec SDD do Kiro (requirements/design/tasks), judge, PR e testes com gates humanos, devoluções com causa raiz, aprendizado contínuo, lote e planejamento de sprints. Agnóstico de linguagem; integra-se ao power alm, se instalado.",
+  "author": {
+    "name": "Daniel Xavier Araújo",
+    "email": "danielxaraujo@gmail.com"
+  },
+  "repository": "https://github.com/dxaraujo/kiro-powers/tree/main/sdd-workflow",
+  "license": "MIT",
+  "keywords": [
+    "sdd", "spec-driven", "spec driven development", "especificação", "especificar", "requisitos", "validar requisitos",
+    "spec", "criar spec", "requirements", "design", "tasks", "implementar", "implementar spec", "judge", "revisar",
+    "code review", "pull request", "pr", "testar", "casos de teste", "ct", "hf", "reg", "et", "gate",
+    "retrabalho", "devolução", "aprendizado", "lote", "status", "onde parei", "task", "ib",
+    "planejamento", "sprint", "virada de sprint", "backlog", "scrum", "setup", "agentes"
+  ]
+}
