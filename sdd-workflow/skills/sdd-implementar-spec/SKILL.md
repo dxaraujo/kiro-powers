@@ -122,7 +122,7 @@ Todos os itens `[x]`; nenhuma devolução `aberta`; `status.md`: Spec SDD `imple
    Título: Task <id> - <descrição>   (IB <id> — <título>)
    Descrição:
    - IB <id> · Tasks: especificador <id> · codificador <id> · testador <id>
-   - Requisitos: HF · REG-01..N · ET (ALM: <IDs | sem power — não publicado>)
+   - Requisitos: HF · REG-01..N · ET (ALM: <IDs | pendente — publicar com o power alm | sem power — não publicado>)
    - Spec: .kiro/specs/ib-<id>-<slug>/ (requirements · design · tasks)
    - Judge: revisao-<N>.md (APROVADO) · testes + cobertura: ok
    - Testes funcionais: pendentes — o testador executa os CTs (.kiro/specs/ib-<id>-<slug>/CT.csv) e decide o PR

@@ -1,6 +1,6 @@
 ---
 name: "sdd-tarefa"
-description: "Ponto de entrada do fluxo SDD para qualquer papel — recebe o número de uma Task (ou Defeito/IB), identifica o papel pelo prefixo da Task ([ESPEC] especificador, [BE] codificador, [QA] testador, configuráveis no sdd-projeto.md), chega ao IB pai, à pasta compartilhada .kiro/specs/ib-<id>-<slug>/ e à branch da funcionalidade (sugere o nome e aguarda confirmação ao criar), oferece assumir e iniciar a Task no ALM (se houver o power alm) e encaminha para a skill do papel (sdd-especificar, sdd-criar-spec, sdd-implementar-spec ou sdd-testar). Use quando a pessoa disser \"vamos trabalhar na task 123\", \"pegar a task 123\", \"atender a task 123\", \"iniciar task\". Não gera documentação, código nem testes."
+description: "Ponto de entrada do fluxo SDD para qualquer papel — recebe o número de uma Task (ou Defeito/IB) — do ALM ou, sem ALM, do planejamento (T-03, IB-02), identifica o papel pelo prefixo da Task ([ESPEC] especificador, [BE] codificador, [QA] testador, configuráveis no sdd-projeto.md), chega ao IB pai, à pasta compartilhada .kiro/specs/ib-<id>-<slug>/ e à branch da funcionalidade (sugere o nome e aguarda confirmação ao criar), oferece assumir e iniciar a Task no ALM (se houver o power alm) e encaminha para a skill do papel (sdd-especificar, sdd-criar-spec, sdd-implementar-spec ou sdd-testar). Use quando a pessoa disser \"vamos trabalhar na task 123\", \"task T-03\", \"IB-02\", \"pegar a task 123\", \"atender a task 123\", \"iniciar task\". Não gera documentação, código nem testes."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
@@ -15,16 +15,19 @@ Leia antes: o steering do power `sdd-workflow` (papéis, gates, pasta, branch, f
 
 ## Passo 1 — Ler a Task
 
-**Com o power `alm`:** use a skill **`alm-ccm`** com os ids de `alm/pa_*.json`. Leia o work item completo
+**Com o power `alm`:** use a skill **`alm-ccm`** com os ids de `.kiro/config/alm-power/pa_*.json`. Leia o work item completo
 (descrição, comentários, links, pai e filhos) **e o IB pai** com as Tasks irmãs.
 
 - Informado um **Item de Backlog** → liste as Tasks filhas e pergunte qual atender.
 - Extraia: `task` (id, título, tipo, estado, url), `ib` (id, título, descrição, critérios de aceite, url),
   `irmas` (Tasks de cada papel → id, responsável, estado).
 
-**Sem o power `alm`** (MCP indisponível) → não trave: se a pasta do IB já existe, os dados vêm do `status.md`;
-se não, peça à pessoa número, título, descrição e critérios do IB e das Tasks, e registre `ALM: sem power` no
-`status.md`. Leitura falhou com o ALM instalado (401, não encontrado) → informe a causa, peça para conferir o
+**Antes do ALM, e sempre sem ele:** siga [references/localizar-ib.md](references/localizar-ib.md) — o id
+informado (número do ALM, `T-XX`, `IB-XX`) é procurado nos `status.md` da branch atual, das worktrees e das
+branches remotas; sem ALM e sem pasta, no planejamento da `sdd-planejamento` (`planejamento-agil/backlog.json`,
+`Backlog.md`, `SPRINT N.md`). Só se nada for achado, peça à pessoa número, título, descrição e critérios do IB e
+das Tasks, e preencha o campo `ALM` do `status.md` pela regra do steering (`pendente — publicar com o power alm`
+ou `sem power — não publicado`). Leitura falhou com o ALM instalado (401, não encontrado) → informe a causa, peça para conferir o
 número ou rodar `alm-setup`, e pare. **Nunca invente dados do work item.**
 
 ## Passo 2 — Papel
@@ -41,15 +44,17 @@ Pelo prefixo do título da Task (tabela **Work items** do `sdd-projeto.md`; padr
 
 ## Passo 3 — Pasta e branch existentes
 
-1. `git fetch --quiet` e procure a pasta do IB (`.kiro/specs/ib-<idIB>-*/`; Defeito/Task sem IB:
-   `.kiro/specs/task-<id>-*/`) na branch atual **e** nas branches remotas com o prefixo do `sdd-projeto.md`
-   (`git ls-tree -r --name-only origin/<branch> -- .kiro/specs/`).
+1. Procure a pasta pelo passo 1 de [references/localizar-ib.md](references/localizar-ib.md): o id da **Task** ou
+   do IB nos `status.md` da branch atual, das worktrees **e** de todas as branches remotas
+   (não basta procurar `ib-<idIB>-*`: sem ALM o id do IB pode ser desconhecido; Defeito/Task sem IB:
+   `.kiro/specs/task-<id>-*/`).
 2. Achou → leia o `status.md` (branch, fase, papéis). Se a branch atual não é a do `status.md`:
    ```
    A spec do IB <id> está na branch <branch> (fase: <fase>). Trocar para ela? (sim/não)
    ```
    `sim` → `git switch <branch>` (ou `git switch --track origin/<branch>`).
-   Há alterações locais não commitadas → avise e pare; nunca use `stash`/`reset` por conta própria.
+   Há alterações locais não commitadas → liste os arquivos, avise e **pare** (a pessoa resolve e chama de novo).
+   Não ofereça descartar, `stash`, `reset` nem `checkout --` — nem como opção.
 3. Confira se a fase permite o papel:
 
 | Papel | Fase esperada | Fase diferente |
@@ -85,20 +90,24 @@ Pelo prefixo do título da Task (tabela **Work items** do `sdd-projeto.md`; padr
    (ex.: `feature/limitar-tentativas-login`). Já existe branch com esse nome → avise e sugira outro.
    Confirmado → `git fetch` e `git switch -c <branch> origin/<base>` (branch base do `sdd-projeto.md`).
 
-3. **Pasta:** `.kiro/specs/ib-<idIB>-<slug>/` (Defeito/Task avulsa: `task-<id>-<slug>/`). Crie o `status.md` a
-   partir de [references/status-template.md](references/status-template.md): papéis com as Tasks irmãs, branch,
-   artefatos **só os exigidos pela classe**, `fase: documentando`.
+3. **Pasta:** `.kiro/specs/ib-<idIB>-<slug>/` (Defeito/Task avulsa: `task-<id>-<slug>/`; sem ALM, `<idIB>` = parte
+   numérica do `IB-XX` do planejamento). Crie o `status.md` a partir de
+   [references/status-template.md](references/status-template.md): papéis com as Tasks irmãs, branch, linha
+   **Planejamento** (`IB-XX · Sprint N`, se veio do planejamento), artefatos **só os exigidos pela classe**,
+   `fase: documentando`.
 
 ## Passo 5 — Assumir e iniciar a Task (pergunta única; nunca alterar sem "sim")
 
-Só com o power `alm` (sem ele, pule este passo e registre o responsável só no `status.md`):
+Só com o power `alm` (sem ele, pule este passo e registre o responsável só no `status.md` — o `login` da pessoa
+que está atendendo, do `equipe.json` ou perguntado uma vez):
 - `Quer assumir a Task <id>? (responsável atual: <nome|ninguém>)` → `ccm_update_workitem(id, fields={"dcterms:contributor": login})`
-  (login = `whoami()`, conferido em `members` do `alm/pa_*.json`). **Item de Backlog nunca muda de responsável (é do P.O.).**
+  (login = `whoami()`, conferido em `members` do `.kiro/config/alm-power/pa_*.json`). **Item de Backlog nunca muda de responsável (é do P.O.).**
 - Tarefa sem Estimativa → pergunte as horas → `rtc_cm:estimate` = horas × 3600000.
 - Estado inicial (Novo) → `Iniciar?` — use a ação retornada por `ccm_list_workitem_states(id)`.
 
-Registre no `status.md` (tabela **Papéis**): Task, responsável — login da pessoa ou `agente:<nome>` quando um agente
-assume o papel (ex.: `agente:sdd-codificador`) — e situação `em andamento`.
+Registre no `status.md` (tabela **Papéis**): Task, responsável e situação `em andamento`. Responsável = login da
+pessoa que pediu; `agente:<nome>` só quando um agente orquestrado (`sdd-lote`) assume o papel — numa conversa com
+a pessoa, quem atende é ela.
 
 ## Passo 6 — Encaminhar
 
@@ -115,7 +124,8 @@ As skills seguintes **não releem o ALM**.
 
 ## Modo lote
 
-Lista de Tasks/IBs ou "os IBs da sprint" → leia e classifique todos, mostre uma tabela
+Lista de Tasks/IBs ou "os IBs da sprint" (com ALM, `alm-ccm`; sem ALM, os IBs do `SPRINT N.md` da sprint atual /
+`backlog.json` do planejamento) → leia e classifique todos, mostre uma tabela
 (`IB | Título | Classe | Branch sugerida | Pasta existe?`) e delegue à skill **`sdd-lote`**.
 
 ## Regras

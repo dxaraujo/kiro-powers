@@ -1,6 +1,6 @@
 {
   "name": "sdd-orquestrador",
-  "description": "Orquestrador do fluxo SDD — executa a skill sdd-lote por papel (especificação até o GATE 1, codificação até o GATE 2, ou completo): worktree e branch por IB, documentação (sdd-especificador), validação e judge (sdd-revisor), GATE 1, publicação no ALM, spec e implementação (sdd-codificador ou executores do projeto), retry ≤ 2. Único que marca tasks.md, faz commit e push dos gates.",
+  "description": "Orquestrador do fluxo SDD — executa a skill sdd-lote por papel (especificação até o GATE 1, codificação até o GATE 2, ou completo): worktree e branch por IB, documentação (sdd-especificador), validação e judge (sdd-revisor), GATE 1, spec e implementação (sdd-codificador ou executores do projeto), retry ≤ 2. Único que marca tasks.md, faz commit e push dos gates. Passos de ALM ficam pendentes para a sessão com o power alm.",
   "prompt": "file://./prompts/sdd-orquestrador.md",
   "mcpServers": {},
   "tools": [
@@ -21,11 +21,11 @@
     "write"
   ],
   "resources": [
-    "file://{{POWER}}/steering/steering.md",
+    "file://~/.kiro/powers/installed/sdd-workflow/steering/steering.md",
     "file://.kiro/steering/sdd-projeto.md",
-    "skill://{{POWER}}/skills/sdd-lote/SKILL.md",
-    "skill://{{POWER}}/skills/sdd-tarefa/SKILL.md",
-    "skill://{{POWER}}/skills/sdd-alm-publicar-requisitos/SKILL.md"
+    "skill://~/.kiro/powers/installed/sdd-workflow/skills/sdd-lote/SKILL.md",
+    "skill://~/.kiro/powers/installed/sdd-workflow/skills/sdd-tarefa/SKILL.md",
+    "skill://~/.kiro/powers/installed/sdd-workflow/skills/sdd-alm-publicar-requisitos/SKILL.md"
   ],
   "hooks": [],
   "toolsSettings": {

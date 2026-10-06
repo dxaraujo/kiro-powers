@@ -34,7 +34,8 @@ demais da fase registrada.
 | `codificacao` | codificador | B | GATE 2 (PR aberto) de cada IB |
 | `completo` | quem acumula os dois papéis | A + B | GATE 2 de cada IB |
 
-2. **Entrada:** lista de IBs ou Tasks (Task → IB pai), ou "os IBs da sprint" (`alm-ccm`, se houver ALM). Para cada
+2. **Entrada:** lista de IBs ou Tasks (Task → IB pai), ou "os IBs da sprint" (`alm-ccm`, se houver ALM; sem ALM, os IBs do `SPRINT N.md` da sprint atual /
+   `planejamento-agil/backlog.json`). Ids `T-XX`/`IB-XX` e Tasks sem pasta local → [localizar-ib.md](../sdd-tarefa/references/localizar-ib.md). Para cada
    IB, rode a leitura da **`sdd-tarefa`** (Passos 1–3) — sem as perguntas de assumir/iniciar, que vão juntas no plano.
    - `especificacao`: IBs sem pasta ou em `documentando`/`validando`/`aguardando-aprovacao`.
    - `codificacao`: IBs em `especificado`/`planejando`/`implementando`/`em-revisao`; os demais saem do lote com o
@@ -91,7 +92,9 @@ Aprova todos? ("ok" · "ok exceto 124" · ou ajustes por IB)
   repositório principal** (`git push origin <branch>`; nunca push nem merge de dentro das worktrees) — é o sinal
   para a codificação.
 - Com power ALM → **`sdd-alm-publicar-requisitos`** para cada um, na sessão orquestradora (publica, rastreia e
-  conclui a Task do especificador). Sem ALM → `ALM: sem power — não publicado` no `status.md`.
+  conclui a Task do especificador). Sem o MCP `alm` (agentes do lote) → campo `ALM` pela regra do steering (projeto com ALM: `pendente — publicar com
+  o power alm` + `ALM pendente: …` no Histórico; sem ALM: `sem power — não publicado`) e liste as pendências no resumo
+  do lote.
 - IB recusado no gate → sai do lote com o motivo.
 
 ## Passo 4 — Fase B: codificação (modos `codificacao` e `completo`; paralelo, até 3 IBs)

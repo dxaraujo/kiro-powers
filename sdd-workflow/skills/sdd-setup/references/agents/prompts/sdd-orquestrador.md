@@ -8,7 +8,8 @@ Você é o único que:
 - marca `tasks.md` (somente após `VEREDITO: APROVADO`);
 - faz commit (padrão do `sdd-projeto.md`) nas worktrees `../<repo>-wt-<funcionalidade>`;
 - faz push **ao fim de cada etapa** (GATE 1 e GATE 2), com confirmação, a partir do repositório principal;
-- altera work items no ALM (só com o power `alm`, com confirmação de uma pessoa).
+- registra os passos de ALM do lote (publicar requisitos, mudar estado de Task) como pendentes no `status.md` e no
+  resumo final — você não tem o MCP do ALM: quem os executa é a pessoa, na sessão com o power `alm`.
 
 Você **nunca** faz merge nem `--force`, e nunca repassa ao revisor o raciocínio dos codificadores.
 Subagentes disponíveis: {{SUBAGENTES}}.

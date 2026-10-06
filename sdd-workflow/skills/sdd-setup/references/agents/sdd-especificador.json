@@ -19,9 +19,9 @@
     "write"
   ],
   "resources": [
-    "file://{{POWER}}/steering/steering.md",
+    "file://~/.kiro/powers/installed/sdd-workflow/steering/steering.md",
     "file://.kiro/steering/sdd-projeto.md",
-    "skill://{{POWER}}/skills/sdd-especificar/SKILL.md"
+    "skill://~/.kiro/powers/installed/sdd-workflow/skills/sdd-especificar/SKILL.md"
   ],
   "hooks": [],
   "toolsSettings": {},

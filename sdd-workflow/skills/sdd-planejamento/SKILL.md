@@ -133,7 +133,7 @@ Ler `planejamento-agil/equipe.json` (formato em [Arquivo da equipe](#arquivo-da-
 
 **Identificar obrigatoriamente:** Scrum Master (com nível/experiência) e P.O.
 
-**Login ALM de cada membro:** buscar pelo nome em `members` de `alm/pa_*.json` (`ccm.members`, se houver o power alm); sem
+**Login ALM de cada membro:** buscar pelo nome em `members` de `.kiro/config/alm-power/pa_*.json` (`ccm.members`, se houver o power alm); sem
 correspondência única, perguntar. É o login usado como responsável na publicação no EWM.
 
 **Aguardar resposta.**
@@ -253,11 +253,20 @@ Gerar em `planejamento-agil/` (na raiz do repositório):
 | `Homologação.md`        | Tracking + retrospectiva geral + resumo sprints                   |
 | `Conceito de Pronto.md` | Definition of Ready + Definition of Done                          |
 | `equipe.json`           | Equipe e configuração do projeto, reutilizadas nas sprints atuais e futuras |
+| `backlog.json`          | Mapa dos ids `IB-XX`/`T-XX` de **todas** as sprints (formato no Passo 3 da `sdd-alm-publicar-planejamento`, `alm_id: null`) — gerado sempre, com ou sem ALM |
 | `md_to_excel.py`        | Script MD → Excel (com fórmulas) — copiado desta skill            |
 | `excel_to_md.py`        | Script Excel → MD — copiado desta skill                           |
 
 > Os scripts `md_to_excel.py` e `excel_to_md.py` ficam na pasta desta skill (power `sdd-workflow`) e são copiados
 > para `planejamento-agil/` na primeira geração (e atualizados se a versão da skill for mais nova).
+
+**`backlog.json` (sempre):** é a fonte dos ids das Tasks quando não há ALM (`sdd-tarefa` →
+`references/localizar-ib.md`). Gere-o com todas as sprints planejadas, no formato do Passo 3 da
+`sdd-alm-publicar-planejamento`: cada IB com `id` `IB-XX` (o mesmo do `Backlog.md`/`SPRINT N.md`), cada Task com
+`id` `T-XX` sequencial no projeto, `tipo` (`ESPEC`, `BE`, `BD`, `QA`, `INF`), `titulo` (texto da linha da Task),
+`responsavel` (login do `equipe.json` ou `null`), `estimativa_horas: null`, `alm_id: null`, `estado_alm: null`;
+iteração/plano/time ficam `null` até a publicação. Já existe → **preserve** ids e `alm_id` existentes; só acrescente
+itens novos (ids nunca são reaproveitados nem renumerados) e atualize sprint/título dos que mudaram.
 
 **Formato da SPRINT N.md:**
 
@@ -363,7 +372,8 @@ O planejamento está concluído. Deseja publicar a SPRINT ATUAL (Sprint N) no AL
 - Perguntar ao usuário em qual plano da iteração selecionada os itens devem ser criados ou se deve ser criado um plano novo.
 - Incluir as iterações ou planos criados as pa do projeto invocando a skill `alm-setup` do power alm
 
-**Se "não":** encerrar normalmente com o resumo abaixo.
+**Se "não":** encerrar normalmente com o resumo abaixo e a dica: sem ALM, cada Task é atendida pelo id do
+`backlog.json` — _"vamos trabalhar na task T-03"_ (`sdd-tarefa`).
 
 > Para publicar no ALM posteriormente, invoque diretamente: _"publicar planejamento no ALM"_.
 
@@ -415,7 +425,7 @@ python planejamento-agil/excel_to_md.py \
    empurra itens para as sprints seguintes. Reavaliar prioridade e dependências; atualizar `Entregas.md` se datas mudarem.
 3. Redistribuir usando velocidade média real. IB que não cabe numa sprint → decompor em sub-IBs (mesmo total, reestimados).
 4. Manter histórico das sprints encerradas inalterado (tasks e marcações OK — inclusive não remarcar a linha do IB).
-5. Regenerar `.md` afetados + Excel e apresentar o diff do plano (o que entrou/saiu de cada sprint futura).
+5. Regenerar `.md` afetados + Excel + `backlog.json` (mesmos ids; itens migrados mudam só de sprint) e apresentar o diff do plano (o que entrou/saiu de cada sprint futura).
 
 ### Passo 4 — Publicar a nova sprint atual
 

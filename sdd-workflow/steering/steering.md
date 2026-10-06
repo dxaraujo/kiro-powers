@@ -64,8 +64,24 @@ TESTADOR       sdd-testar (CTs na branch do PR) ─┬─ aprovados ─► ═ G
 
 Todo passo de ALM (publicar HF/REG/ET no DOORS Next, links de rastreabilidade, comentários, mudar estado de Task)
 só acontece **se o power `alm` (MCP `alm`) estiver disponível**, usando as skills dele (`alm-ccm`, `alm-rm`,
-`alm-gc`) e os ids de `alm/pa_*.json`. Sem ele, o passo é registrado no `status.md` (`ALM: sem power — não
-publicado`) e o fluxo segue — o ALM nunca trava o processo.
+`alm-gc`) e os ids de `.kiro/config/alm-power/pa_*.json`. Sem ele o fluxo segue — o ALM nunca trava o processo —
+e o campo `ALM` do `status.md` diz por quê (a linha **ALM** do `sdd-projeto.md` decide, não a sessão):
+
+| Situação | Campo `ALM` | O passo de ALM |
+|---|---|---|
+| Projeto **sem** ALM (`sdd-projeto.md`: `sem power`) | `sem power — não publicado` | não existe |
+| Projeto **com** ALM, mas a sessão não tem o MCP `alm` (agentes do kiro-cli, lote) | `pendente — publicar com o power alm` | fica pendente: uma linha `ALM pendente: <ação>` no Histórico (ex.: publicar HF/REG/ET, concluir [ESPEC], comentar a devolução na [BE]) |
+| Publicado | `publicado` | — |
+
+Pendências são feitas depois pela pessoa, numa sessão com o power `alm` (IDE): `sdd-alm-publicar-requisitos` para
+a publicação e `alm-ccm` para estado e comentários; cada uma feita ganha `ALM feito: <ação>` no Histórico. Os
+agentes nunca declaram o MCP `alm` — o ALM é sempre do power.
+
+Sem ALM, os ids das Tasks e dos IBs vêm do **planejamento** da `sdd-planejamento` (`planejamento-agil/backlog.json`:
+`IB-XX`, `T-XX`) e o resto do `status.md` do IB — a pessoa diz "vamos trabalhar na task T-03". Qualquer skill que
+receba só um id (Task ou IB) e não esteja na pasta do IB localiza-o por
+`skills/sdd-tarefa/references/localizar-ib.md`: `status.md` na branch atual, worktrees e branches remotas; depois o
+planejamento; só então pergunta à pessoa.
 
 Com ALM: `[ESPEC]` conclui no GATE 1 (após publicar); `[BE]` e `[QA]` concluem no merge (GATE 3); uma devolução
 reabre a Task do papel que recebe.

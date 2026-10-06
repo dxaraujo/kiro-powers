@@ -61,6 +61,10 @@ usar, e quais arquivos de steering usar quando o projeto não segue o padrão do
 3. Comece pela Task: **"vamos trabalhar na task 123"** — ou **"onde parei?"**.
 
 Depois de atualizar o power, peça "atualizar os agentes do sdd" para refazer os caminhos e prompts dos agentes.
+Os agentes só usam caminhos relativos — `.kiro/...` (raiz do repositório) e `~/.kiro/...` (home) —, então os `.kiro/agents/*.json` versionados servem em Linux, macOS e Windows.
+
+Sem o power `alm`, as Tasks são atendidas pelos ids do planejamento (`planejamento-agil/backlog.json`, gerado pela
+`sdd-planejamento`): "vamos trabalhar na task T-03".
 
 ## Licença
 

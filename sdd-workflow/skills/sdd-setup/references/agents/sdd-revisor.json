@@ -17,11 +17,11 @@
     "shell"
   ],
   "resources": [
-    "file://{{POWER}}/steering/steering.md",
+    "file://~/.kiro/powers/installed/sdd-workflow/steering/steering.md",
     "file://.kiro/steering/sdd-projeto.md",
-    "skill://{{POWER}}/skills/sdd-revisar/SKILL.md",
-    "skill://{{POWER}}/skills/sdd-validar-requisitos/SKILL.md",
-    "skill://{{POWER}}/skills/sdd-criar-spec/SKILL.md"
+    "skill://~/.kiro/powers/installed/sdd-workflow/skills/sdd-revisar/SKILL.md",
+    "skill://~/.kiro/powers/installed/sdd-workflow/skills/sdd-validar-requisitos/SKILL.md",
+    "skill://~/.kiro/powers/installed/sdd-workflow/skills/sdd-criar-spec/SKILL.md"
   ],
   "hooks": [],
   "toolsSettings": {},

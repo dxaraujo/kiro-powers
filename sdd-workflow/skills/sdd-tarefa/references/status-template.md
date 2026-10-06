@@ -3,13 +3,14 @@
 | Campo | Valor |
 |---|---|
 | IB | [<id>](<url>) |
+| Planejamento | <IB-XX · Sprint N \| —> |
 | Classe | <NOVA-FUNCIONALIDADE \| ALTERACAO \| CORRETIVA \| MANUTENCAO> |
 | Fast-track | <sim \| não> |
 | Branch | `<branch>` |
 | Fase | documentando |
 | Retries do judge | 0 |
 | PR | — |
-| ALM | <com power \| sem power — não publicado> |
+| ALM | <com power \| pendente — publicar com o power alm \| publicado \| sem power — não publicado> |
 | Banco (DDL) | <não se aplica \| pendente \| aplicada em dev \| aplicada em prod> |
 
 <!-- Fases: documentando → validando → aguardando-aprovacao → especificado → planejando → implementando → em-revisao

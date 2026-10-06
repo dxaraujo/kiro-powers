@@ -18,6 +18,9 @@ verificação, logs).
 
 ## Passo 0 — Pré-condições
 
+- Pasta do IB fora da branch atual (chamada direta, sem `sdd-tarefa`) → localize-a por
+  [localizar-ib.md](../sdd-tarefa/references/localizar-ib.md) e pergunte se troca para a branch do PR; não ache
+  nada → peça a Task/IB e pare.
 - `fase` = `em-teste` (GATE 2: PR aberto); antes disso → pare.
 - **Banco (DDL)** no `status.md` = `não se aplica` ou `aplicada em dev`. `pendente` → **pare**: "Testes bloqueados:
   DDL ainda não aplicada em dev". Confira no dicionário do banco (MCP de consulta) antes de atualizar o campo para

@@ -103,11 +103,13 @@ Antes de publicar, gerar um preview da estrutura de IBs e tasks localmente:
 2. Extrair IBs e tasks da sprint atual — itens que já têm `alm_id` no `backlog.json` **não são recriados**; a `complexidade` vem da coluna Complexidade da `SPRINT N.md` e a
    `prioridade` da coluna Prioridade do `Backlog.md` (pelo `IB-XX`)
 3. `responsavel` (login): ler de `planejamento-agil/equipe.json` (campo `login`; conferido em `members` do
-   `alm/pa_*.json`):
+   `.kiro/config/alm-power/pa_*.json`):
    - **IB** → o membro com `po: true` (sem arquivo ou sem P.O., perguntar uma única vez e gravar no `equipe.json`);
    - **Task** → o responsável definido no planejamento; sem responsável definido, `null` (fica vazia no ALM).
 4. `estimativa_horas` de cada Task não vem do planejamento: pedir ao usuário numa única tabela por sprint
-5. Gerar `planejamento-agil/backlog.json` com a estrutura:
+5. Completar o `planejamento-agil/backlog.json` (gerado pela `sdd-planejamento`; se não existir, gere-o agora) —
+   preserve os `id` `IB-XX`/`T-XX` existentes e preencha iteração, plano, time, `estimativa_horas` e, após criar,
+   `alm_id`. Estrutura:
 
 ```json
 {
@@ -165,7 +167,7 @@ Validar com a skill `alm-ccm`, **sem criar nada**:
 |-------|-------------|:---------------:|:------:|-----------------|
 | Pontos de História | `rtc_ext:com.ibm.team.apt.attribute.complexity` | ✅ | — | 0, 1, 2, 3, 5, 8, 13, 20, 40, 100 (nomes no ALM: `5 pts`) |
 | Prioridade | `oslc_cmx:priority` | ✅ | — | os `name` do ALM da PA — criticidade alta/média/baixa → o valor equivalente (mapeamento confirmado com o usuário) |
-| Responsável | `dcterms:contributor` | ✅ P.O. | se definido no planejamento | login de `members` do `alm/pa_*.json` |
+| Responsável | `dcterms:contributor` | ✅ P.O. | se definido no planejamento | login de `members` do `.kiro/config/alm-power/pa_*.json` |
 | Estimativa | `rtc_cm:estimate` | — | ✅ **obrigatória** | horas > 0 |
 
 Nunca inventar valores de Pontos de História e Prioridade — buscar os aceitos com a skill **`alm-ccm`**

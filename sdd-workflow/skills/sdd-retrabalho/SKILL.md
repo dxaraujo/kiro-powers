@@ -28,6 +28,17 @@ Já **toda devolução do codificador ao especificador** (depois do GATE 1) é r
 
 ## Modo devolução
 
+### 0. Achar o IB
+
+Sem a pasta do IB na branch atual (a pessoa costuma informar só a Task ou o IB), localize-a por
+[localizar-ib.md](../sdd-tarefa/references/localizar-ib.md) — `status.md` nas worktrees e nas branches remotas;
+sem ALM e sem pasta, o planejamento. Achou em outra branch → pergunte se troca para ela (mesmo texto e regras da
+`sdd-tarefa`, Passo 3.2: alteração local não commitada → avise e pare). Não achou → peça o IB e pare; não
+classifique nem registre nada sem o `status.md`.
+
+Anote a **Task do papel que detectou** (quem chamou: `[QA]` em testes reprovados e PR rejeitado no teste, `[BE]`
+quando o codificador acha falha na documentação, a Task de quem pediu a correção) — é ela que vai no commit.
+
 ### 1. Evidência — onde estava a informação?
 
 Para cada problema (cada CT reprovado ou motivo de rejeição do PR é um item), consulte na ordem e anote
@@ -59,13 +70,19 @@ Para cada problema (cada CT reprovado ou motivo de rejeição do PR é um item),
 Confirma? ("ok" ou corrija por item)
 ```
 
+A pessoa confirma ou corrige a categoria e **a decisão dela prevalece**: sem evidência escrita, avise uma vez o
+risco (ex.: "sem registro, pode ser `MUDANCA_ESCOPO`") e, se ela mantiver, registre com a evidência que ela informou
+(`Evidência: informado por <pessoa> — <fonte>`). Não recuse nem re-pergunte a mesma classificação.
+
 Itens com destinos diferentes → a devolução vai ao papel **mais a montante** (especificador antes de codificador):
 a partir dali o IB passa de novo por todos os papéis seguintes, levando todos os itens.
 
 ### 3. Registrar a causa raiz
 
 Acrescente ao final de `retrabalho.md` uma entrada **causa raiz** por item confirmado (formato do arquivo, com
-o próximo `R-<nnn>`), e atualize o checklist da skill culpada:
+o próximo `R-<nnn>`; `Responsável` = o responsável do papel da causa raiz na tabela **Papéis** do `status.md` — não
+invente `agente:<nome>`), e atualize **obrigatoriamente** o checklist da skill culpada (sem o checklist atualizado
+a devolução não está registrada — liste na confirmação os arquivos de checklist que vão mudar):
 `FALHA_IMPLEMENTADOR`/`FALHA_STEERING` → `sdd-implementar-spec` · `FALHA_JUDGE_SEVERIDADE` → `sdd-revisar` ·
 `FALHA_SPEC` → `sdd-criar-spec` · `FALHA_DOC` → `sdd-especificar` **e** `sdd-validar-requisitos` (a falha passou pela validação). Mesmo achado já listado → incremente e some a Task; novo →
 acrescente a linha. Expire itens sem reincidência nas últimas 10 Tasks registradas.
@@ -76,8 +93,9 @@ acrescente a linha. Expire itens sem reincidência nas últimas 10 Tasks registr
    fase — regras de escrita em steering do power). `status.md`: seção **Devoluções** (`R-<nnn> | gatilho | causa | volta para | situação: aberta`), `fase` →
    `documentando` (especificador) ou `implementando` (codificador); papel que recebe → `devolvido <data>`;
    artefatos que vão mudar → `rascunho`; `Retries do judge` → 0.
-2. Numa só confirmação: commit `Task <id do papel que detectou> - Registrar devolução R-<nnn>` (status.md + testes.md
-   ou motivo do PR) + push (é o sinal assíncrono para quem recebe) + comentário no PR, se ele já existir.
+2. Numa só confirmação: commit `Task <id da Task do papel que detectou, anotada no passo 0> - Registrar devolução
+   R-<nnn>` — **não** a Task do papel que recebe (ex.: CT reprovado → `Task <[QA]> - …`, nunca a `[ESPEC]`) —
+   com `status.md`, `retrabalho.md`, os checklists e `testes.md` ou o motivo do PR, + push (é o sinal assíncrono para quem recebe) + comentário no PR, se ele já existir.
    Com power ALM: comentário na Task do papel que recebe (`Devolução R-<nnn>: <resumo> — ver status.md`) e reabrir
    essa Task (ação de `ccm_list_workitem_states`, ex.: Reabrir/Refazer). A Task do codificador continua aberta até o merge.
 3. Informe o próximo passo: especificador → `sdd-tarefa` com a Task `[ESPEC]` (corrige pela `sdd-especificar`, valida

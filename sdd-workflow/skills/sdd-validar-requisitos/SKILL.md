@@ -86,8 +86,12 @@ Aprova os requisitos? ("ok" · ou diga o que ajustar)
   `Banco (DDL): pendente` no `status.md`. Numa só confirmação: commit
   no padrão do `sdd-projeto.md` (ex.: `Task <id [ESPEC]> - Especificar <funcionalidade>`; só a pasta do IB) e push da branch — é o sinal assíncrono
   para o codificador.
-- Com power ALM → siga para **`sdd-alm-publicar-requisitos`** (publica, rastreia e conclui a `[ESPEC]`). Sem ALM →
-  registre `ALM: sem power — não publicado` no `status.md`; a etapa do especificador termina aqui.
+- Com power ALM → siga para **`sdd-alm-publicar-requisitos`** (publica, rastreia e conclui a `[ESPEC]`). Sem o MCP
+  `alm` → campo `ALM` pela regra do steering (`pendente — publicar com o power alm` ou `sem power — não publicado`);
+  a etapa do especificador termina aqui.
+- Depois do GATE 1 **encerre o papel**: não ofereça gerar a spec SDD nem codificar nesta conversa — é a Task do
+  codificador (`[BE]`), que começa pela `sdd-tarefa` (mesmo que seja a mesma pessoa). Informe só:
+  `Próximo: codificador — "vamos trabalhar na task <id [BE]>"`.
 - Ajuste pedido → `sdd-especificar` e nova rodada de validação (só do que mudou).
 - Devolução (depois do GATE 1) → mesma validação, só dos artefatos alterados, antes do novo GATE 1; o commit passa
   a ser `Task <id [ESPEC]> - Ajustar especificação (R-<nnn>)`.

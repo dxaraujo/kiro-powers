@@ -90,7 +90,14 @@ Tipos: entradas e saídas são **identifiers** (`_...`, `FR_...`, `OT_...`, `tas
 ## 4. Gravar
 
 Mostre o JSON completo, peça confirmação e grave `.kiro/config/alm-power/pa_<nome>.json` no projeto do usuário (se
-`ccm.project-area` mudou, grave com o novo nome e apague o antigo). O formato é definido pelo JSON Schema
+`ccm.project-area` mudou, grave com o novo nome e apague o antigo).
+
+**Caminho sempre relativo à raiz do repositório** (`git rev-parse --show-toplevel`; sem git, a pasta do workspace),
+com `/` como separador — o arquivo é versionado e usado em Linux, macOS e Windows. Grave a partir da raiz, nunca
+da pasta atual, e ao citar o arquivo (para o usuário, no steering ou em configurações de outros powers, como o
+`sdd-projeto.md` do `sdd-workflow`) escreva `.kiro/config/alm-power/pa_<nome>.json` — nunca o caminho absoluto
+(`/home/…`, `/Users/…`, `C:\…`), `\` nem variáveis (`%USERPROFILE%`, `$HOME`). Nada dentro do JSON guarda caminho
+de arquivo local. O formato é definido pelo JSON Schema
 #[[file:assets/pa.schema.json]] (fonte da verdade). `$schema` é sempre a **primeira** propriedade:
 
 ```json
@@ -178,6 +185,7 @@ Mostre o resumo e peça confirmação antes. Depois de criar, inclua o item em `
 | Erro | Certo |
 |---|---|
 | Gravar no repositório do MCP ou como `alm.json` | `.kiro/config/alm-power/pa_<nome>.json` no projeto do usuário |
+| Citar/gravar o caminho absoluto (`/home/…/pa_x.json`, `C:\…`) ou relativo à pasta atual | Relativo à raiz do repositório, com `/`: `.kiro/config/alm-power/pa_<nome>.json` |
 | Listas ou objetos com `uuid`/`url` | Mapas com chaves em kebab-case, como no exemplo |
 | Salvar tudo sem perguntar | Mostrar e deixar o usuário escolher |
 | `list_workitem_categories` uma vez por time | Uma chamada com `limit=500` e filtrar por `defaultTeamArea.itemId` |

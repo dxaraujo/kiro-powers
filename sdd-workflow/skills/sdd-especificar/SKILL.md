@@ -74,7 +74,7 @@ decisão da entrevista cita a origem (`Conforme D-03`).
 
 Referências entre artefatos usam o nome local até a publicação (`REG-01`, `HF`); a `sdd-alm-publicar-requisitos`
 troca pelos IDs do ALM. Para o CT, os campos do ALM (Responsável, Criado Por, Planejado para, Atendido por)
-vêm do `alm/pa_*.json`/Task; pergunte só o que faltar, com o valor exato do ALM. Sem ALM, preencha só o que souber.
+vêm do `.kiro/config/alm-power/pa_*.json`/Task; pergunte só o que faltar, com o valor exato do ALM. Sem ALM, preencha só o que souber.
 
 ## Passo 3 — Status e próximo passo
 
