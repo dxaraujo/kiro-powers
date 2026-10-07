@@ -7,6 +7,8 @@ Power do Kiro para o **IBM Engineering Lifecycle Management (ELM)** via OSLC, us
 
 - **EWM/RTC (CCM):** consulta, busca, cria, atualiza, muda estado e comenta work items (IB, TR, DF, DT…).
 - **DOORS Next (RM):** consulta, busca, cria e atualiza requisitos (REQ, HU, UC, RN, MSG…).
+- **Documentação do RM em OKF:** baixa os artefatos do DOORS Next para o repositório (um `.md` por artefato) e
+  sincroniza só o que mudou no ALM.
 - **ETM/RQM (QM):** consulta artefatos de teste (CT, PT, ST, TER…) — só leitura.
 - **Comum / GC:** usuários, project areas, times, configuração global e links de rastreabilidade.
 
@@ -20,6 +22,8 @@ Power do Kiro para o **IBM Engineering Lifecycle Management (ELM)** via OSLC, us
 | `skills/alm-setup/` | Cria/atualiza `.kiro/config/alm-power/pa_<nome>.json` do projeto; cria iterações e planos |
 | `skills/alm-ccm/` | Work items (EWM); `reference.md` com as tools genéricas |
 | `skills/alm-rm/` | Requisitos (DOORS Next); `reference.md` com as tools genéricas |
+| `skills/alm-download/` | Baixa a documentação do RM como bundle OKF; `reference.md` com o formato do bundle |
+| `skills/alm-sync/` | Compara datas ALM × OKF, marca pendentes no `sync.md` e baixa só o que mudou |
 | `skills/alm-qm/` | Testes (ETM) |
 | `skills/alm-gc/` | Usuários, project areas, GC e rastreabilidade; `reference.md` com project areas, GC e qnames |
 

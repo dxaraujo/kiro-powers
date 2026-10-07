@@ -128,6 +128,26 @@
           "additionalProperties": {
             "$ref": "#/$defs/objectTypeId"
           }
+        },
+        "download": {
+          "type": "object",
+          "description": "Download da documentação do RM em OKF (skills alm-download e alm-sync).",
+          "additionalProperties": false,
+          "required": [
+            "path"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Pasta raiz do bundle OKF, relativa à raiz do projeto (ex.: 'docs/alm'). Cada pasta do RM vira uma subpasta.",
+              "minLength": 1
+            },
+            "last-download": {
+              "type": "string",
+              "description": "Instante (ISO 8601 UTC) do último download ou sincronismo.",
+              "format": "date-time"
+            }
+          }
         }
       }
     },

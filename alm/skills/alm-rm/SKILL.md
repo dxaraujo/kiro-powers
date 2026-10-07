@@ -4,7 +4,7 @@ description: "Query, search, read, create or update IBM DOORS Next (RM) artifact
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.1"
+  version: "1.0.3"
 ---
 
 # alm-rm
@@ -12,7 +12,8 @@ metadata:
 Requisitos do DOORS Next pelo MCP `alm`, com as tools `rm_*`: recebem os ids do `.kiro/config/alm-power/pa_*.json` e trabalham com
 **nomes** de atributo, valor e link. As tools genéricas do IBM AI Hub (baselines, change sets, configuração global,
 outra project area) estão em [reference.md](reference.md): leia-o **só** quando precisar delas. Links com work
-items e testes → **alm-gc**.
+items e testes → **alm-gc**. Baixar a documentação inteira para o repositório → **alm-download**; conferir o que
+mudou e atualizar o que foi baixado → **alm-sync**.
 
 ## Antes de chamar
 
@@ -66,10 +67,15 @@ Todas com `project_area_identifier`, `component`, `configuration` do alm.json (o
 
 | Tool | Entrada extra | Saída |
 |---|---|---|
-| `rm_search_requirements(text? \| folder?, requirement_type?)` | `text` **sozinho**, ou `folder` (`FR_`) e/ou `requirement_type` (`OT_`) | `[{id, title, type, folder, url}]` (≤1000) |
-| `rm_get_requirement(requirement_id)` | id numérico (string) | Markdown + YAML (abaixo) |
+| `rm_search_requirements(text? \| folder?, requirement_type?)` | `text` **sozinho**, ou `folder` (`FR_`) e/ou `requirement_type` (`OT_`) | `[{id, title, type, folder, modified, path, url}]` (≤1000); `path` = arquivo do artefato no bundle da alm-download |
+| `rm_list_modified(requirement_ids)` | lista de ids numéricos (string); um id = consulta individual, vários = lote | `[{id, title, modified}]`; id inexistente não volta |
+| `rm_get_requirement(requirement_id, links?)` | id numérico (string); `links="bundle"` só para a alm-download/alm-sync | Markdown + YAML (abaixo) |
 | `rm_create_requirement(requirement_type, folder, title, text, attributes?)` | `OT_`, `FR_`; `text` em Markdown | `{id, title, url}` |
 | `rm_update_requirement(requirement_id, title?, text?, attributes?)` | ≥1 dos três; `text` e cada atributo **substituem** o atual | `{id, title, url}` |
+
+`modified` (busca e `rm_list_modified`) é a última modificação no DOORS Next em ISO 8601 UTC (`...Z`), o mesmo
+formato de `sources[0].last_modified` e `generated.at` da leitura: compare como texto. `rm_list_modified` não lê
+o conteúdo: use-a para "o 2010 mudou?" ou para conferir muitos ids de uma vez.
 
 **Busca:** `text` + `folder`/`requirement_type` juntos dão **HTTP 400** no DOORS Next. Com texto, busque só pelo
 texto e filtre o resultado pelas colunas `type`/`folder`. Prefira pasta/tipo quando o pedido permitir: a busca por
@@ -92,8 +98,12 @@ title: UC - Cadastrar cliente                       # recomendado
 description: Cadastro de um novo cliente no sistema. # recomendado (1 linha)
 resource: "https://alm.example.com/rm/resources/TX_exemplo2010"  # recomendado (ex-`url`)
 tags: ["03-Casos de Uso", "Caso de Uso"]            # recomendado (pasta/tipo)
+# --- provenance (OKF §5.1) ---
+sources:
+  - { id: doors-next, resource: "https://alm.example.com/rm/resources/TX_exemplo2010", title: "DOORS Next 2010",
+      author: "human:joao.souza", last_modified: "2026-10-05T19:42:00Z" }  # última modificação no ALM
 # --- família trust (OKF §5.2) ---
-generated: { by: "process:alm-mcp/1.0.12", at: "2026-10-06T13:00:00Z" }
+generated: { by: "process:alm-mcp/1.0.14", at: "2026-10-06T13:00:00Z" }  # quando este documento foi gerado
 # --- chaves de extensão RM (OKF §4.1 "Extensions") ---
 id: 2010
 url: "https://alm.example.com/rm/resources/TX_exemplo2010"  # alias de `resource`
@@ -115,18 +125,23 @@ embedded:
 ## Fluxo Básico
 
 1. O usuário informa os dados do cliente.
-2. O sistema valida o documento: ![[2001: RN - Validar CPF do cliente]]
-3. O sistema aplica a regra [RN 2002](/rm/resources/TX_exemplo2002) e grava o cliente.
+2. O sistema valida o documento: ![2001 RN - Validar CPF do cliente](https://alm.example.com/rm/resources/TX_exemplo2001)
+3. O sistema aplica a regra [2002 RN - Cliente deve ser maior de idade](https://alm.example.com/rm/resources/TX_exemplo2002) e grava o cliente.
 ```
 
 **Campos OKF padrão.** Só `type` é obrigatório (um concept só com `type` já é conforme). `title`, `description`,
 `resource` (o URI canônico do artefato — era o `url`) e `tags` são recomendados. Nomes de atributos e links são os
 do **DOORS Next** (o alm.json não mapeia o RM); pessoas vêm pelo login; campos vazios são omitidos; datas de corpo
-em Brasília, mas os timestamps OKF (`generated.at`) em **ISO 8601 com offset UTC**.
+em Brasília, mas os timestamps OKF (`sources[].last_modified`, `generated.at`) em **ISO 8601 com offset UTC**.
+
+**Provenance (OKF §5.1).** `sources` tem uma entrada, o artefato no DOORS Next: `resource` (URL), `title`,
+`author` (`human:<login>` de quem modificou por último; omitido se vazio) e `last_modified` = a **última
+modificação no ALM**, em ISO 8601 UTC.
 
 **Trust (OKF §5.2).** `generated: { by, at }` é sempre emitido: `by` é um ator — aqui `process:alm-mcp/<versão>`,
-a geração automática pelo MCP (§7) — e `at` é a última modificação do artefato no DOORS Next (ou o instante da
-leitura), em ISO 8601 UTC. `description` só aparece quando o artefato tem descrição no DOORS Next; senão é omitido.
+a geração automática pelo MCP (§7) — e `at` é o **instante em que o documento foi gerado**, em ISO 8601 UTC.
+`sources[0].last_modified` > `generated.at` ⇒ a cópia está desatualizada (é o critério da alm-sync).
+`description` só aparece quando o artefato tem descrição no DOORS Next; senão é omitido.
 
 As demais famílias OKF — `verified`, `status` (lifecycle §5.4) e `stale_after` (§5.5) — **não são emitidas** para
 requisitos do RM: o DOORS Next não expõe um sinal de revisão/estado/validade definido pelo servidor. A ausência é
@@ -144,18 +159,28 @@ chaves e **não** rejeitam o documento por não as conhecer (§11). Elas carrega
   cabeçalho (hyperlinks, alm-gc).
 - `folder` — a pasta do artefato no RM (também refletida em `tags`).
 - `creator` / `contributor` — logins de quem criou e de quem contribuiu no artefato.
-- `created` / `modified` — datas de criação e última modificação em **horário de Brasília** (diferente de
-  `generated.at`, que é UTC); campos vazios são omitidos.
+- `created` / `modified` — datas de criação e última modificação em **horário de Brasília** (para leitura humana;
+  o mesmo instante de `sources[0].last_modified`, que é UTC); campos vazios são omitidos.
 - `attributes` — atributos do tipo, pelos **nomes do DOORS Next**.
 - `links` — links de rastreabilidade por tipo de link (ver também "Referências a outros artefatos do RM").
-- `embedded` — todos os artefatos embutidos no texto; cada `![[id: título]]` no corpo aparece aqui.
+- `embedded` — todos os artefatos embutidos no texto (`id: título`); cada `![id título](...)` do corpo aparece aqui.
 
 **Relacionamentos no corpo.** De forma idiomática, o OKF expressa relações como links markdown no corpo (o tipo da
-relação vem da prosa, não do link); consumidores toleram links quebrados. No RM isso aparece como `![[id: título]]`
-(embed) e `[RN 2002](<url>)` (hyperlink). O mapa `links` do frontmatter continua sendo a fonte dos links de
-rastreabilidade.
+relação vem da prosa, não do link); consumidores toleram links quebrados. No RM a leitura sai **sempre no mesmo
+padrão**, qualquer que seja o jeito como o texto foi escrito:
 
-- `![[id: título]]` = artefato **embutido** naquele ponto do texto; `embedded` lista todos.
+| No DOORS Next | Na leitura |
+|---|---|
+| Artefato **embutido** | `![<id> <título>](<alvo>)` |
+| **Hyperlink** para artefato | `[<id> <título>](<alvo>)` (o texto original do link é trocado por `id título`) |
+| Link para fora do RM | `[texto](url)`, como está |
+
+- `<alvo>` = URL do artefato no ALM. Com `rm_get_requirement(id, links="bundle")` (usado pela alm-download e
+  alm-sync) é o **caminho relativo do arquivo** do artefato no bundle, ex.:
+  `![23434 REG Validar data fim periodo PAB](<../03 Regras Negócio/23434-reg-validar-data-fim-periodo-pab.md>)`.
+  Caminho com espaço vem entre `<...>`.
+- O `!` distingue embed de hyperlink: mantenha-o ao editar, senão o embed vira hyperlink ao gravar.
+- O mapa `links` do frontmatter continua sendo a fonte dos links de rastreabilidade; `embedded` lista os embeds.
 - Lê só a stream do alm.json e só os links do próprio artefato: **links de módulo e links que chegam de outros
   artefatos não aparecem**. Não afirme "não há link"; diga que não há link no artefato e sugira conferir na UI.
 
@@ -171,8 +196,8 @@ documento por campos opcionais ausentes, `type` desconhecido, chaves de extensã
   os nomes/valores válidos: não consulte o schema antes.
 - **Gravar um link substitui todos os links daquele tipo.** Leia antes e mande a lista completa (atuais + novo).
   Para remover um link, mande a lista sem ele.
-- **`text` substitui o texto inteiro.** Leia, edite o corpo (sem o cabeçalho YAML), mantenha todos os `![[...]]`
-  existentes e mande tudo. Ler → gravar → ler não muda o texto; só estilos visuais do Word (fonte, cor) se perdem.
+- **`text` substitui o texto inteiro.** Leia, edite o corpo (sem o cabeçalho YAML), mantenha todos os embeds
+  (`![...](...)`) e hyperlinks existentes e mande tudo. Ler → gravar → ler não muda o texto; só estilos visuais do Word (fonte, cor) se perdem.
 - `text` em Markdown: títulos, listas, negrito e as referências da seção abaixo.
 
 ### Referências a outros artefatos do RM
@@ -181,15 +206,23 @@ Há três formas de relacionar um artefato a outro. Escolha pelo que o usuário 
 
 | Forma | Escrita | Onde fica | Quando usar |
 |---|---|---|---|
-| **Embed** | `![[2003]]` no `text` | dentro do texto: o DOORS Next mostra o conteúdo do 2003 naquele ponto | "embute", "inclui a regra no passo", "mostra a mensagem no fluxo" |
-| **Hyperlink no texto** | `[RN 2003](<url do 2003>)` no `text` | dentro do texto, como link clicável | "cita", "referencia", "aponta para" |
+| **Embed** | `![2003](2003)` no `text` | dentro do texto: o DOORS Next mostra o conteúdo do 2003 naquele ponto | "embute", "inclui a regra no passo", "mostra a mensagem no fluxo" |
+| **Hyperlink no texto** | `[2003](2003)` no `text` | dentro do texto, como link clicável | "cita", "referencia", "aponta para" |
 | **Link de rastreabilidade** | `attributes={"Vincular A": [...]}` | fora do texto (aba Links), em `links` do cabeçalho | "liga", "vincula", "relaciona", "rastreia" |
 
-- **Embed:** o id basta (`![[2003]]`); o título é opcional e só ajuda a ler (`![[2003: RN - Validar CPF]]`). O
-  DOORS Next mostra o artefato embutido; na leitura ele volta como `![[id: título]]` e aparece em `embedded`.
-- **Hyperlink:** precisa da **URL** do artefato (`url` de `rm_search_requirements` ou do cabeçalho de
-  `rm_get_requirement`), nunca só o id. É um link comum de texto: **não** cria link de rastreabilidade nem aparece
-  em `links`.
+- **Escrita tolerante.** Com `!` = embed, sem `!` = hyperlink. O texto entre `[]` é livre (o MCP o normaliza na
+  próxima leitura) e o alvo pode ser qualquer um destes:
+
+  | Alvo | Exemplo |
+  |---|---|
+  | id | `![x](2003)`, `[2003](2003)` |
+  | URL do ALM | `[x](https://.../rm/resources/TX_...)` |
+  | arquivo do bundle (nome começa pelo id) | `![x](<../03 Regras/2003-rn-validar-cpf.md>)`, `[2003 RN Validar](<2003 RN Validar.md>)` |
+  | legado | `![[2003]]`, `![[2003: RN - Validar CPF]]` (só embed) |
+
+  Escreva o alvo com espaço entre `<...>`. Alvo que não é artefato do RM (site, imagem) fica como link/imagem comum.
+- Embed: o DOORS Next mostra o conteúdo do artefato naquele ponto; na leitura volta como `![id título](alvo)` e
+  aparece em `embedded`. Hyperlink: link comum de texto, **não** cria link de rastreabilidade nem aparece em `links`.
 - Embed e hyperlink vivem no `text`: gravar é mandar o corpo inteiro. Link de rastreabilidade vive em `attributes`:
   mandar a lista completa daquele tipo.
 - Sem pedido explícito de rastreabilidade, não crie link em `attributes` além do embed/hyperlink pedido.
@@ -202,25 +235,25 @@ Há três formas de relacionar um artefato a outro. Escolha pelo que o usuário 
    ## Fluxo Básico
 
    1. O usuário informa os dados do cliente.
-   2. O sistema valida o documento: ![[2001: RN - Validar CPF do cliente]]
+   2. O sistema valida o documento: ![2001 RN - Validar CPF do cliente](https://alm.example.com/rm/resources/TX_exemplo2001)
    3. O sistema verifica a idade do cliente.
    4. O sistema grava o cliente.
    ```
 
-2. URL da MSG 2005: `rm_get_requirement("2005")` (ou `url` de uma busca já feita na conversa).
-3. Novo corpo: mantém o embed 2001, acrescenta o embed 2003 e o hyperlink para a 2005:
+2. Novo corpo: mantém o embed 2001, acrescenta o embed 2003 e o hyperlink para a 2005:
 
    ```markdown
    ## Fluxo Básico
 
    1. O usuário informa os dados do cliente.
-   2. O sistema valida o documento: ![[2001: RN - Validar CPF do cliente]]
-   3. O sistema verifica a idade do cliente: ![[2003]]
-   4. O sistema grava o cliente e exibe a [MSG 2005](https://alm.example.com/rm/resources/TX_exemplo2005).
+   2. O sistema valida o documento: ![2001 RN - Validar CPF do cliente](https://alm.example.com/rm/resources/TX_exemplo2001)
+   3. O sistema verifica a idade do cliente: ![2003](2003)
+   4. O sistema grava o cliente e exibe a [2005](2005).
    ```
 
-4. Mostre o trecho alterado, confirme e chame `rm_update_requirement("2010", text=<corpo inteiro>)`.
-5. Confira lendo de novo: `embedded` deve listar 2001 e 2003.
+3. Mostre o trecho alterado, confirme e chame `rm_update_requirement("2010", text=<corpo inteiro>)`.
+4. Confira lendo de novo: `embedded` deve listar 2001 e 2003, e o corpo volta no padrão
+   (`![2003 RN - ...](url)`, `[2005 MSG - ...](url)`).
 
 **Exemplo — criar uma HU já com referências:**
 
@@ -228,7 +261,7 @@ Há três formas de relacionar um artefato a outro. Escolha pelo que o usuário 
 rm_create_requirement(..., requirement_type=rm.requirements-types["História de Usuário"],
     folder=rm.folders["02-Histórias"], title="HU - Exportar relatório em PDF",
     text="Como gestor, quero exportar o relatório em PDF.\n\n"
-         "**Regras**\n\n- ![[2001]]\n- Formato do arquivo: ver [ET 2007](<url do 2007>)",
+         "**Regras**\n\n- ![2001](2001)\n- Formato do arquivo: ver [ET 2007](2007)",
     attributes={"Vincular A": ["2010"]})
 ```
 
@@ -237,6 +270,8 @@ Aqui o 2001 fica embutido, a ET 2007 é citada por hyperlink e o UC 2010 recebe 
 ## Fluxos
 
 - **Buscar:** por pasta/tipo do alm.json; ou só por texto e filtrar localmente.
+- **Conferir modificação:** "o 2010 mudou?", "quando foi alterado o UC 2010" → `rm_list_modified(["2010"])`;
+  vários ids → uma chamada com a lista. Responda em tabela **Código | Título | Última modificação**.
 - **Ler:** `rm_get_requirement(id)`. Baseline ou outra configuração → `get_requirement` com `configuration_url`
   ([reference.md](reference.md)).
 - **Ligar requisitos** — "liga o UC 2010 à regra 2003 por Vincular A": leia o 2010 → `links["Vincular A"]` =

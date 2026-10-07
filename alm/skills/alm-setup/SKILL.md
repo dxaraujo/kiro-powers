@@ -4,7 +4,7 @@ description: "Configure, create, update or review the IBM ALM/ELM (EWM, DOORS Ne
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.1"
+  version: "1.0.2"
 ---
 
 # alm-setup
@@ -77,6 +77,7 @@ e a alm-ccm os usa para achar o attribute na gravação.
 | 3 | `rm_list_members(project_area_identifier=pa_rm)`. Proponha os logins escolhidos no ccm | `[{identifier, name}]` | `members` `{login: name}` |
 | 4 | `rm_list_folders(project_area_identifier=pa_rm, component, configuration)` | `[{name ('01-Req/Funcionais'), identifier ('FR_...')}]` | `folders` `{name: identifier}` |
 | 5 | `rm_list_requirement_types(project_area_identifier=pa_rm, component, configuration)` | `[{name, identifier ('OT_...')}]` | `requirements-types` `{name: identifier}` |
+| 6 | Opcional: "quer baixar a documentação do RM para o repositório?" Sim → pergunte a pasta raiz (sugira `docs/alm`), relativa à raiz do repositório, com `/` | — | `download` `{path}` (`last-download` é gravado pela alm-download/alm-sync) |
 
 O RM não guarda campos nem links: `rm_get_requirement` mostra os nomes do DOORS Next e a gravação usa os mesmos.
 
@@ -97,7 +98,7 @@ com `/` como separador — o arquivo é versionado e usado em Linux, macOS e Win
 da pasta atual, e ao citar o arquivo (para o usuário, no steering ou em configurações de outros powers, como o
 `sdd-projeto.md` do `sdd-workflow`) escreva `.kiro/config/alm-power/pa_<nome>.json` — nunca o caminho absoluto
 (`/home/…`, `/Users/…`, `C:\…`), `\` nem variáveis (`%USERPROFILE%`, `$HOME`). Nada dentro do JSON guarda caminho
-de arquivo local. O formato é definido pelo JSON Schema
+de arquivo local, exceto `rm.download.path`, também relativo à raiz do repositório e com `/`. O formato é definido pelo JSON Schema
 #[[file:assets/pa.schema.json]] (fonte da verdade). `$schema` é sempre a **primeira** propriedade:
 
 ```json
@@ -140,7 +141,8 @@ de arquivo local. O formato é definido pelo JSON Schema
     "configuration": "_<uuid-stream>",
     "members": { "<login>": "<Nome do Membro>" },
     "folders": { "<Pasta>": "FR_<id>" },
-    "requirements-types": { "<Tipo de Requisito>": "OT_<id>" }
+    "requirements-types": { "<Tipo de Requisito>": "OT_<id>" },
+    "download": { "path": "docs/alm", "last-download": "2026-10-06T18:00:00Z" }
   },
   "qm": {
     "project-area": "<PROJETO QM>",
