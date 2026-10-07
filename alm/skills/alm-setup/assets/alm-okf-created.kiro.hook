@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "ALM {{PA}}: atualizar created",
+  "description": "Ao salvar um .md do bundle OKF do RM da project area {{PA}} ({{PATH}}) que tenha o campo created no cabeçalho YAML, grava nele a data e hora atuais em UTC.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["{{PATH}}/**/*.md"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "O arquivo Markdown salvo é do bundle OKF do RM. Leia só o cabeçalho YAML (entre as duas primeiras linhas `---`). Sem cabeçalho ou sem a linha `created:` no primeiro nível, sem recuo (ex.: index.md, sync.md) → não faça nada e não responda nada. Com `created` → obtenha a data e hora atuais em UTC no formato `2026-09-01T13:15:00Z` (`date -u +%Y-%m-%dT%H:%M:%SZ`; no Windows, `powershell -c \"(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')\"`) e troque só o valor dessa linha por ela, entre aspas (ex.: `created: \"2020-05-07 18:09\"` → `created: \"2026-09-01T13:15:00Z\"`). Não altere mais nada no arquivo."
+  }
+}

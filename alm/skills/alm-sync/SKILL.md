@@ -4,7 +4,7 @@ description: "Download and keep in sync the IBM DOORS Next (RM) documentation as
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "2.1.0"
+  version: "2.2.0"
 ---
 
 # alm-sync
@@ -23,6 +23,8 @@ O caminho inverso (arquivo editado → ALM) é o fluxo **Subir alterações**, q
 2. Sem `rm.download.path` → pergunte a pasta raiz (sugira `docs/alm`), relativa à raiz do repositório, com `/`, e
    grave `rm.download = {"path": ...}`. `dest` de todas as chamadas = caminho **absoluto** dessa pasta (raiz do
    repositório + `path`).
+   Gravou o `path` agora, ou falta `.kiro/hooks/alm-okf-created-<nome>.kiro.hook` → gere-o como em **4. Gravar** da
+   **alm-setup** (um hook por project area).
 3. Formato antigo: `rm.download.last-download` → renomeie para `last-sync`; `<path>/log.md` → apague.
 
 ## Fluxo
