@@ -24,7 +24,9 @@ Formato que a **alm-download** grava e a **alm-sync** mantém. `<path>` = `rm.do
   `![23434 REG Validar data fim periodo PAB](<../03 Regras Negócio/23434-reg-validar-data-fim-periodo-pab.md>)`).
   Artefato de pasta não baixada = link quebrado, tolerado pelo OKF (§6.1); passa a funcionar quando a pasta for
   baixada. Não reescreva os links.
-- **Título mudou:** se já existe `<id>-*.md` com outro slug na pasta, apague o antigo depois de gravar o novo.
+- **Caminho mudou** (título novo, pasta renomeada/movida ou artefato movido de pasta): o arquivo novo vai para o
+  `path` atual; depois de gravá-lo, apague o arquivo antigo registrado no `sync.md` (e qualquer outro `<id>-*.md`
+  na pasta nova) e atualize o link da linha. Pasta antiga que ficou vazia pode ser apagada.
 - **Removido do ALM e mantido pelo usuário:** acrescente `status: deprecated` (§5.4) ao frontmatter do arquivo,
   logo depois de `generated`. Não invente outra chave.
 
@@ -55,9 +57,9 @@ generated: { by: "process:alm-sync", at: "2026-10-06T18:00:00Z" }
 | Status | Quando |
 |---|---|
 | `atualizado` | baixado e Última atualização ALM ≤ Generated OKF |
-| `pendente` | Última atualização ALM > Generated OKF: mudou no ALM depois do download |
+| `pendente` | Última atualização ALM > Generated OKF (mudou no ALM depois do download) ou o `path` atual difere do arquivo registrado (nota `movido` se mudou de pasta) |
 | `novo` | está numa pasta do RM e ainda não foi baixado (Generated OKF vazio) |
-| `removido` | não existe mais no ALM (não voltou em `rm_list_modified`) |
+| `removido` | não existe mais no ALM (não voltou em `rm_list_modified`) ou saiu das pastas baixadas (nota `fora das pastas baixadas`) |
 | `erro` | o download falhou; a mensagem curta vai depois do status (`erro: HTTP 403`) |
 
 ## `index.md`
