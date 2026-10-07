@@ -19,10 +19,10 @@ Power do Kiro para o **IBM Engineering Lifecycle Management (ELM)** via OSLC, us
 | `plugin.json` | Manifesto e keywords de ativação |
 | `mcp.json` | Servidor MCP `alm` (`uvx mcp-alm@latest`) |
 | `steering/steering.md` | Visão geral do power, sempre carregada |
-| `skills/alm-setup/` | Cria/atualiza `.kiro/config/alm-power/pa_<nome>.json` do projeto; cria iterações e planos; gera em `.kiro/hooks/` um hook `alm-rm-created-<nome>` por project area (atualiza `created` dos `.md` editados no bundle) |
+| `skills/alm-setup/` | Cria/atualiza `.kiro/config/alm-power/pa_<nome>.json` do projeto; cria iterações e planos |
 | `skills/alm-ccm/` | Work items (EWM); `reference.md` com as tools genéricas |
 | `skills/alm-rm/` | Requisitos (DOORS Next); `reference.md` com as tools genéricas |
-| `skills/alm-sync/` | Baixa e sincroniza a documentação do RM como bundle OKF (`sync.md` + `index.md` gravados pelo MCP) |
+| `skills/alm-sync/` | Sincroniza nos dois sentidos a documentação do RM como bundle OKF (`sync.md` + `index.md` gravados pelo MCP; conflito = pergunta ao usuário) |
 | `skills/alm-qm/` | Testes (ETM) |
 | `skills/alm-gc/` | Usuários, project areas, GC e rastreabilidade; `reference.md` com project areas, GC e qnames |
 

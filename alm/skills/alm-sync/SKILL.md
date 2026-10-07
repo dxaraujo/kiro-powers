@@ -1,31 +1,57 @@
 ---
 name: "alm-sync"
-description: "Download and keep in sync the IBM DOORS Next (RM) documentation as an Open Knowledge Format (OKF) bundle in the repository, one Markdown file per artifact, through the `alm` MCP. The MCP lists the folders, writes the files, sync.md and index.md itself; the skill only drives it. Use when the user asks to baixar toda a documentação, baixar os requisitos, exportar o RM, baixar a pasta X do RM, gerar a documentação em OKF, trazer os requisitos para o repositório, continuar o download, sincronizar a documentação, o que mudou no ALM, atualizar os requisitos baixados, verificar se a documentação está atualizada, sincronizar o requisito 123, subir as alterações para o ALM, publicar no ALM o que alterei no md ou enviar o 2010 alterado para o ALM."
+description: "Download and keep in sync, in both directions, the IBM DOORS Next (RM) documentation as an Open Knowledge Format (OKF) bundle in the repository, one Markdown file per artifact, through the `alm` MCP. The MCP lists the folders, writes the files, sync.md and index.md, and uploads the edited files itself; the skill only drives it. Use when the user asks to baixar toda a documentação, baixar os requisitos, exportar o RM, baixar a pasta X do RM, gerar a documentação em OKF, trazer os requisitos para o repositório, continuar o download, sincronizar a documentação, o que mudou no ALM, atualizar os requisitos baixados, verificar se a documentação está atualizada, sincronizar o requisito 123, subir as alterações para o ALM, publicar no ALM o que alterei no md ou enviar o 2010 alterado para o ALM."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "2.2.2"
+  version: "3.0.0"
 ---
 
 # alm-sync
 
-Baixa e mantém em dia a documentação do DOORS Next em `<rm.download.path>/<pasta do RM>/<id>-<slug>.md`, um
-bundle OKF com `sync.md` (situação de cada artefato) e `index.md`. **O MCP faz o trabalho pesado**: lista as pastas,
-grava os arquivos, o `sync.md` e o `index.md`, e devolve só resumos. Listas e conteúdo de artefato não passam pela
-conversa. O primeiro download e os sincronismos seguintes são o mesmo fluxo: no primeiro, tudo vem como `novo`.
-O caminho inverso (arquivo editado → ALM) é o fluxo **Subir alterações**, que roda sozinho, sem o sincronismo.
+Mantém em sincronia, nos dois sentidos, a documentação do DOORS Next em
+`<rm.download.path>/<pasta do RM>/<id>-<slug>.md`: um bundle OKF com `sync.md` (situação de cada artefato) e
+`index.md`. **O MCP faz o trabalho pesado**: lista as pastas, grava os arquivos, o `sync.md` e o `index.md`, sobe os
+md editados e devolve só resumos. Listas e conteúdo de artefato não passam pela conversa. O sincronismo **baixa
+primeiro e depois sobe**; no primeiro, tudo vem como `novo`.
+
+## Estados do `sync.md`
+
+| Estado | Quando | Ação |
+|---|---|---|
+| `novo` | ainda não baixado | baixar |
+| `sincronizado` | md igual ao ALM | — |
+| `desatualizado` | há versão mais nova no ALM | baixar |
+| `atualizado` | o md foi alterado e precisa ir para o ALM | subir |
+| `conflito` | md e ALM foram alterados | **perguntar ao usuário** qual versão fica |
+| `erro: <msg>` | falha no download | baixar de novo |
+
+O MCP detecta a alteração no md pelo `Hash` (sha256 do arquivo) e a do ALM pela coluna `Última atualização ALM`.
+Artefato que mudou de pasta volta a `novo` na pasta nova (o arquivo antigo é apagado; com alteração local, vira
+`conflito` e o arquivo fica).
+
+## Embeds e links no md
+
+Regra fixa do bundle: **artefato do bundle (id no `sync.md`) é sempre embed; o resto é sempre link**. Por isso o md
+do bundle não tem `embedded`, e o `links:` do cabeçalho (rastreabilidade) é só de leitura: não sobe. Ao editar um md,
+use:
+
+| Referência | Formato |
+|---|---|
+| embed (artefato do bundle) | `[<id>](<id>)` |
+| link para artefato de outra PA | `[<id>](<URL do ALM>)` |
+| link externo | `[<texto descritivo>](<url>)` |
+
+O que o download grava (`[id título](../03-Regras/2001-x.md)` e `[id título](URL do ALM)`) também vale.
 
 ## Antes de chamar
 
 1. **Leia `.kiro/config/alm-power/pa_*.json`** (um → use; vários → pergunte): os três parâmetros das `rm_*`
    (`project_area_identifier`, `component`, `configuration`), `rm.folders` e `rm.download`. Sem `rm` → ofereça a
    **alm-setup**.
-2. Sem `rm.download.path` → pergunte a pasta raiz (sugira `docs/alm/<nome>`, mesmo `<nome>` do `pa_<nome>.json`), relativa à raiz do repositório, com `/`, e
-   grave `rm.download = {"path": ...}`. `dest` de todas as chamadas = caminho **absoluto** dessa pasta (raiz do
-   repositório + `path`).
-   Gravou o `path` agora, ou falta `.kiro/hooks/alm-rm-created-<nome>.kiro.hook` → gere-o como em **4. Gravar** da
-   **alm-setup** (um hook por project area).
-3. Formato antigo: `rm.download.last-download` → renomeie para `last-sync`; `<path>/log.md` → apague.
+2. Sem `rm.download.path` → pergunte a pasta raiz (sugira `docs/alm/<nome>`, mesmo `<nome>` do `pa_<nome>.json`),
+   relativa à raiz do repositório, com `/`, e grave `rm.download = {"path": ...}`. `dest` de todas as chamadas =
+   caminho **absoluto** dessa pasta (raiz do repositório + `path`).
 
 ## Fluxo
 
@@ -35,59 +61,43 @@ O caminho inverso (arquivo editado → ALM) é o fluxo **Subir alterações**, q
    - identifier de `rm.folders` que sumiu → tire de `rm.folders` (os artefatos dela saem no passo 2).
 2. **Inventário:** `rm_sync_plan(folders=rm.folders, dest)`. O MCP lista cada pasta, compara com o `sync.md`,
    **apaga os arquivos removidos** (não estão mais em nenhuma pasta) e regrava o `sync.md`. Mostre:
-   - tabela **Pasta | Total | Novo | Pendente | Atualizado | Modificado | Erro** (de `pastas`);
+   - tabela **Pasta | Total | Novo | Sincronizado | Desatualizado | Atualizado | Conflito | Erro** (de `pastas`;
+     estado ausente = 0);
    - `removidos` (já apagados), como lista **Código | Título | Pasta**;
    - `inconsistentes` (count ≠ listados no servidor): avise que nada foi removido e que os `nao_confirmados` serão
      conferidos no próximo sincronismo.
-3. **Nada a baixar** (`a_baixar = 0`) → diga que está tudo atualizado, grave `rm.download.last-sync` e pare.
-4. **Confirmar e baixar:** mostre `a_baixar` e peça confirmação. Depois chame
-   `rm_download_requirements(dest)` repetidamente até `restantes = 0`: cada chamada baixa os próximos 50 da fila e
-   grava o `sync.md` (e o `index.md` ao terminar). Informe o progresso a cada chamada. Erro de um artefato não para
-   o lote: acumule os `erros`.
-   `modificado` = ao baixar, o MCP trocou um link da UI web do DOORS Next pelo arquivo do bundle: o arquivo
-   difere do ALM e precisa subir. Fica `modificado` até o ALM mudar; aí volta para a fila.
-5. **Fechar:** `rm.download.last-sync` = agora, ISO 8601 UTC (`...Z`); grave o `pa_*.json` (pastas e
-   `last-sync`). Responda com o total baixado, os erros e o caminho do `sync.md`. Sobrou erro → diga que rodar a
-   alm-sync de novo tenta só esses.
-6. **Sentido inverso:** linhas `modificado` no `sync.md` → liste-as (**Código | Título | Pasta**) e pergunte se
-   pode subir para o ALM. Sim → **Subir alterações** com esses ids. Assim o sincronismo vale nos dois sentidos.
+3. **Nada a fazer** (`a_baixar = 0`, `a_subir = 0` e `conflitos` vazio) → diga que está tudo sincronizado, grave
+   `rm.download.last-sync` e pare.
+4. **Baixar:** com `a_baixar > 0`, mostre o total e peça confirmação. Depois chame `rm_download_requirements(dest)`
+   repetidamente até `restantes = 0` (ou até só restarem os ids com erro): cada chamada baixa os próximos 50 e grava
+   o `sync.md` (e o `index.md` ao terminar). Informe o progresso a cada chamada e acumule os `erros`.
+5. **Conflitos:** para cada item de `conflitos`, mostre **Código | Título | Pasta** e **pergunte qual versão fica:
+   md ou ALM**. Uma pergunta por artefato, ou uma para todos se o usuário preferir.
+   - **ALM** → `rm_download_requirements(dest, requirement_ids=[...])`. Avise antes: a alteração do md é perdida.
+   - **md** → `rm_upload_requirements(dest, requirement_ids=[...])`. Avise antes: a alteração feita no ALM é sobrescrita.
+6. **Subir:** com `a_subir > 0`, liste as linhas `atualizado` do `sync.md` (**Código | Título | Pasta**) e peça
+   confirmação. Depois chame `rm_upload_requirements(dest)` até `restantes = 0` (ou até só restarem erros). Cada
+   chamada sobe título e corpo do md e baixa o requisito de novo (a linha fica `sincronizado`). Se o ALM mudou nesse
+   meio-tempo, o MCP não sobe e devolve o id em `conflitos` → volte ao passo 5 com eles.
+7. **Fechar:** `rm.download.last-sync` = agora, ISO 8601 UTC (`...Z`); grave o `pa_*.json` (pastas e `last-sync`).
+   Responda com baixados, enviados, conflitos resolvidos (e a versão escolhida), os erros e o caminho do `sync.md`.
+   Sobrou erro → diga que rodar a alm-sync de novo tenta só esses.
 
-**Retomar:** se a sessão cair ou o contexto for compactado, rode o fluxo de novo. A fila está no `sync.md`: o que
-já foi baixado fica `atualizado` e só o resto é baixado.
-
-## Subir alterações
-
-Fluxo próprio: roda ao fim do sincronismo (passo 6) ou direto, quando o usuário editou arquivos do bundle e pede
-para subir ("sobe o 2010 e o 2011 para o ALM") — **sem** rodar o sincronismo antes.
-
-1. **Quais:** os ids que o usuário informar; sem ids, as linhas `modificado` do `sync.md`. Id sem arquivo no
-   `sync.md` → diga que não está baixado e pule.
-2. **Conflito:** `rm_list_modified(ids)` e compare cada `modified` com a coluna Generated OKF da linha. ALM mais
-   novo → **não suba**: o artefato mudou no ALM depois do download e a gravação apagaria essa mudança. Ofereça
-   baixar de novo (`rm_download_requirements(dest, requirement_ids=[...])`) para refazer a edição sobre a versão
-   atual.
-3. **Ler o arquivo** (`<dest>/<path da linha>`): `title`, `embedded` e o corpo (tudo depois do cabeçalho YAML).
-   `attributes`/`links` só sobem os que o usuário disser que alterou (gravar um tipo de link substitui a lista
-   inteira daquele tipo: mande a lista completa do arquivo).
-4. **Confirmar:** mostre **Código | Título | O que sobe** (texto, título, atributos/links pelos nomes) e peça
-   confirmação do lote.
-5. **Gravar**, um artefato por vez, pela ferramenta de gravação da alm-rm:
-   `rm_update_requirement(id, title=<title>, text=<corpo>, embedded=<embedded>, attributes=<só os alterados>)`.
-   Sem o `embedded`, todo embed vira hyperlink. Erro num artefato não para os outros: acumule.
-6. **Reconciliar:** `rm_download_requirements(dest, requirement_ids=<os gravados>)`: o MCP regrava o arquivo e a
-   linha do `sync.md` (`atualizado`) com a versão que ficou no ALM. Responda com os gravados, os conflitos e os
-   erros.
+**Retomar:** se a sessão cair ou o contexto for compactado, rode o fluxo de novo. O estado está no `sync.md`.
 
 ## Pedido pontual
 
-"Sincroniza o 2010", "baixa o UC 2010" → `rm_download_requirements(dest, requirement_ids=["2010"])` (grava o
-arquivo e a linha do `sync.md`). "O 2010 está atualizado?" → `rm_list_modified(["2010"])` e compare com a coluna
-Generated OKF da linha do `sync.md`.
+- "Sincroniza o 2010", "baixa o UC 2010" → `rm_download_requirements(dest, requirement_ids=["2010"])`. A linha está
+  `atualizado` ou `conflito` → avise antes que a alteração do md se perde.
+- "Sobe o 2010 e o 2011", "publica no ALM o que alterei" → `rm_sync_plan(...)`, para o MCP ver a alteração no md, e
+  depois os passos 5 e 6 só com esses ids (sem ids: todos os `atualizado`). Não precisa baixar antes.
+- "O 2010 está atualizado?" → `rm_sync_plan(...)` e responda com o estado da linha do 2010 no `sync.md`.
 
 ## Regras
 
-- Nunca chame `rm_get_requirement` nem `rm_list_folder` neste fluxo, e nunca escreva `sync.md`, `index.md` ou os
-  arquivos dos artefatos: só o MCP grava no bundle.
-- No ALM, só leitura, exceto em **Subir alterações**, e sempre com confirmação do usuário.
+- Nunca chame `rm_get_requirement`, `rm_list_folder` nem `rm_update_requirement` neste fluxo, e nunca escreva
+  `sync.md`, `index.md` ou os arquivos dos artefatos: só o MCP grava no bundle e sobe para o ALM.
+- No ALM, só escreva nos passos 5 e 6, sempre com confirmação do usuário. Conflito **sempre** pergunta: nunca
+  escolha a versão sozinho.
 - Removidos são sempre apagados (pelo `rm_sync_plan`). Para manter um artefato, mantenha a pasta em `rm.folders`.
 - Mostre nomes de pasta e tipo, nunca `FR_`/`OT_`.
