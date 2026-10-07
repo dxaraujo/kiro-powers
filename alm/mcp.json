@@ -7,8 +7,7 @@
       "args": [ "mcp-alm@latest" ],
       "env": {
         "UV_SYSTEM_CERTS": "true"
-      },
-      "disabled": false
+      }
     }
   }
 }
