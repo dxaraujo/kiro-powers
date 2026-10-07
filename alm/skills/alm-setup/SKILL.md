@@ -4,7 +4,7 @@ description: "Configure, create, update or review the IBM ALM/ELM (EWM, DOORS Ne
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # alm-setup
@@ -94,9 +94,12 @@ Mostre o JSON completo, peça confirmação e grave `.kiro/config/alm-power/pa_<
 `ccm.project-area` mudou, grave com o novo nome e apague o antigo).
 
 **Hook do `created`** — o Kiro não distribui hooks por power: esta skill gera um por project area no projeto,
-`.kiro/hooks/alm-okf-created-<nome>.kiro.hook` (mesmo `<nome>` do `pa_<nome>.json`), a partir de
-#[[file:assets/alm-okf-created.kiro.hook]], trocando `{{PA}}` por `ccm.project-area` e `{{PATH}}` por
-`rm.download.path`. Ao salvar um `.md` dessa pasta com `created` no cabeçalho, o agente grava nele a hora atual (UTC).
+`.kiro/hooks/alm-rm-created-<nome>.kiro.hook` (mesmo `<nome>` do `pa_<nome>.json`), a partir do template
+#[[file:assets/alm-rm-created.kiro.hook]], trocando `{{PA}}` por `ccm.project-area` e `{{PATH}}` por
+`rm.download.path`. Esse template (e o schema `assets/pa.schema.json`) fica dentro do power instalado, **não** no
+projeto do usuário: a referência `#[[file:assets/...]]` é relativa à pasta desta skill. Leia o arquivo direto por
+esse caminho (ferramenta de leitura de arquivo); não use `file_search`/busca no workspace, que só enxerga o projeto
+e não acha o asset. Ao salvar um `.md` dessa pasta com `created` no cabeçalho, o agente grava nele a hora atual (UTC).
 Na mesma confirmação do JSON:
 - com `rm.download.path` → crie o hook, ou regrave o existente se o path ou o nome da PA mudou (mostre o diff);
 - sem `rm.download.path` → apague o hook dessa PA, se existir;
