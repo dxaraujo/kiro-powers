@@ -9,24 +9,25 @@ Formato que a **alm-download** grava e a **alm-sync** mantém. `<path>` = `rm.do
   index.md                              # §8: listagem do bundle
   log.md                                # §9: histórico de downloads e sincronismos
   sync.md                               # concept: situação de cada artefato
-  <pasta do RM>/<id>-<slug>.md          # um concept por artefato (saída de rm_get_requirement)
+  <pasta do RM>/<id>-<slug>.md          # um concept por artefato (gravado por rm_download_requirements)
 ```
 
 ## Artefato
 
-- **Arquivo:** `<path>/<path do artefato>`, onde o `path` do artefato vem de `rm_search_requirements` (o MCP
-  aplica a regra: `<caminho da pasta no RM>/<id>-<slug do título>.md`, ex.: `03-Casos de Uso/2010-uc-cadastrar-cliente.md`).
-  Não monte o nome à mão. Não use o `folder` da busca para a pasta: ele traz só o nome da última pasta.
-- **Conteúdo:** a saída de `rm_get_requirement(id, links="bundle")` **exatamente como veio**. Ela já é um concept
-  OKF conforme: `type`, `sources[0].last_modified` (última modificação no ALM) e `generated.at` (quando foi gerado).
+- **Arquivo:** `<path>/<path do artefato>`, gravado pelo MCP com `rm_download_requirements(ids, dest)` (`dest` =
+  `<path>` absoluto), que devolve o `path` (`<caminho da pasta no RM>/<id>-<slug do título>.md`, ex.:
+  `03-Casos de Uso/2010-uc-cadastrar-cliente.md`). Não monte o nome nem grave o arquivo à mão.
+- **Conteúdo:** o mesmo de `rm_get_requirement(id, links="bundle")`, sem passar pela conversa. Já é um concept
+  OKF conforme: `type`, `sources[0].last_modified` (última modificação no ALM) e `generated.at` (quando foi gerado);
+  a tool devolve os dois como `last_modified` e `generated_at`.
 - **Links no corpo:** com `links="bundle"`, embed sai `![<id> <título>](<caminho relativo>)` e hyperlink para
   artefato `[<id> <título>](<caminho relativo>)`, apontando para o arquivo do outro artefato no bundle (ex.:
   `![23434 REG Validar data fim periodo PAB](<../03 Regras Negócio/23434-reg-validar-data-fim-periodo-pab.md>)`).
   Artefato de pasta não baixada = link quebrado, tolerado pelo OKF (§6.1); passa a funcionar quando a pasta for
   baixada. Não reescreva os links.
-- **Caminho mudou** (título novo, pasta renomeada/movida ou artefato movido de pasta): o arquivo novo vai para o
-  `path` atual; depois de gravá-lo, apague o arquivo antigo registrado no `sync.md` (e qualquer outro `<id>-*.md`
-  na pasta nova) e atualize o link da linha. Pasta antiga que ficou vazia pode ser apagada.
+- **Caminho mudou** (título novo, pasta renomeada/movida ou artefato movido de pasta): a tool grava no `path`
+  atual e apaga os outros `<id>-*.md` do bundle (devolvidos em `replaced`); atualize o link da linha. Pasta antiga
+  que ficou vazia pode ser apagada.
 - **Removido do ALM e mantido pelo usuário:** acrescente `status: deprecated` (§5.4) ao frontmatter do arquivo,
   logo depois de `generated`. Não invente outra chave.
 
@@ -48,18 +49,19 @@ generated: { by: "process:alm-sync", at: "2026-10-06T18:00:00Z" }
 
 - `generated.at` = instante da última gravação do `sync.md` (a última verificação); `by` = `process:alm-download`
   ou `process:alm-sync`, conforme a skill que gravou.
-- **Última atualização ALM** = `modified` de `rm_search_requirements`/`rm_list_modified` (ou
-  `sources[0].last_modified` do arquivo). **Generated OKF** = `generated.at` do arquivo. Ambos em ISO 8601 UTC
+- **Última atualização ALM** = `modified` de `rm_list_folder`/`rm_list_modified` (ou `last_modified` de
+  `rm_download_requirements`). **Generated OKF** = `generated_at` de `rm_download_requirements`. Ambos em ISO 8601 UTC
   (`...Z`): compare como texto.
-- Link bundle-relative com `/` (§6.1) entre `<...>` (pastas do RM têm espaço). `|` no título vira `\|`.
+- Link bundle-relative com `/` (§6.1) entre `<...>` (pastas do RM têm espaço). `|` no título vira `\|`. Linha
+  ainda não baixada (`novo`) fica sem link: `2010 — UC - Cadastrar cliente`.
 - Uma linha por artefato, ordenada por pasta e id.
 
 | Status | Quando |
 |---|---|
 | `atualizado` | baixado e Última atualização ALM ≤ Generated OKF |
-| `pendente` | Última atualização ALM > Generated OKF (mudou no ALM depois do download) ou o `path` atual difere do arquivo registrado (nota `movido` se mudou de pasta) |
-| `novo` | está numa pasta do RM e ainda não foi baixado (Generated OKF vazio) |
-| `removido` | não existe mais no ALM (não voltou em `rm_list_modified`) ou saiu das pastas baixadas (nota `fora das pastas baixadas`) |
+| `pendente` | Última atualização ALM > Generated OKF (mudou no ALM depois do download) ou a Pasta mudou (nota `movido`) |
+| `novo` | está numa pasta do RM e ainda não foi baixado (Generated OKF vazio): é a fila da alm-download |
+| `removido` | não veio em nenhum `rm_list_folder`: não existe mais no ALM (não voltou em `rm_list_modified`) ou saiu das pastas baixadas (nota `fora das pastas baixadas`) |
 | `erro` | o download falhou; a mensagem curta vai depois do status (`erro: HTTP 403`) |
 
 ## `index.md`

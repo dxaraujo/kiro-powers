@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "alm-power",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "IBM ELM (EWM/RTC, DOORS Next, ETM) via OSLC: work items, requisitos, testes, configuração global e rastreabilidade, com o MCP mcp-alm",
   "author": {
     "name": "Daniel Xavier Araújo",

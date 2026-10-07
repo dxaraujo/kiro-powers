@@ -68,6 +68,9 @@ Todas com `project_area_identifier`, `component`, `configuration` do alm.json (o
 | Tool | Entrada extra | Saída |
 |---|---|---|
 | `rm_search_requirements(text? \| folder?, requirement_type?)` | `text` **sozinho**, ou `folder` (`FR_`) e/ou `requirement_type` (`OT_`) | `[{id, title, type, folder, modified, path, url}]` (≤1000); `path` = arquivo do artefato no bundle da alm-download |
+| `rm_count_folder(folder)` | `FR_` | `{folder, count}` (só a pasta, sem subpastas, sem teto) |
+| `rm_list_folder(folder)` | `FR_` | `[{id, title, modified}]` (só a pasta, sem subpastas, sem teto) |
+| `rm_download_requirements(requirement_ids, dest)` | só para a alm-download/alm-sync; `dest` absoluto | grava os arquivos no bundle; `[{id, path, last_modified, generated_at, replaced?} \| {id, error}]` |
 | `rm_list_modified(requirement_ids)` | lista de ids numéricos (string); um id = consulta individual, vários = lote | `[{id, title, modified}]`; id inexistente não volta |
 | `rm_get_requirement(requirement_id, links?)` | id numérico (string); `links="bundle"` só para a alm-download/alm-sync | Markdown + YAML (abaixo) |
 | `rm_create_requirement(requirement_type, folder, title, text, attributes?)` | `OT_`, `FR_`; `text` em Markdown | `{id, title, url}` |
