@@ -4,7 +4,7 @@ description: "Query, search, read, create or update IBM DOORS Next (RM) artifact
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 # alm-rm
@@ -70,9 +70,9 @@ Todas com `project_area_identifier`, `component`, `configuration` do alm.json (o
 | `rm_search_requirements(text? \| folder?, requirement_type?)` | `text` **sozinho**, ou `folder` (`FR_`) e/ou `requirement_type` (`OT_`) | `[{id, title, type, folder, modified, path, url}]` (≤1000); `path` = arquivo do artefato no bundle da alm-sync |
 | `rm_count_folder(folder)` | `FR_` | `{folder, count}` (só a pasta, sem subpastas, sem teto) |
 | `rm_list_folder(folder)` | `FR_` | `[{id, title, modified}]` (só a pasta, sem subpastas, sem teto) |
-| `rm_sync_plan(folders, dest)` | só para a alm-sync; `dest` absoluto | regrava `sync.md`, apaga removidos; resumo por pasta (novo, sincronizado, desatualizado, atualizado, conflito, erro) + `a_baixar`, `a_subir`, `conflitos` |
+| `rm_sync_plan(folders, dest)` | só para a alm-sync; `dest` absoluto | regrava `sync.md`, apaga removidos; resumo por pasta (novo, sincronizado, desatualizado, atualizado, normalizado, conflito, erro) + `a_baixar`, `a_subir`, `conflitos` |
 | `rm_download_requirements(dest, requirement_ids?, limit?)` | só para a alm-sync; sem ids = próximos novo/desatualizado/erro do `sync.md` | grava arquivos, `sync.md` e `index.md`; `{baixados, erros, restantes}` |
-| `rm_upload_requirements(dest, requirement_ids?, limit?)` | só para a alm-sync; sem ids = próximos `atualizado` (só se o ALM não mudou) | sobe título e corpo do md e baixa de novo; `{enviados, erros, conflitos, restantes}` |
+| `rm_upload_requirements(dest, requirement_ids?, limit?)` | só para a alm-sync; sem ids = próximos `atualizado`/`normalizado` (só se o ALM não mudou) | sobe título e corpo do md e baixa de novo; `{enviados, erros, conflitos, restantes}` |
 | `rm_list_modified(requirement_ids)` | lista de ids numéricos (string); um id = consulta individual, vários = lote | `[{id, title, modified}]`; id inexistente não volta |
 | `rm_get_requirement(requirement_id, links?)` | id numérico (string); `links="bundle"` só para a alm-sync | Markdown + YAML (abaixo) |
 | `rm_create_requirement(requirement_type, folder, title, text, embedded?)` | `OT_`, `FR_`; `text` em Markdown; `embedded` = ids a embutir | `{id, title, url}` |

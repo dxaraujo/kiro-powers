@@ -4,7 +4,7 @@ description: "Download and keep in sync, in both directions, the IBM DOORS Next 
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "3.0.0"
+  version: "3.1.0"
 ---
 
 # alm-sync
@@ -23,10 +23,13 @@ primeiro e depois sobe**; no primeiro, tudo vem como `novo`.
 | `sincronizado` | md igual ao ALM | — |
 | `desatualizado` | há versão mais nova no ALM | baixar |
 | `atualizado` | o md foi alterado e precisa ir para o ALM | subir |
+| `normalizado` | o md **não** foi alterado; o ALM foge da regra embed/link do bundle | subir |
 | `conflito` | md e ALM foram alterados | **perguntar ao usuário** qual versão fica |
 | `erro: <msg>` | falha no download | baixar de novo |
 
 O MCP detecta a alteração no md pelo `Hash` (sha256 do arquivo) e a do ALM pela coluna `Última atualização ALM`.
+`normalizado` **não é falso positivo**: no md, embed e link para o bundle ficam iguais, então diff, hash e
+`git diff` não mostram a diferença; ela só existe no XHTML do ALM. Não investigue nem compare arquivos: suba.
 Artefato que mudou de pasta volta a `novo` na pasta nova (o arquivo antigo é apagado; com alteração local, vira
 `conflito` e o arquivo fica).
 
@@ -61,7 +64,7 @@ O que o download grava (`[id título](../03-Regras/2001-x.md)` e `[id título](U
    - identifier de `rm.folders` que sumiu → tire de `rm.folders` (os artefatos dela saem no passo 2).
 2. **Inventário:** `rm_sync_plan(folders=rm.folders, dest)`. O MCP lista cada pasta, compara com o `sync.md`,
    **apaga os arquivos removidos** (não estão mais em nenhuma pasta) e regrava o `sync.md`. Mostre:
-   - tabela **Pasta | Total | Novo | Sincronizado | Desatualizado | Atualizado | Conflito | Erro** (de `pastas`;
+   - tabela **Pasta | Total | Novo | Sincronizado | Desatualizado | Atualizado | Normalizado | Conflito | Erro** (de `pastas`;
      estado ausente = 0);
    - `removidos` (já apagados), como lista **Código | Título | Pasta**;
    - `inconsistentes` (count ≠ listados no servidor): avise que nada foi removido e que os `nao_confirmados` serão
@@ -75,9 +78,10 @@ O que o download grava (`[id título](../03-Regras/2001-x.md)` e `[id título](U
    md ou ALM**. Uma pergunta por artefato, ou uma para todos se o usuário preferir.
    - **ALM** → `rm_download_requirements(dest, requirement_ids=[...])`. Avise antes: a alteração do md é perdida.
    - **md** → `rm_upload_requirements(dest, requirement_ids=[...])`. Avise antes: a alteração feita no ALM é sobrescrita.
-6. **Subir:** com `a_subir > 0`, liste as linhas `atualizado` do `sync.md` (**Código | Título | Pasta**) e peça
-   confirmação. Depois chame `rm_upload_requirements(dest)` até `restantes = 0` (ou até só restarem erros). Cada
-   chamada sobe título e corpo do md e baixa o requisito de novo (a linha fica `sincronizado`). Se o ALM mudou nesse
+6. **Subir:** com `a_subir > 0`, liste as linhas `atualizado` e `normalizado` do `sync.md` (**Código | Título | Pasta |
+   Estado**) e peça confirmação; diga que `normalizado` só troca hyperlink↔embed no ALM, sem mudar o texto.
+   Depois chame `rm_upload_requirements(dest)` até `restantes = 0` (ou até só restarem erros). Cada chamada
+   sobe título e corpo do md e baixa o requisito de novo (a linha fica `sincronizado`). Se o ALM mudou nesse
    meio-tempo, o MCP não sobe e devolve o id em `conflitos` → volte ao passo 5 com eles.
 7. **Fechar:** `rm.download.last-sync` = agora, ISO 8601 UTC (`...Z`); grave o `pa_*.json` (pastas e `last-sync`).
    Responda com baixados, enviados, conflitos resolvidos (e a versão escolhida), os erros e o caminho do `sync.md`.
@@ -90,7 +94,7 @@ O que o download grava (`[id título](../03-Regras/2001-x.md)` e `[id título](U
 - "Sincroniza o 2010", "baixa o UC 2010" → `rm_download_requirements(dest, requirement_ids=["2010"])`. A linha está
   `atualizado` ou `conflito` → avise antes que a alteração do md se perde.
 - "Sobe o 2010 e o 2011", "publica no ALM o que alterei" → `rm_sync_plan(...)`, para o MCP ver a alteração no md, e
-  depois os passos 5 e 6 só com esses ids (sem ids: todos os `atualizado`). Não precisa baixar antes.
+  depois os passos 5 e 6 só com esses ids (sem ids: todos os `atualizado`/`normalizado`). Não precisa baixar antes.
 - "O 2010 está atualizado?" → `rm_sync_plan(...)` e responda com o estado da linha do 2010 no `sync.md`.
 
 ## Regras
