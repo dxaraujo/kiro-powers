@@ -139,7 +139,7 @@
           "properties": {
             "path": {
               "type": "string",
-              "description": "Pasta raiz do bundle OKF, relativa à raiz do projeto (ex.: 'docs/alm'). Cada pasta do RM vira uma subpasta.",
+              "description": "Pasta raiz do bundle OKF, relativa à raiz do projeto (ex.: 'docs/alm/<nome>', mesmo <nome> do pa_<nome>.json). Cada pasta do RM vira uma subpasta.",
               "minLength": 1
             },
             "last-sync": {
