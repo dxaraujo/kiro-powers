@@ -22,8 +22,7 @@ Power do Kiro para o **IBM Engineering Lifecycle Management (ELM)** via OSLC, us
 | `skills/alm-setup/` | Cria/atualiza `.kiro/config/alm-power/pa_<nome>.json` do projeto; cria iterações e planos |
 | `skills/alm-ccm/` | Work items (EWM); `reference.md` com as tools genéricas |
 | `skills/alm-rm/` | Requisitos (DOORS Next); `reference.md` com as tools genéricas |
-| `skills/alm-download/` | Baixa a documentação do RM como bundle OKF; `reference.md` com o formato do bundle |
-| `skills/alm-sync/` | Compara datas ALM × OKF, marca pendentes no `sync.md` e baixa só o que mudou |
+| `skills/alm-sync/` | Baixa e sincroniza a documentação do RM como bundle OKF (`sync.md` + `index.md` gravados pelo MCP) |
 | `skills/alm-qm/` | Testes (ETM) |
 | `skills/alm-gc/` | Usuários, project areas, GC e rastreabilidade; `reference.md` com project areas, GC e qnames |
 

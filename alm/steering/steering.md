@@ -14,7 +14,7 @@ ordem, de onde vem cada parâmetro).
 |---|---|---|
 | **EWM/RTC (CCM)** | Listar, ler, criar, atualizar, mudar estado e comentar work items (IB, TR, DF, DT, IMP, RSC, REU); itens de sprint, iteração ou plano | `alm-ccm` |
 | **DOORS Next (RM)** | Buscar, ler, criar e atualizar requisitos (REQ, HU, UC, RN, MSG, ET...), atributos, links entre requisitos e artefatos embutidos | `alm-rm` |
-| **Documentação RM** | Baixar os artefatos do DOORS Next para o repositório em OKF (`rm.download.path`) e sincronizar só o que mudou (`sync.md`) | `alm-download`, `alm-sync` |
+| **Documentação RM** | Baixar os artefatos do DOORS Next para o repositório em OKF (`rm.download.path`) e sincronizar só o que mudou (`sync.md`) | `alm-sync` |
 | **ETM/RQM (QM)** | Consultar artefatos de teste (CT, PT, ST, SCT, TER, RT) — só leitura | `alm-qm` |
 | **Comum / GC** | Quem sou eu, usuários, project areas, configuração global e rastreabilidade entre work item, requisito e teste | `alm-gc` |
 | **Configuração** | Criar/atualizar `.kiro/config/alm-power/pa_<nome>.json`; criar iterações e planos | `alm-setup` |

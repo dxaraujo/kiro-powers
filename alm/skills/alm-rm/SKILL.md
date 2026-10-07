@@ -12,8 +12,8 @@ metadata:
 Requisitos do DOORS Next pelo MCP `alm`, com as tools `rm_*`: recebem os ids do `.kiro/config/alm-power/pa_*.json` e trabalham com
 **nomes** de atributo, valor e link. As tools genéricas do IBM AI Hub (baselines, change sets, configuração global,
 outra project area) estão em [reference.md](reference.md): leia-o **só** quando precisar delas. Links com work
-items e testes → **alm-gc**. Baixar a documentação inteira para o repositório → **alm-download**; conferir o que
-mudou e atualizar o que foi baixado → **alm-sync**.
+items e testes → **alm-gc**. Baixar a documentação para o repositório, conferir o que mudou e atualizar o que foi
+baixado → **alm-sync**.
 
 ## Antes de chamar
 
@@ -67,12 +67,13 @@ Todas com `project_area_identifier`, `component`, `configuration` do alm.json (o
 
 | Tool | Entrada extra | Saída |
 |---|---|---|
-| `rm_search_requirements(text? \| folder?, requirement_type?)` | `text` **sozinho**, ou `folder` (`FR_`) e/ou `requirement_type` (`OT_`) | `[{id, title, type, folder, modified, path, url}]` (≤1000); `path` = arquivo do artefato no bundle da alm-download |
+| `rm_search_requirements(text? \| folder?, requirement_type?)` | `text` **sozinho**, ou `folder` (`FR_`) e/ou `requirement_type` (`OT_`) | `[{id, title, type, folder, modified, path, url}]` (≤1000); `path` = arquivo do artefato no bundle da alm-sync |
 | `rm_count_folder(folder)` | `FR_` | `{folder, count}` (só a pasta, sem subpastas, sem teto) |
 | `rm_list_folder(folder)` | `FR_` | `[{id, title, modified}]` (só a pasta, sem subpastas, sem teto) |
-| `rm_download_requirements(requirement_ids, dest)` | só para a alm-download/alm-sync; `dest` absoluto | grava os arquivos no bundle; `[{id, path, last_modified, generated_at, replaced?} \| {id, error}]` |
+| `rm_sync_plan(folders, dest)` | só para a alm-sync; `dest` absoluto | regrava `sync.md`, apaga removidos; resumo por pasta + `a_baixar` |
+| `rm_download_requirements(dest, requirement_ids?, limit?)` | só para a alm-sync; sem ids = próximos da fila do `sync.md` | grava arquivos, `sync.md` e `index.md`; `{baixados, erros, restantes}` |
 | `rm_list_modified(requirement_ids)` | lista de ids numéricos (string); um id = consulta individual, vários = lote | `[{id, title, modified}]`; id inexistente não volta |
-| `rm_get_requirement(requirement_id, links?)` | id numérico (string); `links="bundle"` só para a alm-download/alm-sync | Markdown + YAML (abaixo) |
+| `rm_get_requirement(requirement_id, links?)` | id numérico (string); `links="bundle"` só para a alm-sync | Markdown + YAML (abaixo) |
 | `rm_create_requirement(requirement_type, folder, title, text, attributes?)` | `OT_`, `FR_`; `text` em Markdown | `{id, title, url}` |
 | `rm_update_requirement(requirement_id, title?, text?, attributes?)` | ≥1 dos três; `text` e cada atributo **substituem** o atual | `{id, title, url}` |
 
@@ -178,8 +179,7 @@ padrão**, qualquer que seja o jeito como o texto foi escrito:
 | **Hyperlink** para artefato | `[<id> <título>](<alvo>)` (o texto original do link é trocado por `id título`) |
 | Link para fora do RM | `[texto](url)`, como está |
 
-- `<alvo>` = URL do artefato no ALM. Com `rm_get_requirement(id, links="bundle")` (usado pela alm-download e
-  alm-sync) é o **caminho relativo do arquivo** do artefato no bundle, ex.:
+- `<alvo>` = URL do artefato no ALM. Com `rm_get_requirement(id, links="bundle")` (usado pela alm-sync) é o **caminho relativo do arquivo** do artefato no bundle, ex.:
   `![23434 REG Validar data fim periodo PAB](<../03 Regras Negócio/23434-reg-validar-data-fim-periodo-pab.md>)`.
   Caminho com espaço vem entre `<...>`.
 - O `!` distingue embed de hyperlink: mantenha-o ao editar, senão o embed vira hyperlink ao gravar.
