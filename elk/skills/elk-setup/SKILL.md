@@ -50,10 +50,10 @@ gravado veio de uma saída de tool desta conversa.
 |---|---|---|
 | 1 | Pergunte o ambiente padrão (prod, homol, dev) | `ambiente` |
 | 2 | Lista da etapa 1 (`elk_listar_indices`). Muitos data views → peça um trecho do nome e repita com `busca`. Mostre `padrao` e `espaco`; o usuário escolhe um ou mais. Dê a cada um um nome curto (sugira pelo padrão: `logs-app-x-*` → `aplicacao`) e pergunte qual é o padrão | `indices[nome].padrao`, `campo-tempo` (= `campo_tempo` da tool), `indice-padrao` |
-| 3 | **Recorte do projeto (fixos).** Um índice costuma ter vários sistemas. Pergunte como o projeto se identifica nos logs (nome do sistema, aplicação, cliente). Ache o campo com uma amostra: `elk_buscar_logs(indice, inicio="now-15m", consulta="<nome do sistema>", limite=1)` e procure o campo cujo valor é o nome; confirme com `elk_contar(indice, inicio="now-15m", campos={campo: valor})` (total > 0). Se o sistema tem variações de nome (ex.: `pab`, `pab-batch`, `pab_batch`, `pab_autcred`), use wildcard: `pab*` casa com qualquer valor que comece com `pab`. Índice já exclusivo do projeto → `fixos` fica vazio | `fixos` `{campo: valor ou wildcard}` |
-| 4 | **Apelidos de campos.** Índices têm milhares de campos: não liste todos. Pegue 1–3 documentos com os fixos (`elk_buscar_logs(..., campos=fixos, limite=3)`) e proponha o campo para cada papel: `nivel` (INFO/ERROR), `mensagem`, `servico` (módulo/aplicação), `logger` (classe), `excecao` (stack trace/tipo), `host`, `uri`, `trace` (id de correlação). Pergunte também campos de negócio (CPF, protocolo, usuário, NB). Para dúvidas, `elk_listar_campos(indice, busca="<trecho>")`. Os apelidos permitem usar nomes curtos (ex.: `nb` ou `pab.nb`) que resolvem para o caminho completo (ex.: `dtp_app.pab.nb`). Amostre também um documento de erro (`campos` = fixos + nível ERROR): erros costumam ter campos próprios (exceção, stack trace) e às vezes outra grafia do mesmo papel (`loggerName` × `logger_name`); havendo duas, grave a que tem mais documentos no recorte (`elk_contar(..., campos=fixos, consulta="_exists_:<campo>")` para cada uma) | `campos` `{apelido: campo}` |
+| 3 | **Recorte do projeto (fixos).** Um índice costuma ter vários sistemas. Pergunte como o projeto se identifica nos logs (nome do sistema, aplicação, cliente). Ache o campo com uma amostra: `elk_buscar_logs(indice, inicio="now-15m", consulta="<nome do sistema>", limite=1)` e procure o campo cujo valor é o nome; confirme com `elk_contar(indice, inicio="now-15m", campos={campo: valor})` (total > 0). **Wildcard:** se o sistema tem variações de nome (ex.: `myapp`, `myapp-worker`, `myapp_batch`), use `myapp*` — valores com `*` viram filtro wildcard em vez de term. Índice já exclusivo do projeto → `fixos` fica vazio | `fixos` `{campo: valor ou wildcard}` |
+| 4 | **Apelidos de campos.** Índices têm milhares de campos: não liste todos. Pegue 1–3 documentos com os fixos (`elk_buscar_logs(..., campos=fixos, limite=3)`) e proponha o campo para cada papel: `nivel` (INFO/ERROR), `mensagem`, `servico` (módulo/aplicação), `logger` (classe), `excecao` (stack trace/tipo), `host`, `uri`, `trace` (id de correlação). Pergunte também campos de negócio (CPF, protocolo, usuário, ID). Para dúvidas, `elk_listar_campos(indice, busca="<trecho>")`. Os apelidos permitem usar nomes curtos (ex.: `id` ou `app.id`) que resolvem para o caminho completo (ex.: `context.app.id`). Amostre também um documento de erro (`campos` = fixos + nível ERROR): erros costumam ter campos próprios (exceção, stack trace) e às vezes outra grafia do mesmo papel (`loggerName` × `logger_name`); havendo duas, grave a que tem mais documentos no recorte (`elk_contar(..., campos=fixos, consulta="_exists_:<campo>")` para cada uma) | `campos` `{apelido: campo}` |
 | 5 | **Valores conhecidos.** Para cada apelido agregável de baixa cardinalidade (`nivel`, `servico`, categorias): `elk_contar(indice, inicio="now-1d", campos=fixos, agrupar_por=<campo>, top=20)`. `grupos` vazio = campo ausente nesse recorte ou não agregável (texto): confira com `elk_listar_campos` e, se houver, use a variante `.keyword` | `valores` `{apelido: [valor, ...]}` |
-| 6 | **Consultas prontas (opcional).** `elk_listar_consultas(busca=<trecho>)` (peça um trecho do título; sem ele a lista vem com todos os spaces). O usuário escolhe; `indice` = o nome curto da etapa 2 cujo `padrao` bate com o da consulta. A chave de `consultas` usa o formato `título:id` (ex.: `Erros críticos:abc123`) para identificar a consulta mesmo que o título mude no Kibana | `consultas` `{título:id: {indice, consulta?, filtros?, descricao?}}` |
+| 6 | **Consultas prontas (opcional).** `elk_listar_consultas(busca=<trecho>)` (peça um trecho do título; sem ele a lista vem com todos os spaces). O usuário escolhe; `indice` = o nome curto da etapa 2 cujo `padrao` bate com o da consulta. **Chave obrigatória `titulo:id`:** grave como `"<título>:<id>"` (ex.: `"Erros críticos:abc123"`) — o título é legível, o id garante identidade se o título mudar no Kibana | `consultas` `{"titulo:id": {indice, consulta?, filtros?, descricao?}}` |
 | 7 | **Pasta de download.** Pergunte onde a elk-exportar grava os CSV; sugira `downloads/elk` e lembre de pô-la no `.gitignore` (logs têm dados pessoais) | `download.path` |
 
 Consulta salva com `linguagem: kuery` (KQL) só entra se for simples (`campo:valor AND ...`); com `campo:{...}`
@@ -74,15 +74,15 @@ workspace, que não o acha). Mostre o JSON completo, peça confirmação e grave
   "indice-padrao": "aplicacao",
   "indices": {
     "aplicacao": {
-      "padrao": "logs-app-<cliente>-*",
+      "padrao": "logs-app-*",
       "campo-tempo": "@timestamp",
-      "fixos": { "<campo.sistema>": "pab*" },
+      "fixos": { "<campo.sistema>": "myapp*" },
       "campos": {
         "nivel": "<campo.nivel>",
         "mensagem": "<campo.mensagem>",
         "servico": "<campo.servico>",
         "logger": "<campo.logger>",
-        "nb": "dtp_app.pab.nb"
+        "id": "context.app.id"
       },
       "valores": {
         "nivel": ["INFO", "WARN", "ERROR"],
@@ -91,7 +91,7 @@ workspace, que não o acha). Mostre o JSON completo, peça confirmação e grave
     }
   },
   "consultas": {
-    "<Título da busca salva>:<id>": { "indice": "aplicacao", "consulta": "<lucene>", "filtros": [] }
+    "Erros críticos:abc123": { "indice": "aplicacao", "consulta": "<lucene>", "filtros": [] }
   },
   "download": { "path": "downloads/elk" }
 }

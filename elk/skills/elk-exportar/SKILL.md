@@ -19,8 +19,8 @@ no steering do power.
 1. Leia `.kiro/config/power/elk/elk.json`. Sem ele, ou sem `download.path` → ofereça a **elk-setup** (etapa da
    pasta de download) e pare.
 2. Monte a consulta como a elk-logs: `indice`, `campo_tempo`, `campos` = `fixos` + filtros do pedido, `consulta`
-   Lucene para texto livre, `consultas[<título>]` para consulta salva. `inicio` é obrigatório: sem período no pedido,
-   pergunte — exportar "tudo" sem janela varre meses.
+   Lucene para texto livre, `consultas[<título>]` para consulta salva. Campo não reconhecido: regra 3.1 do
+   steering. `inicio` é obrigatório: sem período no pedido, pergunte — exportar "tudo" sem janela varre meses.
 3. **Arquivo** (`arquivo` precisa ser absoluto): raiz do repositório (`git rev-parse --show-toplevel`; sem git, a
    pasta do workspace) + `download.path` + `<AAAAMMDD-HHmm>_<assunto>.csv`, com `assunto` curto em kebab-case
    (`erros-servico-x`, `cpf-final-1234`). Arquivo existente é sobrescrito: com o mesmo nome, pergunte antes.

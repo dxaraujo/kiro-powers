@@ -30,7 +30,7 @@
     },
     "consultas": {
       "type": "object",
-      "description": "Mapa {nome:id: consulta pronta} escolhidas de elk_listar_consultas. A chave é 'título:id' para que o nome seja legível mas o id garanta a identidade mesmo que o título mude no Kibana.",
+      "description": "Mapa {'titulo:id': consulta pronta} escolhidas de elk_listar_consultas. A chave DEVE ser 'título:id' (ex.: 'Erros críticos:abc123') — o título é legível para humanos, o id garante a identidade mesmo que o título mude no Kibana.",
       "additionalProperties": { "$ref": "#/$defs/consulta" },
       "propertyNames": { "pattern": "^.+:.+$" }
     },
@@ -67,12 +67,12 @@
         },
         "fixos": {
           "type": "object",
-          "description": "Filtros {campo: valor ou wildcard} aplicados em toda consulta (o recorte do projeto). Valores com * (ex.: 'pab*', '*batch*') são convertidos em wildcard query ao invés de term.",
+          "description": "Filtros {campo: valor ou wildcard} aplicados em toda consulta (o recorte do projeto). Valores com * (ex.: 'myapp*', '*batch*') viram filtro wildcard em vez de term — use quando o sistema tem variações de nome (myapp, myapp-worker, myapp_batch → 'myapp*').",
           "additionalProperties": { "type": ["string", "number", "boolean"] }
         },
         "campos": {
           "type": "object",
-          "description": "Mapa {apelido: campo real}. Permite usar nomes curtos (ex.: 'nb', 'pab.nb') que resolvem para o caminho completo (ex.: 'dtp_app.pab.nb'). Papéis usados pelas skills: nivel, mensagem, servico, logger, excecao, host, uri, trace.",
+          "description": "Mapa {apelido: campo real}. Permite usar nomes curtos (ex.: 'id', 'app.id') que resolvem para o caminho completo (ex.: 'context.app.id'). Papéis usados pelas skills: nivel, mensagem, servico, logger, excecao, host, uri, trace.",
           "additionalProperties": { "type": "string", "minLength": 1 }
         },
         "valores": {

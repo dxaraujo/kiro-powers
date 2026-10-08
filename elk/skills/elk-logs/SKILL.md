@@ -25,8 +25,9 @@ Fora do escopo: gravar em arquivo → **elk-exportar**; explicar causa, pico ou 
    - Consulta salva citada pelo nome → `consultas[<título>]`: `consulta` e `filtros` como estão, `indice` do
      índice apontado, mais os `fixos` dele.
    - `inicio`/`fim`: do pedido; sem período, `now-1h` e diga isso na resposta.
-3. Termo que não está em `campos` nem em `valores` (ex.: "erros do módulo financeiro" sem apelido `servico`): use-o
-   como texto em `consulta` e avise; se for recorrente, sugira a elk-setup.
+3. Termo que não está em `campos` nem em `valores`: aplique a regra 3.1 do steering (resolução de campos via
+   `elk_listar_campos`). Se encontrar um único campo, use-o; se encontrar vários, mostre ao usuário para escolher;
+   se não encontrar, use como texto em `consulta` e sugira a elk-setup se for recorrente.
 
 ## Fluxo
 

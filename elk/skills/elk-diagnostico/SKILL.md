@@ -23,7 +23,8 @@ Fora do escopo: não exporta (ofereça a **elk-exportar** no fim, se o usuário 
 2. **Janela do problema (J):** do relato ("às 10h" → 09:45–10:30 em Brasília, `-03:00`; "hoje" → `now/d`→`now`;
    sem horário → `now-1h`). **Referência (R):** mesma duração, mesmo horário do dia anterior (`-1d`) — o volume
    varia com o horário, então compare horários equivalentes. "Depois do deploy" → R = mesma duração antes do deploy.
-3. Base de toda chamada: `indice`, `campo_tempo`, `campos` = `fixos` (+ recorte do relato, se houver).
+3. Base de toda chamada: `indice`, `campo_tempo`, `campos` = `fixos` (+ recorte do relato, se houver). Campo
+   mencionado que não está nos apelidos: aplique a regra 3.1 do steering (resolução via `elk_listar_campos`).
 
 ## Fluxo
 
