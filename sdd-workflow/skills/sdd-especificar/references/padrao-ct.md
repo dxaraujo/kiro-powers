@@ -11,7 +11,7 @@ CSV de casos de teste — fonte da execução pelo testador (`sdd-testar`) e imp
 
 ## Colunas (nesta ordem)
 
-Os valores de ALM vêm do `.kiro/config/alm-power/pa_*.json` e da Task; sem ALM, deixe vazios os que não souber.
+Os valores de ALM vêm do `.kiro/config/power/alm/pa_*.json` e da Task; sem ALM, deixe vazios os que não souber.
 
 | # | Coluna | Valor |
 |---|---|---|

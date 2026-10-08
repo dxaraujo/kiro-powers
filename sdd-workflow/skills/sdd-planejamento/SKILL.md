@@ -133,7 +133,7 @@ Ler `planejamento-agil/equipe.json` (formato em [Arquivo da equipe](#arquivo-da-
 
 **Identificar obrigatoriamente:** Scrum Master (com nível/experiência) e P.O.
 
-**Login ALM de cada membro:** buscar pelo nome em `members` de `.kiro/config/alm-power/pa_*.json` (`ccm.members`, se houver o power alm); sem
+**Login ALM de cada membro:** buscar pelo nome em `members` de `.kiro/config/power/alm/pa_*.json` (`ccm.members`, se houver o power alm); sem
 correspondência única, perguntar. É o login usado como responsável na publicação no EWM.
 
 **Aguardar resposta.**

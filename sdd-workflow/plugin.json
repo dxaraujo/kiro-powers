@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "sdd-workflow",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Fluxo de Spec-Driven Development em três papéis assíncronos (especificador, codificador, testador): requisitos validados (HF/REG/ET/CT), spec SDD do Kiro (requirements/design/tasks), judge, PR e testes com gates humanos, devoluções com causa raiz, aprendizado contínuo, lote e planejamento de sprints. Agnóstico de linguagem; integra-se ao power alm, se instalado.",
   "author": {
     "name": "Daniel Xavier Araújo",

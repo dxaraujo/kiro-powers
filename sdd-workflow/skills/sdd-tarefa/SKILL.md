@@ -15,7 +15,7 @@ Leia antes: o steering do power `sdd-workflow` (papéis, gates, pasta, branch, f
 
 ## Passo 1 — Ler a Task
 
-**Com o power `alm`:** use a skill **`alm-ccm`** com os ids de `.kiro/config/alm-power/pa_*.json`. Leia o work item completo
+**Com o power `alm`:** use a skill **`alm-ccm`** com os ids de `.kiro/config/power/alm/pa_*.json`. Leia o work item completo
 (descrição, comentários, links, pai e filhos) **e o IB pai** com as Tasks irmãs.
 
 - Informado um **Item de Backlog** → liste as Tasks filhas e pergunte qual atender.
@@ -101,7 +101,7 @@ Pelo prefixo do título da Task (tabela **Work items** do `sdd-projeto.md`; padr
 Só com o power `alm` (sem ele, pule este passo e registre o responsável só no `status.md` — o `login` da pessoa
 que está atendendo, do `equipe.json` ou perguntado uma vez):
 - `Quer assumir a Task <id>? (responsável atual: <nome|ninguém>)` → `ccm_update_workitem(id, fields={"dcterms:contributor": login})`
-  (login = `whoami()`, conferido em `members` do `.kiro/config/alm-power/pa_*.json`). **Item de Backlog nunca muda de responsável (é do P.O.).**
+  (login = `whoami()`, conferido em `members` do `.kiro/config/power/alm/pa_*.json`). **Item de Backlog nunca muda de responsável (é do P.O.).**
 - Tarefa sem Estimativa → pergunte as horas → `rtc_cm:estimate` = horas × 3600000.
 - Estado inicial (Novo) → `Iniciar?` — use a ação retornada por `ccm_list_workitem_states(id)`.
 

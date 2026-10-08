@@ -64,7 +64,7 @@ TESTADOR       sdd-testar (CTs na branch do PR) ─┬─ aprovados ─► ═ G
 
 Todo passo de ALM (publicar HF/REG/ET no DOORS Next, links de rastreabilidade, comentários, mudar estado de Task)
 só acontece **se o power `alm` (MCP `alm`) estiver disponível**, usando as skills dele (`alm-ccm`, `alm-rm`,
-`alm-gc`) e os ids de `.kiro/config/alm-power/pa_*.json`. Sem ele o fluxo segue — o ALM nunca trava o processo —
+`alm-gc`) e os ids de `.kiro/config/power/alm/pa_*.json`. Sem ele o fluxo segue — o ALM nunca trava o processo —
 e o campo `ALM` do `status.md` diz por quê (a linha **ALM** do `sdd-projeto.md` decide, não a sessão):
 
 | Situação | Campo `ALM` | O passo de ALM |

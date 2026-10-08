@@ -49,7 +49,7 @@ O que o download grava (`[id título](../03-Regras/2001-x.md)` e `[id título](U
 
 ## Antes de chamar
 
-1. **Leia `.kiro/config/alm-power/pa_*.json`** (um → use; vários → pergunte): os três parâmetros das `rm_*`
+1. **Leia `.kiro/config/power/alm/pa_*.json`** (um → use; vários → pergunte): os três parâmetros das `rm_*`
    (`project_area_identifier`, `component`, `configuration`), `rm.folders` e `rm.download`. Sem `rm` → ofereça a
    **alm-setup**.
 2. Sem `rm.download.path` → pergunte a pasta raiz (sugira `docs/alm/<nome>`, mesmo `<nome>` do `pa_<nome>.json`),

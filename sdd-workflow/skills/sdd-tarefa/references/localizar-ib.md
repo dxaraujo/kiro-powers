@@ -30,7 +30,7 @@ done
 
 ## 2. Com o power `alm`
 
-Skill **`alm-ccm`** com os ids de `.kiro/config/alm-power/pa_*.json`: o work item completo e o IB pai com as Tasks irmãs
+Skill **`alm-ccm`** com os ids de `.kiro/config/power/alm/pa_*.json`: o work item completo e o IB pai com as Tasks irmãs
 (Passo 1 da `sdd-tarefa`). Leitura falhou (401, não encontrado) → informe a causa e pare.
 
 ## 3. Sem ALM → planejamento da `sdd-planejamento`

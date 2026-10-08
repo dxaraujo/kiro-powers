@@ -10,7 +10,7 @@ metadata:
 
 # sdd-alm-publicar-requisitos — Requisitos aprovados → ALM (opcional)
 
-Requer o MCP `alm` (power ALM) e as skills **`alm-rm`** e **`alm-gc`**. IDs de pasta e tipo: `.kiro/config/alm-power/pa_*.json`.
+Requer o MCP `alm` (power ALM) e as skills **`alm-rm`** e **`alm-gc`**. IDs de pasta e tipo: `.kiro/config/power/alm/pa_*.json`.
 **Sem o MCP `alm` nesta sessão, esta skill não publica:** registre o campo `ALM` pela regra do steering
 (projeto com ALM → `pendente — publicar com o power alm` + `ALM pendente: publicar HF/REG/ET e concluir [ESPEC]` no
 Histórico; projeto sem ALM → `sem power — não publicado`) e pare — o IB já está `especificado` e a codificação pode
@@ -34,7 +34,7 @@ Publique **de baixo para cima**, para que cada artefato já nasça com os IDs do
 | 2 | `HF.md` | História de Usuário (funcional) | pasta de histórias | `HF - <nome>` |
 | 3 | `ET.md` | Especificação Técnica | pasta de especificações técnicas | `ET - <nome>` |
 
-Tipo e pasta vêm do `.kiro/config/alm-power/pa_*.json` (`rm.requirements-types`, `rm.folders`) pelo nome mais próximo. Não achou um
+Tipo e pasta vêm do `.kiro/config/power/alm/pa_*.json` (`rm.requirements-types`, `rm.folders`) pelo nome mais próximo. Não achou um
 correspondente único → mostre as opções do arquivo e pergunte uma vez; a escolha vale para o IB inteiro.
 
 Antes de publicar cada arquivo, substitua no texto as referências locais (`REG-01`, `HF`) por

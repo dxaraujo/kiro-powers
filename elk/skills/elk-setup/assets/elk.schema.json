@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/dxaraujo/kiro-powers/main/elk/skills/elk-setup/assets/elk.schema.json",
+  "title": "ELK Project Configuration",
+  "description": "Arquivo .kiro/config/power/elk/elk.json gerado pela skill elk-setup. Um por projeto. Sem segredos: credenciais ficam no elk.properties do MCP.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ambiente", "indice-padrao", "indices"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "URL do JSON Schema deste arquivo, para validação no editor.",
+      "format": "uri"
+    },
+    "ambiente": {
+      "type": "string",
+      "description": "Ambiente padrão das consultas (parâmetro `ambiente` das tools).",
+      "enum": ["prod", "homol", "dev"]
+    },
+    "indice-padrao": {
+      "type": "string",
+      "description": "Chave de `indices` usada quando o pedido não cita outro índice.",
+      "minLength": 1
+    },
+    "indices": {
+      "type": "object",
+      "description": "Mapa {nome curto: índice}. O nome é do projeto (ex.: 'aplicacao', 'acesso').",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/indice" }
+    },
+    "consultas": {
+      "type": "object",
+      "description": "Mapa {nome:id: consulta pronta} escolhidas de elk_listar_consultas. A chave é 'título:id' para que o nome seja legível mas o id garanta a identidade mesmo que o título mude no Kibana.",
+      "additionalProperties": { "$ref": "#/$defs/consulta" },
+      "propertyNames": { "pattern": "^.+:.+$" }
+    },
+    "download": {
+      "type": "object",
+      "description": "Destino das exportações CSV (skill elk-exportar).",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Pasta relativa à raiz do repositório, com '/' (ex.: 'downloads/elk').",
+          "minLength": 1,
+          "pattern": "^(?![/\\\\])(?![A-Za-z]:)(?!.*\\\\).+$"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "indice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["padrao", "campo-tempo"],
+      "properties": {
+        "padrao": {
+          "type": "string",
+          "description": "Padrão do data view (vai em `indice` das tools), ex.: 'logs-app-*'.",
+          "minLength": 1
+        },
+        "campo-tempo": {
+          "type": "string",
+          "description": "Campo de tempo do data view (vai em `campo_tempo`).",
+          "minLength": 1
+        },
+        "fixos": {
+          "type": "object",
+          "description": "Filtros {campo: valor ou wildcard} aplicados em toda consulta (o recorte do projeto). Valores com * (ex.: 'pab*', '*batch*') são convertidos em wildcard query ao invés de term.",
+          "additionalProperties": { "type": ["string", "number", "boolean"] }
+        },
+        "campos": {
+          "type": "object",
+          "description": "Mapa {apelido: campo real}. Permite usar nomes curtos (ex.: 'nb', 'pab.nb') que resolvem para o caminho completo (ex.: 'dtp_app.pab.nb'). Papéis usados pelas skills: nivel, mensagem, servico, logger, excecao, host, uri, trace.",
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        },
+        "valores": {
+          "type": "object",
+          "description": "Mapa {apelido: [valores reais]} de campos agregáveis, vindos de elk_contar(agrupar_por).",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": ["string", "number", "boolean"] },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "consulta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["indice"],
+      "anyOf": [
+        { "required": ["consulta"] },
+        { "required": ["filtros"] }
+      ],
+      "properties": {
+        "descricao": { "type": "string" },
+        "indice": { "type": "string", "description": "Chave de `indices`.", "minLength": 1 },
+        "consulta": { "type": "string", "description": "Lucene (vai em `consulta`).", "minLength": 1 },
+        "filtros": {
+          "type": "array",
+          "description": "Query DSL (vai em `filtros`), como devolvida por elk_listar_consultas.",
+          "items": { "type": "object" }
+        }
+      }
+    }
+  }
+}

@@ -63,7 +63,7 @@ Detecte e proponha; pergunte só o que não der para inferir.
 | Banco | servidores MCP em `.kiro/settings/mcp.json` e `~/.kiro/settings/mcp.json` — qual é o de consulta ao banco (ou "não há") |
 | Testes funcionais | pastas de massa/seed/fixtures, como a aplicação é executada (README, scripts), onde ficam os logs |
 | Prefixos das Tasks | padrão `[ESPEC]`, `[BE]`, `[QA]`, `[BD]` — pergunte se o time usa outros |
-| ALM | power `alm` instalado (`~/.kiro/powers/installed/alm/`) e `.kiro/config/alm-power/pa_*.json` no repositório; sem → `sem power` |
+| ALM | power `alm` instalado (`~/.kiro/powers/installed/alm/`) e `.kiro/config/power/alm/pa_*.json` no repositório; sem → `sem power` |
 
 ## Passo 3 — Skills e MCPs por agente
 
@@ -120,7 +120,7 @@ Na mesma rodada de cada agente, pergunte também:
   vazia é sucesso (o código de saída é sempre 0): qualquer texto de erro → corrija e valide de novo.
 - Todo `skill://` e `file://` dos agentes aponta para arquivo existente (resolvendo `~` no home e o resto a partir
   da raiz do repositório) e é relativo: nenhum caminho absoluto (`/…`, `C:\…`), `\` ou variável de ambiente.
-- O mesmo vale para os caminhos escritos no `sdd-projeto.md` (ex.: ALM `.kiro/config/alm-power/pa_<nome>.json`).
+- O mesmo vale para os caminhos escritos no `sdd-projeto.md` (ex.: ALM `.kiro/config/power/alm/pa_<nome>.json`).
 - `sdd-projeto.md` sem nenhum `<…>` de template sobrando (o que não se aplica fica "não há"/"nenhum").
 
 ## Passo 6 — Resumo e gravação

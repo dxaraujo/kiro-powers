@@ -69,7 +69,7 @@ Falha de ambiente (banco, rede, dependência indisponível) → reportar como **
 | Prefixo — codificador | `[BE]` |
 | Prefixo — testador | `[QA]` |
 | Prefixo — banco (fora do fluxo) | `[BD]` |
-| ALM | `<power alm — .kiro/config/alm-power/pa_<nome>.json | sem power>` |
+| ALM | `<power alm — .kiro/config/power/alm/pa_<nome>.json | sem power>` |
 
 ## Executores (codificador)
 

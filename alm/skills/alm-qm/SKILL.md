@@ -38,7 +38,7 @@ coluna). Termo que não está aqui nem em `artifact_type` → pergunte o tipo; n
 
 ## Antes de chamar
 
-1. **Leia `.kiro/config/alm-power/pa_*.json`**: `pa_qm` = `qm.project-area-identifier`, sem chamar o servidor.
+1. **Leia `.kiro/config/power/alm/pa_*.json`**: `pa_qm` = `qm.project-area-identifier`, sem chamar o servidor.
    Sem a seção `qm`, descubra a área uma vez pela associação da área CCM:
    `get_project_area(app_type="CCM", project_area_uuid=ccm.project-area-identifier, include_associations=True)`
    → `associations.qm[0].project_area_uuid`, e sugira a **alm-setup** para gravá-la. Não liste todas as áreas QM.
