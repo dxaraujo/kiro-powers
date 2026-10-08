@@ -2,20 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/dxaraujo/kiro-powers/main/elk/skills/elk-setup/assets/elk.schema.json",
   "title": "ELK Project Configuration",
-  "description": "Arquivo .kiro/config/power/elk/elk.json gerado pela skill elk-setup. Um por projeto. Sem segredos: credenciais ficam no elk.properties do MCP.",
+  "description": "Arquivo .kiro/config/power/elk/elk-<ambiente>.json (elk-prod.json, elk-homol.json, elk-dev.json) gerado pela skill elk-setup. Um por ambiente. Sem segredos: credenciais ficam no elk.properties do MCP.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["ambiente", "indice-padrao", "indices"],
+  "required": ["indice-padrao", "indices"],
   "properties": {
     "$schema": {
       "type": "string",
       "description": "URL do JSON Schema deste arquivo, para validação no editor.",
       "format": "uri"
-    },
-    "ambiente": {
-      "type": "string",
-      "description": "Ambiente padrão das consultas (parâmetro `ambiente` das tools).",
-      "enum": ["prod", "homol", "dev"]
     },
     "indice-padrao": {
       "type": "string",
@@ -24,15 +19,14 @@
     },
     "indices": {
       "type": "object",
-      "description": "Mapa {nome curto: índice}. O nome é do projeto (ex.: 'aplicacao', 'acesso').",
+      "description": "Mapa {nome curto: índice}. O nome é do projeto (ex.: 'aplicacao', 'infra').",
       "minProperties": 1,
       "additionalProperties": { "$ref": "#/$defs/indice" }
     },
     "consultas": {
       "type": "object",
-      "description": "Mapa {'titulo:id': consulta pronta} escolhidas de elk_listar_consultas. A chave DEVE ser 'título:id' (ex.: 'Erros críticos:abc123') — o título é legível para humanos, o id garante a identidade mesmo que o título mude no Kibana.",
-      "additionalProperties": { "$ref": "#/$defs/consulta" },
-      "propertyNames": { "pattern": "^.+:.+$" }
+      "description": "Mapa {titulo: {id, espaco}} das consultas salvas do Kibana escolhidas na elk-setup. A chave é o título original da consulta. Para obter os detalhes (consulta, filtros, índice), use elk_obter_consulta(id, espaco).",
+      "additionalProperties": { "$ref": "#/$defs/consulta" }
     },
     "download": {
       "type": "object",
@@ -67,12 +61,12 @@
         },
         "fixos": {
           "type": "object",
-          "description": "Filtros {campo: valor ou wildcard} aplicados em toda consulta (o recorte do projeto). Valores com * (ex.: 'myapp*', '*batch*') viram filtro wildcard em vez de term — use quando o sistema tem variações de nome (myapp, myapp-worker, myapp_batch → 'myapp*').",
+          "description": "Filtros {campo: valor ou wildcard} aplicados em toda consulta (o recorte do projeto). Valores com * (ex.: 'myapp*') viram filtro wildcard em vez de term.",
           "additionalProperties": { "type": ["string", "number", "boolean"] }
         },
         "campos": {
           "type": "object",
-          "description": "Mapa {apelido: campo real}. Permite usar nomes curtos (ex.: 'id', 'app.id') que resolvem para o caminho completo (ex.: 'context.app.id'). Papéis usados pelas skills: nivel, mensagem, servico, logger, excecao, host, uri, trace.",
+          "description": "Mapa {apelido: campo real}. Permite usar nomes curtos que resolvem para o caminho completo. Papéis usados pelas skills: nivel, mensagem, servico, logger, excecao, host, uri, trace.",
           "additionalProperties": { "type": "string", "minLength": 1 }
         },
         "valores": {
@@ -89,19 +83,17 @@
     "consulta": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["indice"],
-      "anyOf": [
-        { "required": ["consulta"] },
-        { "required": ["filtros"] }
-      ],
+      "required": ["id"],
       "properties": {
-        "descricao": { "type": "string" },
-        "indice": { "type": "string", "description": "Chave de `indices`.", "minLength": 1 },
-        "consulta": { "type": "string", "description": "Lucene (vai em `consulta`).", "minLength": 1 },
-        "filtros": {
-          "type": "array",
-          "description": "Query DSL (vai em `filtros`), como devolvida por elk_listar_consultas.",
-          "items": { "type": "object" }
+        "id": {
+          "type": "string",
+          "description": "UUID da consulta salva no Kibana.",
+          "minLength": 1
+        },
+        "espaco": {
+          "type": "string",
+          "description": "Space do Kibana onde a consulta está salva. Padrão: 'default'.",
+          "minLength": 1
         }
       }
     }
