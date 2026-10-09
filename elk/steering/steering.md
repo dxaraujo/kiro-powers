@@ -28,8 +28,9 @@ Carregue a skill antes de chamar as tools.
    Nunca adivinhe índice nem campo.
    - **1.1 Sem setup.** Sem o arquivo do ambiente (ou faltando o que o pedido precisa), pergunte **uma vez**: rodar
      a `elk-setup` (grava para as próximas vezes) ou **seguir sem setup**. Seguindo sem setup, pergunte só o que
-     **este** pedido precisa, uma pergunta por vez, mostrando opções por nome em lista numerada, e guarde as
-     escolhas **na conversa** (não pergunte de novo, não grave arquivo):
+     **este** pedido precisa, uma pergunta por vez, mostrando opções por nome em lista numerada (uma opção só → use
+     direto e diga qual; lista só com 2 ou mais), e guarde as escolhas **na conversa** (não pergunte de novo, não
+     grave arquivo):
 
      | Preciso de | Como obter |
      |---|---|
@@ -53,8 +54,11 @@ Carregue a skill antes de chamar as tools.
      1. `elk_listar_campos(indice, busca="<termo>")` — acha todo campo com o termo no nome (`pedido` →
         `app.venda.pedido`, `ctx.pedido_id`, `pedidos.total`).
      2. Prefira os que têm o termo como **último segmento** (`pedido` ou `*.pedido`); se não houver, considere todos.
-     3. Um candidato → use e diga qual campo usou. Vários → lista numerada para o usuário escolher (para filtro exato
-        ou `agrupar_por`, só os `agregavel`). Nenhum → use o termo como texto livre em `consulta`.
+     3. Um candidato → use e diga qual campo usou. Vários → **decida pelo dado**: conte cada um no recorte
+        (`elk_contar(..., agrupar_por=<campo>)` ou `consulta="_exists_:<campo>"`; para filtro exato ou `agrupar_por`,
+        só os `agregavel`). Um só com documentos → use-o e diga qual (muitos índices têm o mesmo nome em vários
+        campos, quase sempre vazios). Mais de um com documentos → lista numerada para o usuário escolher. Nenhum →
+        use o termo como texto livre em `consulta`.
      4. Campo resolvido assim e usado de novo → sugira gravá-lo como apelido na elk-setup.
 4. **Janela de tempo.** `inicio` é obrigatório (`now-15m`, `now-1h`, `now-1d` ou ISO 8601 com fuso, ex.:
    `2026-10-08T10:00:00-03:00`). Horário falado pelo usuário é de Brasília (`-03:00`). Comece curto e amplie; o

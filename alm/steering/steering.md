@@ -28,7 +28,8 @@ ordem, de onde vem cada parâmetro).
    `alm-setup` (grava para as próximas vezes) ou **seguir sem setup**. Seguindo sem setup:
    - pergunte só o que **este** pedido precisa (a lista "Sem setup" de cada skill), uma pergunta por vez;
    - descubra os identifiers com as mesmas tools da `alm-setup` (tabelas da etapa 3 dela), mostrando só **nomes** em
-     lista numerada para o usuário escolher — nunca peça uuid, `FR_`, `OT_` ou attribute;
+     lista numerada para o usuário escolher — nunca peça uuid, `FR_`, `OT_` ou attribute. Uma opção só (ex.: a
+     busca por trecho achou uma project area) → use direto e diga qual; lista só com 2 ou mais;
    - project area: `list_project_areas(app_type=<CCM|RM|QM>, search_name=<trecho que o usuário disser>)`; não liste
      todas sem trecho;
    - guarde as escolhas **na conversa** e reaproveite nos pedidos seguintes (não pergunte de novo); não grave

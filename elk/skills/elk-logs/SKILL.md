@@ -4,7 +4,7 @@ description: "Look up and count application logs in ELK/Kibana through the `elk`
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.1.3"
+  version: "1.1.4"
 ---
 
 # elk-logs
@@ -18,7 +18,8 @@ Fora do escopo: gravar em arquivo → **elk-exportar**; explicar causa, pico ou 
 
 1. Identifique o ambiente (regra 6 do steering).
 2. Leia `.kiro/config/power/elk/elk-<ambiente>.json`. Sem ele → regra 1.1 do steering (sem setup): pergunte índice
-   e recorte e siga.
+   e recorte e siga — **exceto** se o pedido é uma consulta salva (regra 5): ela já traz índice e filtros, então só
+   pergunte setup sim/não.
 3. Monte os parâmetros comuns, que serão os mesmos nas duas chamadas:
    - `indice` = `indices[<nome>].padrao` (pedido sem índice: `indice-padrao`); `campo_tempo` = `campo-tempo`.
    - `campos` = `fixos` + filtros exatos do pedido traduzidos pelos apelidos (`nivel` ERROR →

@@ -4,7 +4,7 @@ description: "Query, list, read, create, update, change state or comment IBM EWM
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.2"
+  version: "1.0.3"
 ---
 
 # alm-ccm
@@ -40,7 +40,7 @@ Pergunte/descubra **só** o que o pedido usa, na ordem em que precisar, e guarde
 
 | Preciso de | Como obter (escolha por nome, em lista numerada) |
 |---|---|
-| `pa` (project area CCM) | Pergunte um trecho do nome → `list_project_areas(app_type="CCM", search_name=<trecho>)`. **Ler um item pelo número não precisa**: `ccm_get_workitem(id, fields={})` traz cabeçalho, descrição e comentários |
+| `pa` (project area CCM) | Pergunte um trecho do nome → `list_project_areas(app_type="CCM", search_name=<trecho>)`. Ler um item pelo número **só para cabeçalho, descrição e comentários** não precisa: `ccm_get_workitem(id, fields={})`. Se o pedido cita atributos (responsável, estimativa, prioridade...), precisa: pergunte a área e monte `fields` com `ccm_list_workitem_fields` |
 | tipo | `ccm_list_workitem_types(pa)` (ou o identifier usual da tabela de siglas) |
 | campos do tipo / atributos na leitura | `ccm_list_workitem_fields(pa, <tipo>)`; na leitura, use `{name: attribute}` dos campos que o pedido citar (ou os `required` + responsável, estimativa, iteração) |
 | tipos de link | `ccm_list_link_types(pa, <tipo>)`, só os que o pedido citar |
@@ -83,7 +83,8 @@ coluna). Termo que não está aqui nem em `workitem-types` → pergunte o tipo; 
   acrescentar colunas que a tool já devolveu (tipo, estado, responsável, iteração). Sem resultado: "Nenhum item
   encontrado" + os filtros usados. Vieram **1000** itens → avise que a lista pode estar truncada e sugira filtrar
   mais (estado, tipo, time).
-- **Um item:** comece por `**<código>** — <título>` e mostre o documento de `ccm_get_workitem` como veio.
+- **Um item:** comece por `**<código>** — <título>` e mostre o documento de `ccm_get_workitem` como veio, sem a
+  linha `url` (ela serve às tools de link da alm-gc, não ao usuário).
 
 ## Tools
 

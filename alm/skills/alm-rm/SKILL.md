@@ -4,7 +4,7 @@ description: "Query, search, read, create or update IBM DOORS Next (RM) artifact
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "2.0.2"
+  version: "2.0.3"
 ---
 
 # alm-rm
@@ -75,7 +75,10 @@ coluna). Termo que não está aqui nem em `rm.requirements-types` → pergunte o
 - **Listas** (mesmo com um resultado): tabela markdown que começa por **Código | Título** (`id` | `title`); pode
   acrescentar tipo e pasta. Sem resultado: "Nenhum item encontrado" + filtros. Vieram **1000** → avise que pode
   estar truncada e sugira filtrar por pasta/tipo.
-- **Um requisito:** comece por `**<código>** — <título>` e mostre o documento de `rm_get_requirement` como veio.
+- **Um requisito:** comece por `**<código>** — <título>`; depois tipo, pasta (`tags`), `description` (se houver),
+  `links` e `embedded` (cada alvo como `<código> <título>`) e o corpo em Markdown. **Não mostre** `resource`,
+  `sources`, `generated`, `created` nem URLs: o cabeçalho OKF completo serve ao arquivo em disco (alm-sync, gravado
+  pelo MCP), não ao chat. Documento inteiro só se o usuário pedir.
 
 ## Tools
 
