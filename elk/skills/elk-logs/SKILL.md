@@ -4,7 +4,7 @@ description: "Look up and count application logs in ELK/Kibana through the `elk`
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.6.1"
+  version: "1.1.3"
 ---
 
 # elk-logs

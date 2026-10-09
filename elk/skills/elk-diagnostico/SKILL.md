@@ -4,7 +4,7 @@ description: "Investigate a production problem from ELK/Kibana logs through the 
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.2.1"
+  version: "1.0.2"
 ---
 
 # elk-diagnostico

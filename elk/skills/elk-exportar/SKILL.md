@@ -4,7 +4,7 @@ description: "Export ELK/Kibana logs to a CSV file on disk through the `elk_expo
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.1.1"
+  version: "1.0.2"
 ---
 
 # elk-exportar

@@ -4,7 +4,7 @@ description: "Configure, create, update or review the project's ELK/Kibana setti
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.2.3"
+  version: "1.1.2"
 ---
 
 # elk-setup
