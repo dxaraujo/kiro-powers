@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "elk",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Logs no ELK (Elasticsearch + Kibana): buscar, contar, diagnosticar incidentes, exportar CSV e salvar consultas no Kibana, com o MCP mcp-elk",
   "author": {
     "name": "Daniel Xavier Araújo",
