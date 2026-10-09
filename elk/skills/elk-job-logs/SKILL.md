@@ -4,7 +4,7 @@ description: "Show the logs of a Spring Batch job execution (job, batch, execuç
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.1"
+  version: "1.0.2"
 ---
 
 # Exibidor de Log de Execução — Spring Batch
@@ -35,9 +35,9 @@ Pedidos como:
 - "me mostra a última execução do job X"
 - "logs do último job executado", "logs de execução batch" (sem nome do job)
 
-**Sem nome do job:** use a execução mais recente de qualquer job — no ELK, o passo 1
-sem o `<nomeDoJob>` na consulta; no arquivo local, o último "Iniciando processamento
-do JOB". Diga ao usuário qual job e qual execução usou.
+**Sem nome do job:** use a execução mais recente de qualquer job, na fonte escolhida
+na seção 1 — no ELK, o passo 1 sem o `<nomeDoJob>` na consulta; no arquivo local, o
+último "Iniciando processamento do JOB". Diga ao usuário qual job e qual execução usou.
 
 ---
 
@@ -49,6 +49,11 @@ Decida pela presença de palavras no pedido:
 |---|---|
 | "log local", "execução local", "localmente", "aqui", "na minha máquina" | **Local** (arquivo de log) |
 | qualquer outro caso (sem menção a local) | **ELK** (ambientes configurados) |
+
+A fonte é **uma só**. Sem menção a local, vá direto ao ELK: **não** procure, leia nem
+liste arquivos de log locais (nem "para conferir"), mesmo que o steering do projeto
+cite a pasta de logs — e se o ELK não trouxer a execução, diga isso em vez de cair
+para o log local.
 
 Se o pedido não deixar claro o ambiente do ELK (prod/homol/dev) e houver mais de
 um configurado, use o padrão (prod) e diga qual usou; o usuário corrige se
