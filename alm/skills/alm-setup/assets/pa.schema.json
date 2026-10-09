@@ -77,6 +77,10 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "timesheet": {
+          "$ref": "#/$defs/timesheet",
+          "description": "Configuração de lançamento de horas (time tracking). Opcional; exige Formal Project Management Process."
         }
       }
     },
@@ -297,6 +301,23 @@
       "type": "string",
       "description": "Identifier de tipo de requisito RM.",
       "pattern": "^OT_.+"
+    },
+    "timesheet": {
+      "type": "object",
+      "description": "Configuração de lançamento de horas (time tracking). Exige Formal Project Management Process com time tracking habilitado.",
+      "additionalProperties": false,
+      "properties": {
+        "default-time-code": {
+          "type": "string",
+          "description": "Nome do time code padrão para lançamento (ex.: 'Horas Diretas'). Se omitido, a skill pergunta.",
+          "minLength": 1
+        },
+        "default-work-type": {
+          "type": "string",
+          "description": "Nome do work type padrão (ex.: 'Tarefa'). Se omitido, usa o tipo do work item.",
+          "minLength": 1
+        }
+      }
     }
   }
 }

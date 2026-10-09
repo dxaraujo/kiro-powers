@@ -12,7 +12,7 @@ ordem, de onde vem cada parâmetro).
 
 | Aplicação | O que faz | Skill |
 |---|---|---|
-| **EWM/RTC (CCM)** | Listar, ler, criar, atualizar, mudar estado e comentar work items (IB, TR, DF, DT, IMP, RSC, REU); itens de sprint, iteração ou plano | `alm-ccm` |
+| **EWM/RTC (CCM)** | Listar, ler, criar, atualizar, mudar estado, comentar work items (IB, TR, DF, DT, IMP, RSC, REU); itens de sprint, iteração ou plano; **lançar horas trabalhadas (timesheet)** | `alm-ccm` |
 | **DOORS Next (RM)** | Buscar, ler, criar e atualizar requisitos (REQ, HU, UC, RN, MSG, ET...), atributos, links entre requisitos e artefatos embutidos | `alm-rm` |
 | **Documentação RM** | Baixar os artefatos do DOORS Next para o repositório em OKF (`rm.download.path`) e sincronizar só o que mudou (`sync.md`) | `alm-sync` |
 | **ETM/RQM (QM)** | Consultar artefatos de teste (CT, PT, ST, SCT, TER, RT) — só leitura | `alm-qm` |

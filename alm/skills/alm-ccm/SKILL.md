@@ -1,10 +1,10 @@
 ---
 name: "alm-ccm"
-description: "Query, list, read, create, update, change state or comment IBM EWM/RTC (CCM) work items through the `alm` MCP. Use when the user asks about um item de trabalho (work item, WI), tarefa (task, TR, TF), defeito (bug, defect, erro, DF), item de backlog (IB, backlog, story, PBI), dívida técnica (DT), impedimento (IMP), risco (RSC) ou reunião (REU); itens de uma sprint, iteração, plano ou time; estimativa, responsável, prioridade, descrição ou comentário de um WI; \"me mostre o ib:123456\", \"baixar ib 123\", \"tr 456\", \"df 789\", \"minhas tarefas\", \"tarefas de <pessoa>\", \"crie um defeito\", \"mova para Em Desenvolvimento\", \"muda a estimativa para 6h\"."
+description: "Query, list, read, create, update, change state, comment or log time on IBM EWM/RTC (CCM) work items through the `alm` MCP. Use when the user asks about um item de trabalho (work item, WI), tarefa (task, TR, TF), defeito (bug, defect, erro, DF), item de backlog (IB, backlog, story, PBI), dívida técnica (DT), impedimento (IMP), risco (RSC) ou reunião (REU); itens de uma sprint, iteração, plano ou time; estimativa, responsável, prioridade, descrição ou comentário de um WI; \"me mostre o ib:123456\", \"baixar ib 123\", \"tr 456\", \"df 789\", \"minhas tarefas\", \"tarefas de <pessoa>\", \"crie um defeito\", \"mova para Em Desenvolvimento\", \"muda a estimativa para 6h\"; lançar horas, timesheet, apontar tempo, planilha de horas, horas trabalhadas, \"lançar 8h na tarefa\", \"quanto lancei no ib 123\", \"minhas horas\"."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.3"
+  version: "1.0.4"
 ---
 
 # alm-ccm
@@ -196,10 +196,74 @@ Exemplo — "muda a estimativa do WI 1001 para 6h": `fields["Estimativa"]` → `
 | HTTP 400/409 ao criar | Faltou obrigatório ou valor inválido: confira com `ccm_list_field_values` |
 | HTTP 412 | Edição concorrente: releia o item e repita **uma** vez |
 | `O servidor aceitou, mas ... não apareceu` | Peça para conferir na UI; não repita às cegas |
+| `Você não é o responsável` (timesheet) | Só o owner lança horas; pergunte se quer assumir a responsabilidade primeiro |
+| `Horas devem ser entre 0 e 16` (timesheet) | Máximo 16h por dia; ajuste o valor |
+
+## Timesheet (lançamento de horas)
+
+O EWM permite registrar horas trabalhadas por dia em work items (Time Tracking). **Pré-condição**: o projeto usa
+Formal Project Management Process com time tracking habilitado; se não, a aba Time Tracking não existe na UI web.
+
+### Termos reconhecidos
+
+"lançar horas", "apontar horas", "registrar tempo", "timesheet", "planilha de horas", "horas trabalhadas",
+"quanto lancei", "minhas horas na tarefa", "horas da TR 123".
+
+### Tools
+
+| Tool | Entrada | Saída |
+|---|---|---|
+| `ccm_list_timesheet(workitem_id)` | id do WI | `{entries: [{date, hours, time_code, work_type, creator}], total_hours}` |
+| `ccm_list_time_codes(project_area_identifier)` | PA | `{time_codes: [{id, name}], work_types: [{id, name}]}` |
+| `ccm_add_timesheet(workitem_id, entries, time_code?, work_type?)` | id, `[{date, hours}]`, defaults | `{entries, total_hours}` |
+
+### Fluxo "lançar horas"
+
+1. Ler o WI (`ccm_get_workitem` ou `ccm_list_timesheet`).
+2. Verificar se o usuário é o responsável (owner); se não, avisar e perguntar se quer assumir antes.
+3. Descobrir time codes (`ccm_list_time_codes`): um só → usar; vários → perguntar. Sem lista → perguntar o nome.
+4. Montar resumo: tabela com **Data | Horas | Time code | Work type**.
+5. **Confirmar** com o usuário (lançamento é visível ao time; não há desfazer pelo MCP).
+6. Chamar `ccm_add_timesheet`.
+7. Mostrar o resultado com total de horas.
+
+### Fluxo "ver horas"
+
+1. `ccm_list_timesheet(workitem_id)`.
+2. Exibir tabela: **Data | Horas | Time code | Work type | Quem lançou** + linha de **Total**.
+
+### Atalhos de range
+
+- "lançar 8h de segunda a sexta" ou "lançar a semana" → gera 5 entradas (seg–sex, 8h cada).
+- "lançar 4h de 07 a 10/10" → gera 4 entradas (07, 08, 09, 10, 4h cada).
+- "lançar 6h no dia 05/10" → uma entrada.
+
+### Defaults e limites
+
+- **Horas**: 0 < horas ≤ 16 por dia; padrão sugerido = 8h.
+- **Dias**: qualquer dia da semana (seg–dom); não há calendário de feriados — o usuário informa os dias.
+- **time_code**: do `pa.json` (`ccm.timesheet.default-time-code`) ou pergunta.
+- **work_type**: do `pa.json` (`ccm.timesheet.default-work-type`) ou o nome do tipo do WI.
+
+### Exemplos
+
+**Usuário:** "lançar 8h na TR 662348"
+**Resposta:**
+1. Ler a tarefa 662348.
+2. Você é o responsável: sim.
+3. Time code: "Horas Diretas" (default do projeto).
+4. Confirmar:
+   | Data | Horas | Time code | Work type |
+   |---|---|---|---|
+   | 2026-10-09 | 8h | Horas Diretas | Tarefa |
+5. Lançar → Total: 8h.
+
+**Usuário:** "lançar a semana na DF 123456"
+**Resposta:** gerar entradas de segunda (06/10) a sexta (10/10), 8h cada, confirmar, lançar. Total: 40h.
 
 ## Regras
 
-- **Confirme toda escrita** (criar, atualizar, mudar estado, comentar) com um resumo por nomes: é visível ao time e
-  não há desfazer pelo MCP. Uma escrita por vez; confirme ao usuário pelo `resumo` devolvido.
+- **Confirme toda escrita** (criar, atualizar, mudar estado, comentar, **lançar horas**) com um resumo por nomes: é
+  visível ao time e não há desfazer pelo MCP. Uma escrita por vez; confirme ao usuário pelo `resumo` devolvido.
 - Nunca invente identifiers, literais de enumeração ou logins.
 - Não crie work items para "testar" algo: use leitura.

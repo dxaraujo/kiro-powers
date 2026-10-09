@@ -5,7 +5,8 @@ Power do Kiro para o **IBM Engineering Lifecycle Management (ELM)** via OSLC, us
 
 ## O que faz
 
-- **EWM/RTC (CCM):** consulta, busca, cria, atualiza, muda estado e comenta work items (IB, TR, DF, DT…).
+- **EWM/RTC (CCM):** consulta, busca, cria, atualiza, muda estado, comenta work items (IB, TR, DF, DT…) e lança
+  horas trabalhadas (timesheet).
 - **DOORS Next (RM):** consulta, busca, cria e atualiza requisitos (REQ, HU, UC, RN, MSG…).
 - **Documentação do RM em OKF:** baixa os artefatos do DOORS Next para o repositório (um `.md` por artefato) e
   sincroniza só o que mudou no ALM.

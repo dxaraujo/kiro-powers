@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "alm",
-  "version": "1.0.25",
-  "description": "IBM ELM (EWM/RTC, DOORS Next, ETM) via OSLC: work items, requisitos, testes, configuração global e rastreabilidade, com o MCP mcp-alm",
+  "version": "1.0.26",
+  "description": "IBM ELM (EWM/RTC, DOORS Next, ETM) via OSLC: work items, requisitos, testes, configuração global, rastreabilidade e lançamento de horas (timesheet), com o MCP mcp-alm",
   "author": {
     "name": "Daniel Xavier Araújo",
     "email": "danielxaraujo@gmail.com"
@@ -16,6 +16,8 @@
     "tr", "df", "dt", "uc", "hu", "hf", "hnf", "rn", "req", "msg", "ct", "pt", "ter", "wi", "tf", "pbi",
     "backlog", "bug", "dívida técnica", "impedimento", "risco", "reunião", "rf", "rnf", "cdu", "br",
     "et", "el", "prt", "dg", "gl", "img", "dv", "st", "sct", "rt", "tc",
-    "download", "baixar", "sincronizar", "sincronismo", "documentação", "okf"
+    "download", "baixar", "sincronizar", "sincronismo", "documentação", "okf",
+    "timesheet", "lançar horas", "apontamento", "planilha de horas", "time code", "tempo gasto",
+    "worklog", "horas trabalhadas", "time tracking", "horas diretas", "apontar horas"
   ]
 }
