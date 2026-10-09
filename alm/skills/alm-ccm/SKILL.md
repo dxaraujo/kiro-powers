@@ -4,7 +4,7 @@ description: "Query, list, read, create, update, change state or comment IBM EWM
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.1"
+  version: "1.0.2"
 ---
 
 # alm-ccm
@@ -16,8 +16,8 @@ Criar iteração/plano é na **alm-setup**; usuários e links com requisitos/tes
 
 ## Antes de chamar
 
-1. **Leia `.kiro/config/power/alm/pa_*.json`** (um → use; vários → pergunte qual). Sem arquivo → ofereça a **alm-setup** em vez de sair
-   descobrindo ids. Dele saem, sem chamar o servidor (`pa` = `ccm.project-area-identifier`):
+1. **Leia `.kiro/config/power/alm/pa_*.json`** (um → use; vários → pergunte qual). Sem arquivo → regra "Sem setup"
+   do steering (abaixo, o que perguntar). Dele saem, sem chamar o servidor (`pa` = `ccm.project-area-identifier`):
 
    | Preciso de | Onde está |
    |---|---|
@@ -30,8 +30,27 @@ Criar iteração/plano é na **alm-setup**; usuários e links com requisitos/tes
    | categoria (Filed Against) | `team-areas[time].categories[nome]` |
    | pessoa (login) | `members` `{login: nome}`; "minhas" = `userId` do `whoami` |
 
-2. Nome que não está no arquivo → não invente: ofereça a alm-setup para mapeá-lo.
+2. Nome que não está no arquivo → não invente: descubra pela linha da tabela "Sem setup" (e sugira mapeá-lo na
+   alm-setup).
 3. Mostre **nomes** ao usuário, nunca UUIDs/URLs/attributes (exceção: o código do item).
+
+### Sem setup
+
+Pergunte/descubra **só** o que o pedido usa, na ordem em que precisar, e guarde na conversa:
+
+| Preciso de | Como obter (escolha por nome, em lista numerada) |
+|---|---|
+| `pa` (project area CCM) | Pergunte um trecho do nome → `list_project_areas(app_type="CCM", search_name=<trecho>)`. **Ler um item pelo número não precisa**: `ccm_get_workitem(id, fields={})` traz cabeçalho, descrição e comentários |
+| tipo | `ccm_list_workitem_types(pa)` (ou o identifier usual da tabela de siglas) |
+| campos do tipo / atributos na leitura | `ccm_list_workitem_fields(pa, <tipo>)`; na leitura, use `{name: attribute}` dos campos que o pedido citar (ou os `required` + responsável, estimativa, iteração) |
+| tipos de link | `ccm_list_link_types(pa, <tipo>)`, só os que o pedido citar |
+| iteração / sprint | `ccm_list_iterations(pa)` filtrado por trecho do nome ou "não terminadas" |
+| plano | `ccm_list_iteration_plans(pa, iteration_identifiers=[<iteração>])` |
+| time | `ccm_list_team_areas(pa)` |
+| categoria | `list_workitem_categories(project_area_item_id=pa, limit=500)`, filtrada pelo time |
+| pessoa | "minhas" = `userId` do `whoami`; outra → `ccm_list_members(pa, team_area_identifiers=[<time>])` ou `get_user` (alm-gc) |
+
+Daqui em diante, onde o texto diz "do alm.json", sem setup vale o que foi descoberto acima nesta conversa.
 
 ## Siglas e sinônimos
 
@@ -53,7 +72,7 @@ Reconheça o termo sem diferenciar maiúsculas, acentos, singular/plural ou sepa
 "ib:123", "ib-123", "item de backlog 123", "os IBs da sprint". Responda sempre com a **sigla canônica** (1ª
 coluna). Termo que não está aqui nem em `workitem-types` → pergunte o tipo; não adivinhe.
 
-- O identifier válido é sempre o do alm.json; a coluna "usual" é só referência.
+- O identifier válido é o do alm.json (sem setup, o de `ccm_list_workitem_types`); a coluna "usual" é só referência.
 - **"História"/"HU" é do RM** (alm-rm), não IB. Só trate como IB se o usuário disser "story" ou "item de backlog",
   ou se falar de sprint/plano/backlog do EWM; na dúvida, pergunte.
 - Siglas de outras skills: requisitos (REQ, HU, UC, RN...) → **alm-rm**; testes (CT, PT, TER...) → **alm-qm**.

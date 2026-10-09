@@ -24,8 +24,24 @@ Carregue a skill antes de chamar as tools.
 
 1. **Config primeiro, servidor depois.** `.kiro/config/power/elk/elk-<ambiente>.json` (raiz do repositório; um
    por ambiente: `elk-prod.json`, `elk-homol.json`, `elk-dev.json`) diz o índice (`padrao`), o campo de tempo, os
-   filtros fixos, os apelidos de campos, as consultas prontas e a pasta de download. Sem o arquivo do ambiente, ou
-   faltando o que o pedido precisa, ofereça a `elk-setup`; não adivinhe índice nem campo.
+   filtros fixos, os apelidos de campos, as consultas prontas e a pasta de download. Com o arquivo, nada muda: use-o.
+   Nunca adivinhe índice nem campo.
+   - **1.1 Sem setup.** Sem o arquivo do ambiente (ou faltando o que o pedido precisa), pergunte **uma vez**: rodar
+     a `elk-setup` (grava para as próximas vezes) ou **seguir sem setup**. Seguindo sem setup, pergunte só o que
+     **este** pedido precisa, uma pergunta por vez, mostrando opções por nome em lista numerada, e guarde as
+     escolhas **na conversa** (não pergunte de novo, não grave arquivo):
+
+     | Preciso de | Como obter |
+     |---|---|
+     | `indice` e `campo_tempo` | Peça um trecho do nome → `elk_listar_indices(busca=<trecho>, ambiente)`; o usuário escolhe; `campo_tempo` vem da tool |
+     | recorte (`fixos`) | Pergunte como o sistema aparece nos logs (campo e valor, ou só o nome do sistema). Só o nome → `elk_buscar_logs(indice, inicio="now-15m", consulta="<nome>", limite=1)` e proponha o campo cujo valor é o nome; confirme com `elk_contar` (total > 0). Valor com variações → `nome*`. "Índice só do meu sistema" → sem fixos |
+     | campo citado (`nivel`, `mensagem`, `nb`...) | Regra 3.1 |
+     | valor de campo (`ERROR`, nome de serviço) | `elk_contar(..., agrupar_por=<campo>, top=20)` e use o valor como veio |
+     | consulta salva pelo título | `elk_listar_consultas(busca=<trecho do título>, ambiente)` → `id`, `espaco` |
+     | pasta de download | Pergunte (sugira `downloads/elk`) |
+
+     No fim, se o usuário for repetir pedidos desse projeto, ofereça gravar o que já foi escolhido com a
+     `elk-setup`. Recusou a setup → não ofereça de novo na mesma conversa.
 2. **Índice e filtros.** `indice` = `indices[<nome>].padrao` (sem nome no pedido: `indice-padrao`);
    `campo_tempo` = `campo-tempo`. Os `fixos` vão **sempre** em `campos`, somados aos do pedido: são o recorte do
    projeto, e sem eles a consulta pega o ELK inteiro. Valor com `*` vira filtro wildcard em vez de term (ex.:

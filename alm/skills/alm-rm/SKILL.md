@@ -4,7 +4,7 @@ description: "Query, search, read, create or update IBM DOORS Next (RM) artifact
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "2.0.1"
+  version: "2.0.2"
 ---
 
 # alm-rm
@@ -21,8 +21,24 @@ baixado → **alm-sync**.
    as `rm_*`: `project_area_identifier` = `rm.project-area-identifier`, `component` = `rm.component`,
    `configuration` = `rm.configuration` (a stream). Também: `rm.folders` (`{caminho: FR_...}`),
    `rm.requirements-types` (`{nome: OT_...}`), `rm.members`.
-2. Sem arquivo ou sem seção `rm` → ofereça a **alm-setup**. Pasta/tipo fora do arquivo → não invente: alm-setup.
+2. Sem arquivo ou sem seção `rm` → regra "Sem setup" do steering (abaixo). Pasta/tipo fora do arquivo → não
+   invente: descubra como abaixo (e sugira mapeá-lo na alm-setup).
 3. Mostre nomes de tipo e pasta, nunca `FR_`/`OT_`/URLs (exceção: o código do requisito).
+
+### Sem setup
+
+Pergunte/descubra só o que o pedido usa e guarde na conversa:
+
+| Preciso de | Como obter (escolha por nome, em lista numerada) |
+|---|---|
+| `project_area_identifier` (área RM) | Pergunte um trecho do nome → `list_project_areas(app_type="RM", search_name=<trecho>)`. Já há área CCM na conversa → sugira a de `get_project_area(app_type="CCM", project_area_uuid=<pa>, include_associations=True).associations.rm` |
+| `component`, `configuration` | `rm_get_configuration(<área RM>)`, sem perguntar (primeiro componente, primeira stream); mostre o nome |
+| pasta (`FR_`) | `rm_list_folders(...)`; só ao criar, listar ou filtrar por pasta |
+| tipo (`OT_`) | `rm_list_requirement_types(...)`; só ao criar ou filtrar por tipo |
+| pessoa | `rm_list_members(<área RM>)` |
+
+Ler, buscar por texto ou atualizar um requisito pelo número só precisa da área RM (+ componente e stream).
+Daqui em diante, onde o texto diz "do alm.json", sem setup vale o que foi descoberto acima nesta conversa.
 
 ## Siglas e sinônimos
 
@@ -175,7 +191,7 @@ padrão**, qualquer que seja o jeito como o texto foi escrito:
 
 - Com `rm_get_requirement(id, links="bundle")` (usado pela alm-sync) a regra é fixa: **artefato do bundle é embed**,
   com alvo no **caminho relativo do arquivo**, ex.:
-  `[23434 REG Validar data fim periodo PAB](<../03 Regras Negócio/23434-reg-validar-data-fim-periodo-pab.md>)`;
+  `[1001 RN Validar e-mail do cliente](../RN/1001-rn-validar-e-mail-do-cliente.md)`;
   **o resto é link** (outra PA, fora das pastas), com alvo na URL do ALM. Caminho com espaço vem entre `<...>`.
 - O corpo não tem `!`: embed e hyperlink têm a mesma escrita; o que é embed está em `embedded`. Ao gravar, mande o
   `embedded` junto, senão o embed vira hyperlink.

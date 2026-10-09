@@ -4,7 +4,7 @@ description: "Configure, create, update or review the IBM ALM/ELM (EWM, DOORS Ne
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # alm-setup
@@ -44,6 +44,10 @@ Procure `.kiro/config/power/alm/pa_*.json` no projeto do usuário.
 Com o arquivo escolhido, mostre um resumo (quantos itens há em cada seção) e pergunte o que fazer: tudo, só `ccm`,
 só `rm`, só `qm`, uma seção (ex.: só `link-types`, só iterações) ou outra project area. Refaça só essas etapas e
 preserve o resto. Pedido pontual vindo de outra skill ("falta o campo Severidade") → vá direto à etapa dele.
+
+**Vindo de uma conversa sem setup** (o usuário aceitou gravar no fim): parta do que já foi escolhido nela (project
+areas, tipos, campos, iterações, times, pastas, caminho do bundle), mostre como resumo e pergunte só as etapas que
+faltam. Não refaça as chamadas do que já foi confirmado.
 
 ## 3. Etapas (uma pergunta por vez)
 

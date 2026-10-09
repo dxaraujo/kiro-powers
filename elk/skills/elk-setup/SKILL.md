@@ -4,7 +4,7 @@ description: "Configure, create, update or review the project's ELK/Kibana setti
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.2.2"
+  version: "1.2.3"
 ---
 
 # elk-setup
@@ -43,6 +43,10 @@ Leia `.kiro/config/power/elk/elk-<ambiente>.json`. Não existe → todas as etap
 (índices com `padrao`, quantos fixos/campos/consultas, `download.path`) e pergunte o que refazer: tudo, um índice,
 só campos, só consultas, só download. Preserve o resto. Pedido pontual de outra skill ("falta o campo exceção") →
 vá direto à etapa dele.
+
+**Vindo de uma conversa sem setup** (o usuário aceitou gravar no fim): parta do que já foi escolhido nela (índice,
+recorte, campos resolvidos, valores, consultas, pasta de download), mostre como resumo e pergunte só as etapas que
+faltam. Não refaça as chamadas do que já foi confirmado.
 
 ## 3. Etapas (uma pergunta por vez)
 

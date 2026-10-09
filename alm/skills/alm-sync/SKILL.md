@@ -4,7 +4,7 @@ description: "Download and keep in sync, in both directions, the IBM DOORS Next 
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "3.1.0"
+  version: "3.1.1"
 ---
 
 # alm-sync
@@ -50,10 +50,17 @@ O que o download grava (`[id título](../03-Regras/2001-x.md)` e `[id título](U
 ## Antes de chamar
 
 1. **Leia `.kiro/config/power/alm/pa_*.json`** (um → use; vários → pergunte): os três parâmetros das `rm_*`
-   (`project_area_identifier`, `component`, `configuration`), `rm.folders` e `rm.download`. Sem `rm` → ofereça a
-   **alm-setup**.
+   (`project_area_identifier`, `component`, `configuration`), `rm.folders` e `rm.download`. Sem `rm` → regra "Sem
+   setup" do steering:
+   - área RM, `component` e `configuration`: como na seção "Sem setup" da **alm-rm**;
+   - pasta raiz do bundle: pergunte (sugira `docs/alm/<trecho do nome da área>`);
+   - pastas a sincronizar: `rm_list_folders(...)` e o usuário escolhe. **Bundle já existe** (`sync.md` na pasta) →
+     proponha todas as pastas que aparecem nele e avise que pasta **não** escolhida tem os arquivos apagados pelo
+     `rm_sync_plan`. As escolhidas fazem o papel de `rm.folders` no fluxo;
+   - sem arquivo, não grave `rm.folders` nem `last-sync` (passos 1, 3 e 7): o estado fica no `sync.md`. No fim,
+     ofereça a alm-setup para guardar área, pastas e caminho.
 2. Sem `rm.download.path` → pergunte a pasta raiz (sugira `docs/alm/<nome>`, mesmo `<nome>` do `pa_<nome>.json`),
-   relativa à raiz do repositório, com `/`, e grave `rm.download = {"path": ...}`. `dest` de todas as chamadas =
+   relativa à raiz do repositório, com `/`, e (havendo arquivo) grave `rm.download = {"path": ...}`. `dest` de todas as chamadas =
    caminho **absoluto** dessa pasta (raiz do repositório + `path`).
 
 ## Fluxo

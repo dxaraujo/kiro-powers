@@ -4,7 +4,7 @@ description: "Investigate a production problem from ELK/Kibana logs through the 
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # elk-diagnostico
@@ -19,8 +19,10 @@ Fora do escopo: não exporta (ofereça a **elk-exportar** no fim, se o usuário 
 ## Antes de chamar
 
 1. Identifique o ambiente (regra 6 do steering) e leia `.kiro/config/power/elk/elk-<ambiente>.json`. Sem ele →
-   ofereça a **elk-setup** e pare. Este fluxo depende dos apelidos `nivel`, `servico`, `logger`, `excecao`,
-   `stacktrace`, `mensagem`: os que faltarem, pule o passo e diga que a elk-setup pode completá-los.
+   regra 1.1 do steering (sem setup): pergunte índice e recorte e siga. Este fluxo depende dos apelidos `nivel`,
+   `servico`, `logger`, `excecao`, `stacktrace`, `mensagem`: os que faltarem (no arquivo ou sem setup), resolva
+   pela regra 3.1 do steering (uma busca por papel, ex.: `busca="level"`, `"logger"`, `"stack"`); sem resultado,
+   pule o passo e diga isso.
 2. **Janela do problema (J):** do relato ("às 10h" → 09:45–10:30 em Brasília, `-03:00`; "hoje" → `now/d`→`now`;
    sem horário → `now-1h`). **Referência (R):** mesma duração, mesmo horário do dia anterior (`-1d`) — o volume
    varia com o horário, então compare horários equivalentes. "Depois do deploy" → R = mesma duração antes do deploy.

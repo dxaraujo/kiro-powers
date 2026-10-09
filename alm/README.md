@@ -43,3 +43,7 @@ Power do Kiro para o **IBM Engineering Lifecycle Management (ELM)** via OSLC, us
 
 Peça ao Kiro "configurar o ALM": a skill `alm-setup` valida a conexão e gera `.kiro/config/power/alm/pa_<nome>.json` com os ids da
 project area. Depois é só pedir, por exemplo, "me mostre o ib 123456" ou "crie uma HU".
+
+O setup é opcional: sem ele, as skills perguntam o que o pedido precisa (project area, tipo, iteração, pasta...),
+descobrem os ids no servidor, mostram só nomes para você escolher e guardam as escolhas na conversa, sem gravar
+arquivo. Com o setup feito, nada muda: elas usam o `pa_<nome>.json` sem perguntar.

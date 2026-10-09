@@ -4,7 +4,7 @@ description: "Access cross-application IBM ELM data through the `alm` MCP: users
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.1"
+  version: "1.0.2"
 ---
 
 # alm-gc
@@ -20,6 +20,9 @@ links estão em [reference.md](reference.md): leia-o **só** quando o pedido for
 1. **Leia `.kiro/config/power/alm/pa_*.json`**: já tem os uuids de project area (ccm, rm, qm), times, membros e iterações. Com ele,
    **não** chame `list_project_areas`/`get_project_area` só para descobrir id.
 2. Descubra no servidor só o que o arquivo não tem; se for algo recorrente, sugira a **alm-setup**.
+   **Sem setup** (sem arquivo; regra do steering): project area → pergunte um trecho do nome e
+   `list_project_areas(app_type=<CCM|RM|QM>, search_name=<trecho>)`; as outras áreas do projeto saem de
+   `get_project_area(..., include_associations=True)`. Guarde na conversa os uuids escolhidos.
 3. Mostre **nomes**, nunca URLs/uuids (exceção: a coluna Código).
 
 ## Como responder

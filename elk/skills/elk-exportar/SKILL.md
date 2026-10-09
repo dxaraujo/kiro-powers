@@ -4,7 +4,7 @@ description: "Export ELK/Kibana logs to a CSV file on disk through the `elk_expo
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # elk-exportar
@@ -17,8 +17,8 @@ Lucene, consulta salva, ambiente) estão no steering do power.
 ## Antes de chamar
 
 1. Identifique o ambiente (regra 6 do steering) e leia `.kiro/config/power/elk/elk-<ambiente>.json`. Sem ele, ou
-   sem `download.path` → ofereça a **elk-setup** (etapa da pasta de download) e pare. Cada ambiente tem o seu
-   `download.path` (podem apontar para a mesma pasta).
+   sem `download.path` → regra 1.1 do steering (sem setup): pergunte o que faltar (índice, recorte, pasta de
+   download) e siga. Cada ambiente tem o seu `download.path` (podem apontar para a mesma pasta).
 2. Monte a consulta como a elk-logs: `indice`, `campo_tempo`, `campos` = `fixos` + filtros do pedido, `consulta`
    Lucene para texto livre, consulta salva pela regra 5 do steering. Campo não reconhecido: regra 3.1 do
    steering. `inicio` é obrigatório: sem período no pedido, pergunte — exportar "tudo" sem janela varre meses.

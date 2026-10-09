@@ -47,3 +47,7 @@ no Kibana, com confirmação. Agnóstico: índice, campos e consultas do projeto
 Peça ao Kiro "configurar o ELK": a skill `elk-setup` pergunta o ambiente, escolhe o índice, o recorte do sistema,
 os campos e a pasta de download, e grava `.kiro/config/power/elk/elk-<ambiente>.json` (repita para cada ambiente). Depois é só pedir, por exemplo, "quantos erros na última hora",
 "exporta os erros de ontem" ou "o sistema caiu às 10h, o que aconteceu?".
+
+O setup é opcional: sem ele, as skills perguntam o que o pedido precisa (índice, recorte do sistema, pasta de
+download...), descobrem os campos no servidor e guardam as escolhas na conversa, sem gravar arquivo. Com o setup
+feito, nada muda.
