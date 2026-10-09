@@ -17,6 +17,7 @@ MCP é agnóstico: índice, campos e consultas do projeto vêm do `elk-<ambiente
 | Ver ou contar logs: "logs do usuário X", "quantos erros hoje", "rode a consulta Y" (até 100 documentos na conversa); salvar no Kibana a consulta montada na conversa ("salva essa consulta") ou alterar uma consulta salva | `elk-logs` |
 | Gravar logs em arquivo: CSV, planilha, "baixar/exportar todos", volume grande | `elk-exportar` |
 | Entender um problema: incidente, pico, lentidão, "por que caiu", causa raiz, comparação com antes | `elk-diagnostico` |
+| Log de execução de job Spring Batch: "exibe os logs do job X", "logs do último job executado", "logs de execução batch" (sumário por step + WARN/ERROR), do ELK ou de log local | `elk-job-logs` |
 
 Carregue a skill antes de chamar as tools.
 

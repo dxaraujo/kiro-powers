@@ -1,10 +1,10 @@
 ---
 name: "elk-job-logs"
-description: "Show the execution log of a Spring Batch job as a formatted per-step summary (status, read/filtered/written rows, skips, commits, rollbacks, duration) in chronological order, consolidating the partitions of a partitioned step into a single result, plus a scan of the WARN/ERROR events in the execution window with an analysis of the errors. Reads from two sources: local log files (when the request says \"log local\" or \"execução local\") or ELK/Kibana (configured environments) otherwise. Use when the user asks \"exibe os logs do job X\", \"mostra a execução do job X\", \"como foi a execução do X\", \"log de execução do job X\". For ad-hoc logs by user/transaction/trace id, counting, or saved queries use elk-logs; to investigate an incident or root cause use elk-diagnostico; to export logs to a CSV file use elk-exportar."
+description: "Show the logs of a Spring Batch job execution (job, batch, execução) as a per-step summary table in chronological order (status, read/filtered/written rows, skips, commits, rollbacks, duration), consolidating the partitions of a partitioned step, plus the WARN/ERROR events of the execution window with an error analysis. Use whenever the request is about the logs or the execution of a job or batch, with or without the job name: \"logs de execução batch\", \"logs da execução do job\", \"logs do último job executado\", \"logs da última execução do job X\", \"exibe os logs do job X\", \"mostra a execução do job X\", \"como foi a execução do X\", \"o job X rodou?\". Source: local log files when the request says \"log local\" or \"execução local\", otherwise ELK/Kibana. For ad-hoc logs by user/transaction/trace id, counting or saved queries use elk-logs; for an incident or root cause use elk-diagnostico; to export logs to CSV use elk-exportar."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # Exibidor de Log de Execução — Spring Batch
@@ -33,6 +33,11 @@ Pedidos como:
 - "mostra como foi a execução do `<nomeDoJob>`"
 - "log de execução do `<nomeDoJob>` de hoje"
 - "me mostra a última execução do job X"
+- "logs do último job executado", "logs de execução batch" (sem nome do job)
+
+**Sem nome do job:** use a execução mais recente de qualquer job — no ELK, o passo 1
+sem o `<nomeDoJob>` na consulta; no arquivo local, o último "Iniciando processamento
+do JOB". Diga ao usuário qual job e qual execução usou.
 
 ---
 
