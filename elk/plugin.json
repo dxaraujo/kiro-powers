@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "elk",
-  "version": "1.0.8",
-  "description": "Logs no ELK (Elasticsearch + Kibana): buscar, contar, diagnosticar incidentes, exportar CSV e salvar consultas no Kibana, com o MCP mcp-elk",
+  "version": "1.0.9",
+  "description": "Logs no ELK (Elasticsearch + Kibana) e logs de execução de jobs Spring Batch (último job executado, execução do job X, sumário por step, no ELK ou em log local): buscar, contar, diagnosticar incidentes, exportar CSV e salvar consultas no Kibana, com o MCP mcp-elk",
   "author": {
     "name": "Daniel Xavier Araújo",
     "email": "danielxaraujo@gmail.com"
