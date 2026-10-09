@@ -1,10 +1,10 @@
 ---
 name: "elk-logs"
-description: "Look up and count application logs in ELK/Kibana through the `elk` MCP, up to 100 documents shown in the conversation, save the query built in the conversation as a Kibana saved search (Discover, KQL or Lucene) and update an existing saved search. Use when the user wants to see or count specific logs: \"me mostra os logs do usuário/transação X\", \"quantos erros hoje\", \"tem ERROR na última hora?\", \"logs com timeout entre 10h e 10h15\", \"rode a consulta salva Y\", \"quais valores tem o campo Z\", \"o que aconteceu com a requisição <trace id>\", \"últimos logs do serviço W em homologação\", and at the end of a search \"salva essa consulta\", \"cria uma consulta no Kibana com esse filtro\", \"guarda essa busca como X\", \"altera/corrige a consulta salva X\", \"adiciona o filtro Y na consulta X\". For writing logs to a CSV file use elk-exportar; for explaining why something failed (incident, spike, root cause) use elk-diagnostico; for the per-step execution summary of a Spring Batch job use elk-job-logs."
+description: "Ad-hoc log queries in ELK/Kibana — look up and count application logs by user, transaction, trace id, error type, or custom filters (NOT for Spring Batch job execution logs — use elk-job-logs instead). Up to 100 documents shown in the conversation, save the query built in the conversation as a Kibana saved search (Discover, KQL or Lucene) and update an existing saved search. Use when the user wants to see or count specific logs: \"me mostra os logs do usuário/transação X\", \"quantos erros hoje\", \"tem ERROR na última hora?\", \"logs com timeout entre 10h e 10h15\", \"rode a consulta salva Y\", \"quais valores tem o campo Z\", \"o que aconteceu com a requisição <trace id>\", \"últimos logs do serviço W em homologação\", and at the end of a search \"salva essa consulta\", \"cria uma consulta no Kibana com esse filtro\", \"guarda essa busca como X\", \"altera/corrige a consulta salva X\", \"adiciona o filtro Y na consulta X\". **For Spring Batch job execution logs (\"mostra a execução do job X\", \"log do job Y\", \"última execução do job Z\") use elk-job-logs instead.** For writing logs to a CSV file use elk-exportar; for explaining why something failed (incident, spike, root cause) use elk-diagnostico."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.1.5"
+  version: "1.0.7"
 ---
 
 # elk-logs
