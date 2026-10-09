@@ -4,7 +4,7 @@ description: "Configure, create, update or review the project's ELK/Kibana setti
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.1.0"
+  version: "1.2.2"
 ---
 
 # elk-setup
@@ -15,9 +15,11 @@ O MCP é agnóstico e não lê esse arquivo; ele guarda o que é do projeto (ín
 que as outras skills não redescubram nada a cada pedido. Você o grava, no formato exato abaixo. Um arquivo por
 ambiente: cada ambiente pode ter índices e consultas diferentes.
 
-## 1. Verificar a conexão
+## 1. Ambiente e conexão
 
-`elk_listar_indices(ambiente=<prod, ou o que o usuário disser>)` já testa credencial e certificado.
+Pergunte o ambiente (prod, homol, dev), se o pedido não disser: ele define o arquivo (`elk-prod.json`,
+`elk-homol.json` ou `elk-dev.json`) e o parâmetro `ambiente` de todas as tools. Depois,
+`elk_listar_indices(ambiente=<ambiente>)` já testa credencial e certificado.
 
 | Erro | O que pedir |
 |---|---|
@@ -49,13 +51,12 @@ gravado veio de uma saída de tool desta conversa.
 
 | # | O que fazer | elk-<ambiente>.json |
 |---|---|---|
-| 1 | Pergunte o ambiente (prod, homol, dev) — determina o arquivo e o parâmetro `ambiente` das tools | nome do arquivo: `elk-prod.json`, `elk-homol.json` ou `elk-dev.json` |
-| 2 | Lista da etapa 1 (`elk_listar_indices`). Muitos data views → peça um trecho do nome e repita com `busca`. Mostre `padrao` e `espaco`; o usuário escolhe um ou mais. Dê a cada um um nome curto (sugira pelo padrão: `logs-app-x-*` → `aplicacao`) e pergunte qual é o padrão | `indices[nome].padrao`, `campo-tempo` (= `campo_tempo` da tool), `indice-padrao` |
-| 3 | **Recorte do projeto (fixos).** Um índice costuma ter vários sistemas. Pergunte como o projeto se identifica nos logs (nome do sistema, aplicação, cliente). Ache o campo com uma amostra: `elk_buscar_logs(indice, inicio="now-15m", consulta="<nome do sistema>", limite=1)` e procure o campo cujo valor é o nome; confirme com `elk_contar(indice, inicio="now-15m", campos={campo: valor})` (total > 0). **Wildcard:** se o sistema tem variações de nome (ex.: `myapp`, `myapp-worker`, `myapp_batch`), use `myapp*` — valores com `*` viram filtro wildcard em vez de term. Índice já exclusivo do projeto → `fixos` fica vazio | `fixos` `{campo: valor ou wildcard}` |
-| 4 | **Apelidos de campos.** Índices têm milhares de campos: não liste todos. Pegue 1–3 documentos com os fixos (`elk_buscar_logs(..., campos=fixos, limite=3)`) e proponha o campo para cada papel: `nivel` (INFO/ERROR), `mensagem`, `servico` (módulo/aplicação), `logger` (classe), `excecao` (stack trace/tipo), `host`, `uri`, `trace` (id de correlação). Pergunte também campos de negócio (id de transação, usuário, etc.). Para dúvidas, `elk_listar_campos(indice, busca="<trecho>")`. Os apelidos permitem usar nomes curtos que resolvem para o caminho completo. Amostre também um documento de erro (`campos` = fixos + nível ERROR): erros costumam ter campos próprios (exceção, stack trace); havendo duas grafias, grave a que tem mais documentos no recorte (`elk_contar(..., campos=fixos, consulta="_exists_:<campo>")` para cada uma) | `campos` `{apelido: campo}` |
-| 5 | **Valores conhecidos.** Para cada apelido agregável de baixa cardinalidade (`nivel`, `servico`, categorias): `elk_contar(indice, inicio="now-1d", campos=fixos, agrupar_por=<campo>, top=20)`. `grupos` vazio = campo ausente nesse recorte ou não agregável (texto): confira com `elk_listar_campos` e, se houver, use a variante `.keyword` | `valores` `{apelido: [valor, ...]}` |
-| 6 | **Consultas prontas (opcional).** `elk_listar_consultas(busca=<trecho>)` (peça um trecho do título; sem ele a lista vem com todos os spaces). O usuário escolhe pelo título. Grave `"titulo": { "id": "<uuid>", "espaco": "<space>" }` — a skill elk-logs usa `elk_obter_consulta(id, espaco)` para obter os detalhes em tempo real. Se `espaco` for "default", pode omiti-lo | `consultas` `{"titulo": {id, espaco?}}` |
-| 7 | **Pasta de download.** Pergunte onde a elk-exportar grava os CSV; sugira `downloads/elk` e lembre de pô-la no `.gitignore` (logs têm dados pessoais) | `download.path` |
+| 1 | Lista da seção 1 (`elk_listar_indices`). Muitos data views → peça um trecho do nome e repita com `busca`. Mostre `padrao` e `espaco`; o usuário escolhe um ou mais. Dê a cada um um nome curto (sugira pelo padrão: `logs-app-x-*` → `aplicacao`) e pergunte qual é o padrão | `indices[nome].padrao`, `campo-tempo` (= `campo_tempo` da tool), `indice-padrao` |
+| 2 | **Recorte do projeto (fixos).** Um índice costuma ter vários sistemas. Pergunte como o projeto se identifica nos logs (nome do sistema, aplicação, cliente). Ache o campo com uma amostra: `elk_buscar_logs(indice, inicio="now-15m", consulta="<nome do sistema>", limite=1)` e procure o campo cujo valor é o nome; confirme com `elk_contar(indice, inicio="now-15m", campos={campo: valor})` (total > 0). **Wildcard:** se o sistema tem variações de nome (ex.: `myapp`, `myapp-worker`, `myapp_batch`), use `myapp*` — valores com `*` viram filtro wildcard em vez de term. Índice já exclusivo do projeto → `fixos` fica vazio | `fixos` `{campo: valor ou wildcard}` |
+| 3 | **Apelidos de campos.** Índices têm milhares de campos: não liste todos. Pegue 1–3 documentos com os fixos (`elk_buscar_logs(..., campos=fixos, limite=3)`) e proponha o campo para cada papel: `nivel` (INFO/ERROR), `mensagem`, `servico` (módulo/aplicação), `logger` (classe), `excecao` (tipo/classe da exceção), `stacktrace` (stack trace completa), `host`, `uri`, `trace` (id de correlação). Pergunte também campos de negócio (id de transação, usuário, etc.). Para dúvidas, `elk_listar_campos(indice, busca="<trecho>")`. Os apelidos permitem usar nomes curtos que resolvem para o caminho completo. Amostre também um documento de erro (`campos` = fixos + nível ERROR): erros costumam ter campos próprios (exceção, stack trace); havendo duas grafias, grave a que tem mais documentos no recorte (`elk_contar(..., campos=fixos, consulta="_exists_:<campo>")` para cada uma) | `campos` `{apelido: campo}` |
+| 4 | **Valores conhecidos.** Para cada apelido agregável de baixa cardinalidade (`nivel`, `servico`, categorias): `elk_contar(indice, inicio="now-1d", campos=fixos, agrupar_por=<campo>, top=20)`. `grupos` vazio = campo ausente nesse recorte ou não agregável (texto): confira com `elk_listar_campos` e, se houver, use a variante `.keyword` | `valores` `{apelido: [valor, ...]}` |
+| 5 | **Consultas prontas (opcional).** `elk_listar_consultas(busca=<trecho>)` (peça um trecho do título; sem ele a lista vem com todos os spaces); o usuário escolhe pelo título. Grave `"titulo": { "id": "<uuid>", "espaco": "<space>" }` — as outras skills usam `elk_obter_consulta(id, espaco)` para obter os detalhes em tempo real. Se `espaco` for "default", pode omiti-lo | `consultas` `{"titulo": {id, espaco?}}` |
+| 6 | **Pasta de download.** Pergunte onde a elk-exportar grava os CSV deste ambiente; sugira `downloads/elk` (ambientes podem usar a mesma pasta) e lembre de pô-la no `.gitignore` (logs têm dados pessoais) | `download.path` |
 
 ## 4. Gravar
 
@@ -107,7 +108,7 @@ workspace, que não o acha). Mostre o JSON completo, peça confirmação e grave
 1. **Estrutura:** releia o schema e o arquivo gravado: `$schema` primeiro, obrigatórios presentes, `indice-padrao`
    existe em `indices`, nada a mais.
 2. **Recorte:** `elk_contar(indice=<padrao>, inicio="now-15m", campos=<fixos>, agrupar_por=<campos.nivel>)` e mostre
-   o total por nível. Total 0 → algum fixo está errado: volte à etapa 3.
+   o total por nível. Total 0 → algum fixo está errado: volte à etapa 2.
 
 ## Erros comuns
 
@@ -115,7 +116,7 @@ workspace, que não o acha). Mostre o JSON completo, peça confirmação e grave
 |---|---|
 | Listar os milhares de campos de `elk_listar_campos` sem `busca` | Amostra de documentos + `busca` por trecho |
 | Gravar o nome do data view em `padrao` | O `padrao` (com `*`) da tool, que é o que vai em `indice` |
-| Fixos vazios num índice compartilhado | Recorte pelo sistema do projeto (etapa 3) |
+| Fixos vazios num índice compartilhado | Recorte pelo sistema do projeto (etapa 2) |
 | Valores inventados ou traduzidos (`erro`) | Os de `grupos` de `elk_contar`, como vieram (`ERROR`) |
 | Caminho absoluto em `download.path` ou citar `/home/...` | Relativo à raiz do repositório, com `/` |
 | Buscar logs "para testar" além da conferência | Só as chamadas das etapas |

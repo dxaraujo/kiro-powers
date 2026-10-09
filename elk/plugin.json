@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "elk",
-  "version": "1.0.1",
-  "description": "Logs no ELK (Elasticsearch + Kibana), só leitura: buscar, contar, diagnosticar incidentes e exportar CSV, com o MCP mcp-elk",
+  "version": "1.1.2",
+  "description": "Logs no ELK (Elasticsearch + Kibana): buscar, contar, diagnosticar incidentes, exportar CSV e salvar consultas no Kibana, com o MCP mcp-elk",
   "author": {
     "name": "Daniel Xavier Araújo",
     "email": "danielxaraujo@gmail.com"
@@ -12,7 +12,7 @@
   "keywords": [
     "elk", "kibana", "elasticsearch", "elastic", "discover", "log", "logs", "log de erro", "erro", "erros", "exceção",
     "exception", "stacktrace", "stack trace", "warn", "error", "nível de log", "incidente", "instabilidade", "lentidão",
-    "timeout", "pico", "causa raiz", "diagnóstico", "investigar", "busca salva", "consulta salva", "data view",
+    "timeout", "pico", "causa raiz", "diagnóstico", "investigar", "busca salva", "consulta salva", "salvar consulta", "criar consulta", "data view",
     "índice", "lucene", "kql", "exportar", "csv", "planilha", "baixar logs", "produção", "homologação"
   ]
 }

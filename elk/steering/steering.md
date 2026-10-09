@@ -4,16 +4,17 @@ inclusion: always
 
 # ELK Power
 
-Este power dá acesso **só de leitura** aos logs do ELK (Elasticsearch + Kibana), pelo MCP `elk`
-(`uvx mcp-elk@latest`). **O MCP fornece as capacidades; as skills fornecem o conhecimento.** O MCP é agnóstico:
-índice, campos e consultas do projeto vêm do `elk.json`.
+Este power dá acesso **de leitura** aos logs do ELK (Elasticsearch + Kibana), pelo MCP `elk`
+(`uvx mcp-elk@latest`). A única escrita é criar consulta salva no Kibana (`elk_criar_consulta`), só pela
+`elk-logs` e com confirmação do usuário. **O MCP fornece as capacidades; as skills fornecem o conhecimento.** O
+MCP é agnóstico: índice, campos e consultas do projeto vêm do `elk-<ambiente>.json`.
 
 ## Skills (escopos que não se sobrepõem)
 
 | Pedido | Skill |
 |---|---|
-| Configurar o projeto: índice, campos, filtros fixos, consultas salvas, pasta de download (`elk.json`) | `elk-setup` |
-| Ver ou contar logs: "logs do usuário X", "quantos erros hoje", "rode a consulta Y" (até 100 documentos na conversa) | `elk-logs` |
+| Configurar o projeto: índice, campos, filtros fixos, consultas salvas, pasta de download (`elk-<ambiente>.json`) | `elk-setup` |
+| Ver ou contar logs: "logs do usuário X", "quantos erros hoje", "rode a consulta Y" (até 100 documentos na conversa); salvar no Kibana a consulta montada na conversa ("salva essa consulta") | `elk-logs` |
 | Gravar logs em arquivo: CSV, planilha, "baixar/exportar todos", volume grande | `elk-exportar` |
 | Entender um problema: incidente, pico, lentidão, "por que caiu", causa raiz, comparação com antes | `elk-diagnostico` |
 
@@ -21,32 +22,36 @@ Carregue a skill antes de chamar as tools.
 
 ## Regras comuns (valem para todas as skills)
 
-1. **`elk.json` primeiro, servidor depois.** `.kiro/config/power/elk/elk.json` (raiz do repositório; um por
-   projeto) diz o ambiente, o índice (`padrao`), o campo de tempo, os filtros fixos, os apelidos de campos e as
-   consultas prontas. Sem o arquivo, ou faltando o que o pedido precisa, ofereça a `elk-setup`; não adivinhe índice
-   nem campo.
+1. **Config primeiro, servidor depois.** `.kiro/config/power/elk/elk-<ambiente>.json` (raiz do repositório; um
+   por ambiente: `elk-prod.json`, `elk-homol.json`, `elk-dev.json`) diz o índice (`padrao`), o campo de tempo, os
+   filtros fixos, os apelidos de campos, as consultas prontas e a pasta de download. Sem o arquivo do ambiente, ou
+   faltando o que o pedido precisa, ofereça a `elk-setup`; não adivinhe índice nem campo.
 2. **Índice e filtros.** `indice` = `indices[<nome>].padrao` (sem nome no pedido: `indice-padrao`);
-   `campo_tempo` = `campo-tempo`. Os `fixos` vão **sempre** em `campos` (filtro exato `term`) ou `consulta` (para
-   valores com wildcard `*`), somados aos do pedido: são o recorte do projeto, e sem eles a consulta pega o ELK
-   inteiro. Valores com `*` (ex.: `app*`, `*batch*`) viram filtro wildcard em vez de term.
+   `campo_tempo` = `campo-tempo`. Os `fixos` vão **sempre** em `campos`, somados aos do pedido: são o recorte do
+   projeto, e sem eles a consulta pega o ELK inteiro. Valor com `*` vira filtro wildcard em vez de term (ex.:
+   `sistema.nome: "myapp*"` pega `myapp`, `myapp-worker`, `myapp_batch`).
 3. **Apelidos.** O usuário fala o apelido (`nivel`, `mensagem`, `servico`, `cpf`...); a chamada usa o campo real de
    `campos`. Valores possíveis estão em `valores`: use-os em vez de inventar (`ERROR`, não `erro`).
-   - **3.1 Termo não reconhecido:** campo ou valor que não está em `campos` nem em `valores`: antes de usar como
-     texto livre em `consulta`, tente `elk_listar_campos(indice, busca="<termo>")`. Um único resultado → use o
-     campo real. Vários resultados → mostre ao usuário uma lista numerada para escolher. Nenhum resultado → use
-     como texto em `consulta` e sugira a elk-setup se for recorrente.
-   - **3.2 Expansão parcial:** `app.id` → busque com os segmentos (`app` e `id`). Match único → use automaticamente
-     (ex.: `context.app.id`). Múltiplos matches → mostre opções.
-   - **3.3 Wildcard em campos:** `app*.campo` busca campos que comecem com variantes de `app` (`app`, `app-worker`,
-     `app_batch`). O MCP filtra por trecho; combine os segmentos na busca.
+   - **3.1 Campo fora dos apelidos.** O usuário cita um campo pelo nome curto ou parcial (ex.: `pedido`) que não
+     está em `campos`:
+     1. `elk_listar_campos(indice, busca="<termo>")` — acha todo campo com o termo no nome (`pedido` →
+        `app.venda.pedido`, `ctx.pedido_id`, `pedidos.total`).
+     2. Prefira os que têm o termo como **último segmento** (`pedido` ou `*.pedido`); se não houver, considere todos.
+     3. Um candidato → use e diga qual campo usou. Vários → lista numerada para o usuário escolher (para filtro exato
+        ou `agrupar_por`, só os `agregavel`). Nenhum → use o termo como texto livre em `consulta`.
+     4. Campo resolvido assim e usado de novo → sugira gravá-lo como apelido na elk-setup.
 4. **Janela de tempo.** `inicio` é obrigatório (`now-15m`, `now-1h`, `now-1d` ou ISO 8601 com fuso, ex.:
    `2026-10-08T10:00:00-03:00`). Horário falado pelo usuário é de Brasília (`-03:00`). Comece curto e amplie; o
    volume costuma ser de milhões por hora.
 5. **Consulta.** `consulta` é Lucene (`campo:valor AND campo2:*trecho*`); operadores `AND/OR/NOT` em
-   maiúsculas, valores com espaço entre aspas, sem `campo:{...}`. Filtro exato → `campos`; DSL pronta (de
-   `consultas`) → `filtros`.
-6. **Ambiente.** `ambiente` do `elk.json`, salvo se o usuário pedir outro (prod/produção, homol/homologação/hml,
-   dev/desenvolvimento). Diga sempre o ambiente e a janela usados na resposta.
+   maiúsculas, valores com espaço entre aspas, sem `campo:{...}`. Filtro exato → `campos`.
+   **Consulta salva** citada pelo título → `consultas[<título>]` dá `id` e `espaco`; `elk_obter_consulta(id,
+   espaco)` devolve `consulta`, `filtros` e `indice`, que vão nas tools somados aos `fixos`. Se esse `indice` não
+   estiver em `indices`, use-o sem fixos e avise o usuário; se vier `null` (saved query), use o `indice-padrao` com
+   os fixos dele.
+6. **Ambiente.** Do pedido (prod/produção, homol/homologação/hml, dev/desenvolvimento); sem menção, `prod`. Ele
+   escolhe o arquivo de config e vai no parâmetro `ambiente` das tools. Diga sempre o ambiente e a janela usados na
+   resposta.
 7. **Dados pessoais.** Logs podem ter CPF, nome e e-mail: mostre só o que o pedido precisa.
 8. **Erros do MCP** dizem o que corrigir: siga a mensagem, sem tentativas às cegas.
 

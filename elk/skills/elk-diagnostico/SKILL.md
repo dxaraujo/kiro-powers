@@ -4,22 +4,23 @@ description: "Investigate a production problem from ELK/Kibana logs through the 
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.0"
+  version: "1.2.0"
 ---
 
 # elk-diagnostico
 
 Investigação com método: **números agregados primeiro, documentos só como evidência**. Com milhões de logs por
 hora, ler documentos soltos engana; contagens agrupadas e comparadas com um período normal mostram onde está o
-problema. As regras comuns (elk.json, fixos, apelidos, janela, Lucene, ambiente) estão no steering do power.
+problema. As regras comuns (config por ambiente, fixos, apelidos, janela, Lucene, ambiente) estão no steering do
+power.
 
 Fora do escopo: não exporta (ofereça a **elk-exportar** no fim, se o usuário quiser os dados) e não configura.
 
 ## Antes de chamar
 
-1. Leia `.kiro/config/power/elk/elk.json`. Sem ele → ofereça a **elk-setup** e pare. Este fluxo depende dos
-   apelidos `nivel`, `servico`, `logger`, `excecao`, `mensagem`: os que faltarem, pule o passo e diga que a
-   elk-setup pode completá-los.
+1. Identifique o ambiente (regra 6 do steering) e leia `.kiro/config/power/elk/elk-<ambiente>.json`. Sem ele →
+   ofereça a **elk-setup** e pare. Este fluxo depende dos apelidos `nivel`, `servico`, `logger`, `excecao`,
+   `stacktrace`, `mensagem`: os que faltarem, pule o passo e diga que a elk-setup pode completá-los.
 2. **Janela do problema (J):** do relato ("às 10h" → 09:45–10:30 em Brasília, `-03:00`; "hoje" → `now/d`→`now`;
    sem horário → `now-1h`). **Referência (R):** mesma duração, mesmo horário do dia anterior (`-1d`) — o volume
    varia com o horário, então compare horários equivalentes. "Depois do deploy" → R = mesma duração antes do deploy.
@@ -40,7 +41,9 @@ Cada passo é um `elk_contar` (barato). Faça J e R lado a lado.
    tem.
 4. **Evidência:** `elk_buscar_logs` com o grupo suspeito, `limite=5` (no máximo 10: a amostra só ilustra o que as
    contagens já mostraram; ler dezenas de logs gasta contexto e não muda a conclusão), `retornar` = tempo + `nivel`, `servico`,
-   `logger`, `excecao`, `mensagem`, `trace`, `mais_recentes=False` (os primeiros mostram o gatilho). Se houver
+   `logger`, `excecao`, `stacktrace`, `mensagem`, `trace`, `mais_recentes=False` (os primeiros mostram o gatilho). A
+   stack trace mostra onde o erro nasce: leia a causa raiz (`Caused by` mais interno) e o primeiro frame do código da
+   aplicação, não dos frameworks. Se houver
    `trace`, uma busca por ele mostra a requisição inteira.
 5. **Conclua** com o que os números sustentam. Faltou dado → diga qual consulta resolveria.
 
@@ -67,7 +70,8 @@ em R antes de chamá-lo de causa.
 
 **Linha do tempo:** <início estimado, pico, se já normalizou>
 
-**Evidências:** 2–3 logs (`_id`, data/hora, mensagem curta)
+**Evidências:** 2–3 logs (`_id`, data/hora, mensagem curta) e a stack trace do primeiro, em bloco de código, cortada
+na exceção, no `Caused by` mais interno e nos frames da aplicação
 
 **Hipótese:** <causa provável e por que os números apontam para ela> · **Confiança:** alta/média/baixa
 

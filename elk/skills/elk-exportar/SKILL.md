@@ -4,22 +4,23 @@ description: "Export ELK/Kibana logs to a CSV file on disk through the `elk_expo
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # elk-exportar
 
 Volume grande vai **direto do MCP para o disco**: `elk_exportar_csv` pagina a consulta e grava o CSV na pasta
-`download.path` do `elk.json`. Os documentos nunca passam pela conversa — não use `elk_buscar_logs` para montar
-arquivo, nem escreva o CSV você mesmo. As regras comuns (elk.json, fixos, apelidos, janela, Lucene, ambiente) estão
-no steering do power.
+`download.path` do `elk-<ambiente>.json`. Os documentos nunca passam pela conversa — não use `elk_buscar_logs` para
+montar arquivo, nem escreva o CSV você mesmo. As regras comuns (config por ambiente, fixos, apelidos, janela,
+Lucene, consulta salva, ambiente) estão no steering do power.
 
 ## Antes de chamar
 
-1. Leia `.kiro/config/power/elk/elk.json`. Sem ele, ou sem `download.path` → ofereça a **elk-setup** (etapa da
-   pasta de download) e pare.
+1. Identifique o ambiente (regra 6 do steering) e leia `.kiro/config/power/elk/elk-<ambiente>.json`. Sem ele, ou
+   sem `download.path` → ofereça a **elk-setup** (etapa da pasta de download) e pare. Cada ambiente tem o seu
+   `download.path` (podem apontar para a mesma pasta).
 2. Monte a consulta como a elk-logs: `indice`, `campo_tempo`, `campos` = `fixos` + filtros do pedido, `consulta`
-   Lucene para texto livre, `consultas[<título>]` para consulta salva. Campo não reconhecido: regra 3.1 do
+   Lucene para texto livre, consulta salva pela regra 5 do steering. Campo não reconhecido: regra 3.1 do
    steering. `inicio` é obrigatório: sem período no pedido, pergunte — exportar "tudo" sem janela varre meses.
 3. **Arquivo** (`arquivo` precisa ser absoluto): raiz do repositório (`git rev-parse --show-toplevel`; sem git, a
    pasta do workspace) + `download.path` + `<AAAAMMDD-HHmm>_<assunto>.csv`, com `assunto` curto em kebab-case

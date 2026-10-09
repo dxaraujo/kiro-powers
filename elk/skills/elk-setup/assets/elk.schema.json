@@ -25,7 +25,7 @@
     },
     "consultas": {
       "type": "object",
-      "description": "Mapa {titulo: {id, espaco}} das consultas salvas do Kibana escolhidas na elk-setup. A chave é o título original da consulta. Para obter os detalhes (consulta, filtros, índice), use elk_obter_consulta(id, espaco).",
+      "description": "Mapa {titulo: {id, espaco}} das consultas salvas do Kibana escolhidas na elk-setup ou criadas pela elk-logs. A chave é o título original da consulta. Para obter os detalhes (consulta, filtros, índice), use elk_obter_consulta(id, espaco).",
       "additionalProperties": { "$ref": "#/$defs/consulta" }
     },
     "download": {
@@ -66,7 +66,7 @@
         },
         "campos": {
           "type": "object",
-          "description": "Mapa {apelido: campo real}. Permite usar nomes curtos que resolvem para o caminho completo. Papéis usados pelas skills: nivel, mensagem, servico, logger, excecao, host, uri, trace.",
+          "description": "Mapa {apelido: campo real}. Permite usar nomes curtos que resolvem para o caminho completo. Papéis usados pelas skills: nivel, mensagem, servico, logger, excecao, stacktrace, host, uri, trace.",
           "additionalProperties": { "type": "string", "minLength": 1 }
         },
         "valores": {
