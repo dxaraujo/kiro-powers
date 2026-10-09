@@ -1,10 +1,10 @@
 ---
 name: "elk-job-logs"
-description: "DEFAULT skill for Spring Batch job execution logs. Show the execution log of a Spring Batch job as a formatted per-step summary (status, read/filtered/written rows, skips, commits, rollbacks, duration) in chronological order, consolidating the partitions of a partitioned step into a single result, plus a scan of the WARN/ERROR events in the execution window with an analysis of the errors. By default, always query ELK/Kibana (production environments). Use local log files ONLY when the request explicitly says 'log local', 'execucao local', 'localmente', 'aqui', or 'na minha maquina'. Use when the user asks 'exibe os logs do job X', 'mostra a execucao do job X', 'como foi a execucao do X', 'log de execucao do job X', 'ultima execucao do job X'. For ad-hoc logs by user/transaction/trace id, counting, or saved queries use elk-logs; to investigate an incident or root cause use elk-diagnostico; to export logs to a CSV file use elk-exportar."
+description: "Show the execution log of a Spring Batch job as a formatted per-step summary (status, read/filtered/written rows, skips, commits, rollbacks, duration) in chronological order, consolidating the partitions of a partitioned step into a single result, plus a scan of the WARN/ERROR events in the execution window with an analysis of the errors. Reads from two sources: local log files (when the request says \"log local\" or \"execução local\") or ELK/Kibana (configured environments) otherwise. Use when the user asks \"exibe os logs do job X\", \"mostra a execução do job X\", \"como foi a execução do X\", \"log de execução do job X\". For ad-hoc logs by user/transaction/trace id, counting, or saved queries use elk-logs; to investigate an incident or root cause use elk-diagnostico; to export logs to a CSV file use elk-exportar."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.1"
+  version: "1.0.0"
 ---
 
 # Exibidor de Log de Execução — Spring Batch
