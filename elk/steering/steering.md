@@ -5,8 +5,8 @@ inclusion: always
 # ELK Power
 
 Este power dá acesso **de leitura** aos logs do ELK (Elasticsearch + Kibana), pelo MCP `elk`
-(`uvx mcp-elk@latest`). A única escrita é criar consulta salva no Kibana (`elk_criar_consulta`), só pela
-`elk-logs` e com confirmação do usuário. **O MCP fornece as capacidades; as skills fornecem o conhecimento.** O
+(`uvx mcp-elk@latest`). As únicas escritas são criar e atualizar busca salva no Kibana (`elk_criar_consulta`,
+`elk_atualizar_consulta`), só pela `elk-logs` e com confirmação do usuário. **O MCP fornece as capacidades; as skills fornecem o conhecimento.** O
 MCP é agnóstico: índice, campos e consultas do projeto vêm do `elk-<ambiente>.json`.
 
 ## Skills (escopos que não se sobrepõem)
@@ -14,7 +14,7 @@ MCP é agnóstico: índice, campos e consultas do projeto vêm do `elk-<ambiente
 | Pedido | Skill |
 |---|---|
 | Configurar o projeto: índice, campos, filtros fixos, consultas salvas, pasta de download (`elk-<ambiente>.json`) | `elk-setup` |
-| Ver ou contar logs: "logs do usuário X", "quantos erros hoje", "rode a consulta Y" (até 100 documentos na conversa); salvar no Kibana a consulta montada na conversa ("salva essa consulta") | `elk-logs` |
+| Ver ou contar logs: "logs do usuário X", "quantos erros hoje", "rode a consulta Y" (até 100 documentos na conversa); salvar no Kibana a consulta montada na conversa ("salva essa consulta") ou alterar uma consulta salva | `elk-logs` |
 | Gravar logs em arquivo: CSV, planilha, "baixar/exportar todos", volume grande | `elk-exportar` |
 | Entender um problema: incidente, pico, lentidão, "por que caiu", causa raiz, comparação com antes | `elk-diagnostico` |
 
@@ -43,12 +43,18 @@ Carregue a skill antes de chamar as tools.
 4. **Janela de tempo.** `inicio` é obrigatório (`now-15m`, `now-1h`, `now-1d` ou ISO 8601 com fuso, ex.:
    `2026-10-08T10:00:00-03:00`). Horário falado pelo usuário é de Brasília (`-03:00`). Comece curto e amplie; o
    volume costuma ser de milhões por hora.
-5. **Consulta.** `consulta` é Lucene (`campo:valor AND campo2:*trecho*`); operadores `AND/OR/NOT` em
-   maiúsculas, valores com espaço entre aspas, sem `campo:{...}`. Filtro exato → `campos`.
+5. **Consulta.** `consulta` aceita Lucene (`campo:valor AND campo2:*trecho* AND n:[1 TO 5]`) ou KQL simples
+   (`campo: "valor" and n > 0`): o MCP converte `and/or/not` e `campo > 0` para Lucene. Valores com espaço entre
+   aspas; sem `campo:{...}` (KQL aninhado não é suportado). Filtro exato → `campos`.
    **Consulta salva** citada pelo título → `consultas[<título>]` dá `id` e `espaco`; `elk_obter_consulta(id,
-   espaco)` devolve `consulta`, `filtros` e `indice`, que vão nas tools somados aos `fixos`. Se esse `indice` não
-   estiver em `indices`, use-o sem fixos e avise o usuário; se vier `null` (saved query), use o `indice-padrao` com
-   os fixos dele.
+   espaco)` devolve `consulta`, `filtros`, `indice` e `descricao`, que vão nas tools somados aos `fixos`. Se esse
+   `indice` não estiver em `indices`, use-o sem fixos e avise o usuário; se vier `null` (saved query), use o
+   `indice-padrao` com os fixos dele. Consulta salva em KQL com `campo:{...}` dá HTTP 400 → diga ao usuário e
+   reescreva em Lucene.
+   **Parâmetros:** `descricao` com `Parâmetros: <campo>[, <campo>...]` → cada campo é obrigatório: use o valor do
+   pedido ("rode a consulta X para 123") ou pergunte. **Tire** de `filtros` o filtro desse campo (valor de exemplo,
+   ex.: `0`) e ponha o valor pedido em `campos` (`{<campo>: <valor>}`); somar os dois zera o resultado. Sem o valor,
+   não rode.
 6. **Ambiente.** Do pedido (prod/produção, homol/homologação/hml, dev/desenvolvimento); sem menção, `prod`. Ele
    escolhe o arquivo de config e vai no parâmetro `ambiente` das tools. Diga sempre o ambiente e a janela usados na
    resposta.

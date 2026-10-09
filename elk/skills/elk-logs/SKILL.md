@@ -1,10 +1,10 @@
 ---
 name: "elk-logs"
-description: "Look up and count application logs in ELK/Kibana through the `elk` MCP, up to 100 documents shown in the conversation, and save the query built in the conversation as a Kibana saved query. Use when the user wants to see or count specific logs: \"me mostra os logs do usuário/transação X\", \"quantos erros hoje\", \"tem ERROR na última hora?\", \"logs com timeout entre 10h e 10h15\", \"rode a consulta salva Y\", \"quais valores tem o campo Z\", \"o que aconteceu com a requisição <trace id>\", \"últimos logs do serviço W em homologação\", and at the end of a search \"salva essa consulta\", \"cria uma consulta no Kibana com esse filtro\", \"guarda essa busca como X\". For writing logs to a CSV file use elk-exportar; for explaining why something failed (incident, spike, root cause) use elk-diagnostico."
+description: "Look up and count application logs in ELK/Kibana through the `elk` MCP, up to 100 documents shown in the conversation, save the query built in the conversation as a Kibana saved search (Discover, KQL or Lucene) and update an existing saved search. Use when the user wants to see or count specific logs: \"me mostra os logs do usuário/transação X\", \"quantos erros hoje\", \"tem ERROR na última hora?\", \"logs com timeout entre 10h e 10h15\", \"rode a consulta salva Y\", \"quais valores tem o campo Z\", \"o que aconteceu com a requisição <trace id>\", \"últimos logs do serviço W em homologação\", and at the end of a search \"salva essa consulta\", \"cria uma consulta no Kibana com esse filtro\", \"guarda essa busca como X\", \"altera/corrige a consulta salva X\", \"adiciona o filtro Y na consulta X\". For writing logs to a CSV file use elk-exportar; for explaining why something failed (incident, spike, root cause) use elk-diagnostico."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.4.0"
+  version: "1.6.0"
 ---
 
 # elk-logs
@@ -62,23 +62,57 @@ Comece pela linha de contexto: `**<total>** documentos · <ambiente> · <inicio>
 
 ## Salvar a consulta no Kibana
 
-Quando o usuário, depois de buscar e refinar, pede para salvar ("salva essa consulta", "guarda como X"):
+Quando o usuário, depois de buscar e refinar, pede para salvar ("salva essa consulta", "guarda como X"), crie uma
+busca salva do Discover (ligada ao data view):
 
-1. **Consulta:** a **última** que ele aceitou nesta conversa (não a primeira tentativa). Converta tudo para uma
-   `consulta` Lucene única, com os `fixos` incluídos para funcionar também no Discover: valor exato →
-   `campo:"valor"`; valor com `*` → `campo:valor*` (sem aspas); texto livre como estava; tudo unido por `AND`.
+1. **Consulta:** a **última** que ele aceitou nesta conversa (não a primeira tentativa), separada como o Discover
+   mostra:
+   - **Filtros (pílulas):** os `fixos` + os filtros exatos do pedido vão em `campos` (`{campo: valor}`; valor com
+     `*` vira wildcard). É o recorte que aparece como filtro no Kibana.
+   - **Barra de busca:** só o que não é filtro exato — texto livre e comparações — em `consulta`. KQL
+     (`linguagem="kuery"`, padrão): `campo: *trecho*`, `campo > 0`, unidos por `and`; sem `campo:{...}`. Use Lucene
+     (`linguagem="lucene"`) só se o usuário pedir ou precisar de `campo:[1 TO 5]`, `campo:valor~`, escape `\-`.
+     Sem nada disso, `consulta` fica vazia.
    Veio de consulta salva → mantenha os `filtros` dela em `filtros`.
+   **Parâmetros:** filtro cujo valor muda a cada execução (o usuário diz "será sempre passado", "por <campo>") vai
+   em `campos` com um valor de exemplo (`0` para número, `""` para texto) — vira a pílula que o usuário edita no
+   Discover — e em `descricao` como `Parâmetros: <campo>[, <campo>...]` (regra 5 do steering).
+   **Colunas:** os campos de `retornar` usados na busca, sem o campo de tempo (o Discover já o mostra).
 2. **Título:** o que o usuário deu; senão, sugira um curto que descreva o filtro (`Erros de timeout no serviço W`).
-   Título já em `consultas` → pergunte se quer outro nome.
-3. **Confirme** em um bloco: título, ambiente, `indice` (`padrao`), `espaco` (`default`, salvo se o usuário disser
-   outro) e a `consulta`. Sem confirmação, não grave nada.
-4. `elk_criar_consulta(titulo, indice, consulta, filtros?, descricao?, espaco, ambiente)` → devolve o `id`.
-5. Registre em `consultas` do `.kiro/config/power/elk/elk-<ambiente>.json`:
+   Título já existe (em `consultas` ou em `elk_listar_consultas(busca=<título>)`) → pergunte: **atualizar** a
+   existente (seção abaixo) ou usar outro nome.
+3. **Espaço:** o do data view do `indice` (`elk_listar_indices(busca=<trecho do padrão>)` mostra o `espaco`). O
+   data view existe em mais de um → pergunte em qual salvar.
+4. **Confirme** em um bloco: título, ambiente, `indice` (`padrao`), `espaco`, filtros (`campos`), `consulta` e
+   linguagem, parâmetros e `colunas`. Sem confirmação, não grave nada.
+5. `elk_criar_consulta(titulo, indice, campos, consulta?, filtros?, colunas, descricao?, espaco, linguagem,
+   ambiente)` → devolve o `id`.
+   `Data view ... não existe no espaço` → volte ao passo 3.
+6. Registre em `consultas` do `.kiro/config/power/elk/elk-<ambiente>.json`:
    `"<titulo>": { "id": "<id>", "espaco": "<espaco>" }` (omita `espaco` se for `default`), preservando o resto do
    arquivo. Assim "rode a consulta <titulo>" funciona depois. Sem o arquivo → só informe o `id` e ofereça a
    elk-setup.
 
-Responda: `Consulta salva no Kibana: "<titulo>" · <ambiente> · espaço <espaco>` + a `consulta` gravada.
+Responda: `Consulta salva no Kibana: "<titulo>" · <ambiente> · espaço <espaco>` + os filtros e a `consulta`
+gravados.
+
+## Atualizar uma consulta salva
+
+Quando o usuário pede para mudar uma consulta que já existe ("corrige a consulta X", "adiciona o filtro Y", "tira a
+coluna Z", "renomeia"):
+
+1. Ache `id` e `espaco`: `consultas[<título>]`, senão `elk_listar_consultas(busca=<trecho do título>)`. Só o tipo
+   `search` é atualizável; `query` → ofereça criar uma busca salva nova (seção acima).
+2. `elk_obter_consulta(id, espaco)` para ver o estado atual.
+3. Monte **só o que muda**. Filtros: `campos`/`filtros` substituem **todos** — reenvie os que ficam: `match_phrase`
+   `{campo: valor}` → `campos`; o resto → `filtros`. Barra de busca: `consulta` (`""` limpa). Demais: `titulo`,
+   `colunas`, `descricao` (inclusive `Parâmetros:`), `indice`, `linguagem`.
+4. **Confirme** em um bloco **antes → depois**, só com o que muda. Sem confirmação, não grave nada.
+5. `elk_atualizar_consulta(id, espaco, <só os campos que mudam>, ambiente)`. O resto (ordenação, período, layout
+   feitos no Kibana) é preservado.
+6. Título mudou e está em `consultas` do `elk-<ambiente>.json` → renomeie a chave, mantendo `id` e `espaco`.
+
+Responda: `Consulta atualizada no Kibana: "<titulo>" · <ambiente> · espaço <espaco>` + o que mudou.
 
 ## Erros
 
