@@ -4,7 +4,7 @@ description: "Configure, create, update or review the IBM ALM/ELM (EWM, DOORS Ne
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.4"
+  version: "1.0.5"
 ---
 
 # alm-setup
@@ -63,11 +63,12 @@ coluna "Entrada" (ids vêm de saídas anteriores, nunca nomes) e grave só o que
 | 2 | `ccm_list_team_areas(project_area_identifier=pa)`; mostre a árvore (via `parent`) e pergunte os times. Depois **uma** chamada `list_workitem_categories(project_area_item_id=pa, limit=500)` e distribua as categorias pelos times | Times: `[{name, identifier, parent}]`. Categorias: `[{itemId, name, archived, defaultTeamArea?}]` | `team-areas` `{name: {identifier, categories}}`; `categories` = `{name: itemId}` das não arquivadas com `defaultTeamArea.itemId` == identifier do time |
 | 3 | `ccm_list_members(project_area_identifier=pa, team_area_identifiers=[ids dos times])` (≥1). "Todos" é resposta válida | `[{identifier (login), name, team-areas}]` | `members` `{login: name}` |
 | 4a | `ccm_list_workitem_types(project_area_identifier=pa)`; pergunte quais tipos | `[{identifier, name}]` | `workitem-types` `{name: {identifier, fields}}` |
-| 4b | Para cada tipo, **um por vez**: `ccm_list_workitem_fields(project_area_identifier=pa, workitem_type=<identifier>)` (`"task"`, não `"Tarefa"`). Entram sempre: os `required: true` e a categoria (`rtc_cm:filedAgainst`). Sugira os úteis no dia a dia (responsável `dcterms:contributor`, planejado para `rtc_cm:plannedFor`, estimativa `rtc_cm:estimate`, prioridade, severidade) e pergunte os demais. Nunca inclua `rtc_cm:teamArea` | `[{name, attribute, required, kind}]` | `workitem-types[name].fields` `{nome: attribute}` |
+| 4b | Para cada tipo, **um por vez**: `ccm_list_workitem_fields(project_area_identifier=pa, workitem_type=<identifier>)` (`"task"`, não `"Tarefa"`). Entram sempre: os `required: true` e a categoria (`rtc_cm:filedAgainst`). Sugira os úteis no dia a dia (responsável `dcterms:contributor`, planejado para `rtc_cm:plannedFor`, estimativa `rtc_cm:estimate`, prioridade, severidade) e pergunte os demais. **Para Tarefa**: se o campo "ID do Produto (Clarity)" existir (attribute contendo `idprodutoclarity`), **sempre inclua** — ele é pré-requisito para lançamento de horas em categorias como "Administração de Dados". Nunca inclua `rtc_cm:teamArea` | `[{name, attribute, required, kind}]` | `workitem-types[name].fields` `{nome: attribute}` |
 | 4c | `ccm_list_link_types(project_area_identifier=pa, workitem_type=<qualquer tipo escolhido>)`; pergunte quais o projeto usa (sugira pai, filhos, implementa requisito, menções) | `[{name, attribute}]` | `link-types` `{nome: attribute}` |
 | 5a | `ccm_list_iterations(project_area_identifier=pa)`. Lista longa → pergunte antes um filtro (ano, trecho do nome ou "não terminadas" por `end-date`) e mostre com datas. O usuário escolhe as iterações | `[{name, identifier, start-date?, end-date?, parent?}]` | `iterations` `{name: {identifier, plans}}` |
 | 5b | **Uma** chamada `ccm_list_iteration_plans(project_area_identifier=pa, iteration_identifiers=[todas as escolhidas])`; agrupe por `iteration` e pergunte os planos de cada iteração, uma por vez | `[{name, identifier, team-area, iteration}]` | `iterations[it].plans` `{name: {identifier, team-area?}}` |
 | 6 | (Opcional) Se o projeto usa time tracking (aba Time Tracking na UI): pergunte o time code default ("Horas Diretas") e o work type default (nome de um tipo de WI, ex.: "Tarefa"). Grave só se o usuário confirmar | — | `timesheet` `{default-time-code?, default-work-type?}` |
+| 7 | (Opcional) Se o tipo Tarefa tem o campo "ID do Produto (Clarity)" (etapa 4b): pergunte o ID do produto no Clarity. É o valor padrão preenchido ao criar Tarefas e pré-requisito para lançamento de horas em algumas categorias | — | `clarity-identifier` |
 
 **Nomes de `fields` e `link-types` são do projeto**: proponha o `name` da tool em português (ex.: "Filed Against" →
 "Categoria", "Parent" → "Pai") e deixe o usuário ajustar. `ccm_get_workitem` mostra campos e links com esses nomes,
@@ -116,6 +117,7 @@ de arquivo local, exceto `rm.download.path`, também relativo à raiz do reposit
   "ccm": {
     "project-area": "<PROJETO>",
     "project-area-identifier": "_<uuid-pa-ccm>",
+    "clarity-identifier": "<ID-PRODUTO-CLARITY>",
     "team-areas": {
       "<Equipe>": { "identifier": "_<uuid-equipe>", "categories": { "<Categoria>": "_<uuid-categoria>" } }
     },
@@ -209,3 +211,4 @@ Mostre o resumo e peça confirmação antes. Depois de criar, inclua o item em `
 | Planos numa lista `plans` solta, com `iteration` ou `team-area: null` | Dentro de `iterations[nome].plans`, só `identifier` (+ `team-area`) |
 | Membro novo não aparece em `ccm_list_members` | O MCP carrega os usuários uma vez por processo: peça para reiniciar o cliente |
 | Criar work item ou plano para "testar" | Conferência só com leitura |
+| Omitir "ID do Produto (Clarity)" na Tarefa | Incluir sempre se existir: é pré-requisito para timesheet em certas categorias |

@@ -4,7 +4,7 @@ description: "Query, list, read, create, update, change state, comment or log ti
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.4"
+  version: "1.0.5"
 ---
 
 # alm-ccm
@@ -171,7 +171,9 @@ Exemplo — "muda a estimativa do WI 1001 para 6h": `fields["Estimativa"]` → `
      valor pela tabela acima. Só chame `ccm_list_field_values` para kinds que não estão no alm.json — e uma vez
      por attribute, não para conferir o que o arquivo já tem.
   2. A categoria define o time do item (não dá para escolher o time direto): use uma categoria do time desejado.
-  3. Mostre o resumo (por nomes) e peça confirmação. Depois `ccm_create_workitem(...)` e responda com código,
+  3. **Para Tarefa**: se o campo "ID do Produto (Clarity)" estiver em `fields` e `ccm.clarity-identifier` existir
+     no alm.json, use-o como valor padrão (mostre ao usuário para confirmar).
+  4. Mostre o resumo (por nomes) e peça confirmação. Depois `ccm_create_workitem(...)` e responda com código,
      título e url.
 - **Atualizar / mudar estado:** confirme e chame `ccm_update_workitem(id, fields?, description?, state="<nome>")`;
   campos e estado podem ir na mesma chamada. Erro de estado → `ccm_list_workitem_states(id)` e ofereça os
@@ -244,6 +246,13 @@ Formal Project Management Process com time tracking habilitado; se não, a aba T
 - **Dias**: qualquer dia da semana (seg–dom); não há calendário de feriados — o usuário informa os dias.
 - **time_code**: do `pa.json` (`ccm.timesheet.default-time-code`) ou pergunta.
 - **work_type**: do `pa.json` (`ccm.timesheet.default-work-type`) ou o nome do tipo do WI.
+
+### Pré-condições do work item
+
+Alguns projetos exigem que campos específicos estejam preenchidos no work item antes de permitir lançamento de
+horas. Exemplo comum: **ID do Produto (Clarity)** em Tarefas de certas categorias. Se o lançamento falhar com
+erro de campo obrigatório, oriente o usuário a preencher o campo no work item (via `ccm_update_workitem` ou na
+UI web) antes de tentar novamente.
 
 ### Exemplos
 

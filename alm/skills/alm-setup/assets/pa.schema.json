@@ -45,6 +45,11 @@
           "$ref": "#/$defs/uuid",
           "description": "UUID da project area CCM (project_area_uuid), prefixado por '_'."
         },
+        "clarity-identifier": {
+          "type": "string",
+          "description": "ID do produto no Clarity. Usado como valor padrão para o campo 'ID do Produto (Clarity)' ao criar Tarefas. Obrigatório para lançamento de horas em algumas categorias.",
+          "minLength": 1
+        },
         "team-areas": {
           "type": "object",
           "description": "Mapa {name do time: {identifier, categories}}.",

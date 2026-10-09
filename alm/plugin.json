@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "alm",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description": "IBM ELM (EWM/RTC, DOORS Next, ETM) via OSLC: work items, requisitos, testes, configuração global, rastreabilidade e lançamento de horas (timesheet), com o MCP mcp-alm",
   "author": {
     "name": "Daniel Xavier Araújo",
