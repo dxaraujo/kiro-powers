@@ -4,7 +4,7 @@ description: "Query, list, read, create, update, change state, comment or log ti
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.5"
+  version: "1.0.6"
 ---
 
 # alm-ccm
@@ -99,6 +99,61 @@ coluna). Termo que não está aqui nem em `workitem-types` → pergunte o tipo; 
 | `ccm_update_workitem(workitem_id, fields?, description?, state?)` | `description` **substitui** a inteira; `state` = **nome** do estado destino (a tool acha a ação e confere a mudança) | `resumo` |
 | `ccm_list_workitem_states(workitem_id)` | — | `{state, actions: [{name, result-state}]}` |
 | `add_comment_to_workitem(workitem_id, comment, mentions?)` | `mentions` = logins (viram `@login`) | comentário |
+
+### Assinatura exata dos parâmetros
+
+> ⚠️ **Todos os IDs são strings**, mesmo quando parecem numéricos. Passar `123456` (int) causa erro; use `"123456"`.
+
+| Tool | Parâmetro | Tipo | Obrigatório |
+|---|---|---|---|
+| `ccm_list_workitems` | `project_area_identifier` | `string` | ✓ |
+| | `iteration` | `string` | |
+| | `team_areas` | `list[string]` | |
+| | `owner` | `string` | |
+| | `state` | `string` | |
+| | `workitem_type` | `string` | |
+| `ccm_get_workitem` | `workitem_id` | `string` | ✓ |
+| | `fields` | `dict[string, string]` | ✓ |
+| | `link_types` | `list[string]` | |
+| `ccm_list_field_values` | `project_area_identifier` | `string` | ✓ |
+| | `workitem_type` | `string` | ✓ |
+| | `attribute` | `string` | ✓ |
+| `ccm_create_workitem` | `project_area_identifier` | `string` | ✓ |
+| | `workitem_type` | `string` | ✓ |
+| | `summary` | `string` | ✓ |
+| | `description` | `string` | |
+| | `fields` | `dict[string, any]` | |
+| | `parent` | `string` | |
+| `ccm_update_workitem` | `workitem_id` | `string` | ✓ |
+| | `fields` | `dict[string, any]` | |
+| | `description` | `string` | |
+| | `state` | `string` | |
+| `ccm_list_workitem_states` | `workitem_id` | `string` | ✓ |
+| `add_comment_to_workitem` | `workitem_id` | `string` | ✓ |
+| | `comment` | `string` | ✓ |
+| | `mentions` | `list[string]` | |
+| `ccm_list_timesheet` | `workitem_id` | `string` | ✓ |
+| `ccm_list_time_codes` | `project_area_identifier` | `string` | ✓ |
+| `ccm_add_timesheet` | `workitem_id` | `string` | ✓ |
+| | `entries` | `list[{date: string, hours: float}]` | ✓ |
+| | `time_code` | `string` | ✓ (se não há default) |
+| | `work_type` | `string` | |
+
+### Convenções de nomes de parâmetros
+
+- `workitem_id` — sem underscore entre "work" e "item" (não é `work_item_id`)
+- `project_area_identifier` — identifier da project area, não UUID
+- Datas — sempre `"AAAA-MM-DD"` (string ISO)
+- Horas — `float` (ex.: `8.0`, `4.5`)
+
+### Erros comuns de chamada
+
+| Erro | Causa | Correção |
+|---|---|---|
+| `Field required` | Parâmetro obrigatório ausente | Confira a tabela acima |
+| `Input should be a valid string` | Passou int em vez de string | Use `"123456"` em vez de `123456` |
+| `Informe o time_code` | `time_code` é obrigatório quando não há default | Descubra com `ccm_list_time_codes` ou use o default do `pa.json` |
+| `workitem_id Field required` | Nome do parâmetro errado | Use `workitem_id`, não `work_item_id` |
 
 ### Leitura (`ccm_get_workitem`)
 
