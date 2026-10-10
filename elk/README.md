@@ -11,6 +11,8 @@ no Kibana, com confirmação. Agnóstico: índice, campos e consultas do projeto
 - **Exportar:** grava resultados em CSV na pasta de download do projeto, direto pelo MCP, sem passar pela conversa.
 - **Diagnóstico:** investiga incidentes comparando o período do problema com um período normal (volume, taxa de
   erro, onde concentra, quando começou, evidências e hipótese).
+- **Jobs Spring Batch:** mostra a execução de um job (ou do último executado) como sumário por step, com os
+  WARN/ERROR da janela e análise dos erros, a partir do ELK ou de log local (`elk-job-logs`).
 - **Consultas salvas:** usa as do Kibana pelo título e salva no Kibana a consulta montada na conversa e atualiza consultas existentes (`elk-logs`).
 
 ## Conteúdo
@@ -24,6 +26,7 @@ no Kibana, com confirmação. Agnóstico: índice, campos e consultas do projeto
 | `skills/elk-logs/` | Buscar e contar logs; salvar e atualizar consultas no Kibana |
 | `skills/elk-exportar/` | Exportar CSV para `download.path` |
 | `skills/elk-diagnostico/` | Investigar incidentes e causa raiz |
+| `skills/elk-job-logs/` | Execução de job Spring Batch: sumário por step e WARN/ERROR (ELK ou log local) |
 
 ## Pré-requisitos
 

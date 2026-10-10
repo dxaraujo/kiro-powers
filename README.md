@@ -7,8 +7,8 @@ independente, com manifesto (`plugin.json`), steering, skills e, quando usa, ser
 
 | Power | O que faz | MCP |
 |---|---|---|
-| [alm](alm/) | IBM Engineering Lifecycle Management (ELM) via OSLC: work items do EWM/RTC, requisitos do DOORS Next, testes do ETM, configuração global e rastreabilidade | [mcp-alm](https://github.com/dxaraujo/mcp-alm) |
-| [elk](elk/) | Logs do ELK (Elasticsearch + Kibana), só leitura: buscar, contar, exportar CSV e diagnosticar incidentes | [mcp-elk](https://github.com/dxaraujo/mcp-elk) |
+| [alm](alm/) | IBM Engineering Lifecycle Management (ELM) via OSLC: work items do EWM/RTC, requisitos do DOORS Next, testes do ETM, configuração global, rastreabilidade, lançamento de horas e sincronização da documentação do RM (OKF) | [mcp-alm](https://github.com/dxaraujo/mcp-alm) |
+| [elk](elk/) | Logs do ELK (Elasticsearch + Kibana): buscar, contar, exportar CSV, diagnosticar incidentes, salvar consultas no Kibana e logs de execução de jobs Spring Batch | [mcp-elk](https://github.com/dxaraujo/mcp-elk) |
 | [sdd-workflow](sdd-workflow/) | Fluxo de Spec-Driven Development (especificador, codificador, testador) com gates, judge, devoluções com causa raiz, aprendizado contínuo, lote e planejamento de sprints; cria os agentes no projeto pela `sdd-setup` | — (usa o `alm`, se instalado) |
 
 ## Instalação

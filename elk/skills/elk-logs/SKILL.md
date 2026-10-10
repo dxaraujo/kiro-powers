@@ -4,7 +4,7 @@ description: "Look up and count application logs in ELK/Kibana through the `elk`
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.9"
+  version: "1.0.10"
 ---
 
 # elk-logs
@@ -12,7 +12,8 @@ metadata:
 Consultas pontuais de logs: contar e mostrar documentos na conversa. As regras comuns (elk-<ambiente>.json, fixos,
 apelidos, janela, Lucene, ambiente, dados pessoais) estão no steering do power; aqui fica o fluxo.
 
-Fora do escopo: gravar em arquivo → **elk-exportar**; explicar causa, pico ou incidente → **elk-diagnostico**.
+Fora do escopo: gravar em arquivo → **elk-exportar**; explicar causa, pico ou incidente → **elk-diagnostico**;
+logs de execução de job/batch → **elk-job-logs**.
 
 ## Antes de chamar
 

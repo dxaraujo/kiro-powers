@@ -1,10 +1,10 @@
 ---
 name: "elk-diagnostico"
-description: "Investigate a production problem from ELK/Kibana logs through the `elk` MCP (read-only): size the impact, find where errors concentrate, compare with a normal period, find when it started, sample evidence and report a root-cause hypothesis. Use when the user wants to understand a problem, not just see logs: \"o sistema caiu às 10h, o que aconteceu?\", \"por que está dando erro 500?\", \"teve pico de erros hoje?\", \"está lento desde ontem\", \"investiga o incidente\", \"qual a causa raiz\", \"o erro aumentou depois do deploy?\", \"o que mudou em relação a ontem\". For just listing or counting logs use elk-logs; for files use elk-exportar."
+description: "Investigate a production problem from ELK/Kibana logs through the `elk` MCP (read-only): size the impact, find where errors concentrate, compare with a normal period, find when it started, sample evidence and report a root-cause hypothesis. Use when the user wants to understand a problem, not just see logs: \"o sistema caiu às 10h, o que aconteceu?\", \"por que está dando erro 500?\", \"teve pico de erros hoje?\", \"está lento desde ontem\", \"investiga o incidente\", \"qual a causa raiz\", \"o erro aumentou depois do deploy?\", \"o que mudou em relação a ontem\". For just listing or counting logs use elk-logs; for files use elk-exportar; for the logs or errors of a job/batch execution (\"o job X falhou\") use elk-job-logs."
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.2"
+  version: "1.0.3"
 ---
 
 # elk-diagnostico
@@ -14,7 +14,8 @@ hora, ler documentos soltos engana; contagens agrupadas e comparadas com um per�
 problema. As regras comuns (config por ambiente, fixos, apelidos, janela, Lucene, ambiente) estão no steering do
 power.
 
-Fora do escopo: não exporta (ofereça a **elk-exportar** no fim, se o usuário quiser os dados) e não configura.
+Fora do escopo: não exporta (ofereça a **elk-exportar** no fim, se o usuário quiser os dados), não configura e não
+trata execução de job Spring Batch (→ **elk-job-logs**).
 
 ## Antes de chamar
 

@@ -5,7 +5,7 @@ inclusion: always
 # ELK Power
 
 Este power dá acesso **de leitura** aos logs do ELK (Elasticsearch + Kibana), pelo MCP `elk`
-(`uvx mcp-elk@latest`). As únicas escritas são criar e atualizar busca salva no Kibana (`elk_criar_consulta`,
+(`uvx mcp-elk@latest`), e aos logs de execução de jobs Spring Batch (no ELK ou em log local, pela `elk-job-logs`). As únicas escritas são criar e atualizar busca salva no Kibana (`elk_criar_consulta`,
 `elk_atualizar_consulta`), só pela `elk-logs` e com confirmação do usuário. **O MCP fornece as capacidades; as skills fornecem o conhecimento.** O
 MCP é agnóstico: índice, campos e consultas do projeto vêm do `elk-<ambiente>.json`.
 

@@ -4,13 +4,13 @@ description: "Configure, create, update or review the project's ELK/Kibana setti
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.1.2"
+  version: "1.1.3"
 ---
 
 # elk-setup
 
 Conduz o usuário, em conversa, na criação ou atualização de `.kiro/config/power/elk/elk-<ambiente>.json`
-(elk-prod.json, elk-homol.json, elk-dev.json): a memória das skills elk-logs, elk-exportar e elk-diagnostico.
+(elk-prod.json, elk-homol.json, elk-dev.json): a memória das skills elk-logs, elk-exportar, elk-diagnostico e elk-job-logs.
 O MCP é agnóstico e não lê esse arquivo; ele guarda o que é do projeto (índice, recorte, nomes de campos) para
 que as outras skills não redescubram nada a cada pedido. Você o grava, no formato exato abaixo. Um arquivo por
 ambiente: cada ambiente pode ter índices e consultas diferentes.
