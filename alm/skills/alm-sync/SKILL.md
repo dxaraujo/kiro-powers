@@ -4,7 +4,7 @@ description: "Download and keep in sync, in both directions, the IBM DOORS Next 
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "3.1.1"
+  version: "3.1.2"
 ---
 
 # alm-sync
@@ -57,7 +57,7 @@ O que o download grava (`[id título](../03-Regras/2001-x.md)` e `[id título](U
    - pastas a sincronizar: `rm_list_folders(...)` e o usuário escolhe. **Bundle já existe** (`sync.md` na pasta) →
      proponha todas as pastas que aparecem nele e avise que pasta **não** escolhida tem os arquivos apagados pelo
      `rm_sync_plan`. As escolhidas fazem o papel de `rm.folders` no fluxo;
-   - sem arquivo, não grave `rm.folders` nem `last-sync` (passos 1, 3 e 7): o estado fica no `sync.md`. No fim,
+   - sem arquivo, não grave `rm.folders` (passos 1 e 7): o estado fica no `sync.md`. No fim,
      ofereça a alm-setup para guardar área, pastas e caminho.
 2. Sem `rm.download.path` → pergunte a pasta raiz (sugira `docs/alm/<nome>`, mesmo `<nome>` do `pa_<nome>.json`),
    relativa à raiz do repositório, com `/`, e (havendo arquivo) grave `rm.download = {"path": ...}`. `dest` de todas as chamadas =
@@ -76,8 +76,7 @@ O que o download grava (`[id título](../03-Regras/2001-x.md)` e `[id título](U
    - `removidos` (já apagados), como lista **Código | Título | Pasta**;
    - `inconsistentes` (count ≠ listados no servidor): avise que nada foi removido e que os `nao_confirmados` serão
      conferidos no próximo sincronismo.
-3. **Nada a fazer** (`a_baixar = 0`, `a_subir = 0` e `conflitos` vazio) → diga que está tudo sincronizado, grave
-   `rm.download.last-sync` e pare.
+3. **Nada a fazer** (`a_baixar = 0`, `a_subir = 0` e `conflitos` vazio) → diga que está tudo sincronizado e pare.
 4. **Baixar:** com `a_baixar > 0`, mostre o total e peça confirmação. Depois chame `rm_download_requirements(dest)`
    repetidamente até `restantes = 0` (ou até só restarem os ids com erro): cada chamada baixa os próximos 50 e grava
    o `sync.md` (e o `index.md` ao terminar). Informe o progresso a cada chamada e acumule os `erros`.
@@ -90,7 +89,8 @@ O que o download grava (`[id título](../03-Regras/2001-x.md)` e `[id título](U
    Depois chame `rm_upload_requirements(dest)` até `restantes = 0` (ou até só restarem erros). Cada chamada
    sobe título e corpo do md e baixa o requisito de novo (a linha fica `sincronizado`). Se o ALM mudou nesse
    meio-tempo, o MCP não sobe e devolve o id em `conflitos` → volte ao passo 5 com eles.
-7. **Fechar:** `rm.download.last-sync` = agora, ISO 8601 UTC (`...Z`); grave o `pa_*.json` (pastas e `last-sync`).
+7. **Fechar:** se `rm.folders` mudou no passo 1, grave o `pa_*.json`. O instante do sincronismo fica no
+   `generated.at` do `sync.md` (o MCP grava): não grave data no `pa_*.json`.
    Responda com baixados, enviados, conflitos resolvidos (e a versão escolhida), os erros e o caminho do `sync.md`.
    Sobrou erro → diga que rodar a alm-sync de novo tenta só esses.
 

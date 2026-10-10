@@ -4,7 +4,7 @@ description: "Configure, create, update or review the IBM ALM/ELM (EWM, DOORS Ne
 license: "MIT"
 metadata:
   author: "Daniel Xavier Araújo"
-  version: "1.0.5"
+  version: "1.0.6"
 ---
 
 # alm-setup
@@ -83,7 +83,7 @@ e a alm-ccm os usa para achar o attribute na gravação.
 | 3 | `rm_list_members(project_area_identifier=pa_rm)`. Proponha os logins escolhidos no ccm | `[{identifier, name}]` | `members` `{login: name}` |
 | 4 | `rm_list_folders(project_area_identifier=pa_rm, component, configuration)` | `[{name ('01-Req/Funcionais'), identifier ('FR_...')}]` | `folders` `{name: identifier}` |
 | 5 | `rm_list_requirement_types(project_area_identifier=pa_rm, component, configuration)` | `[{name, identifier ('OT_...')}]` | `requirements-types` `{name: identifier}` |
-| 6 | Opcional: "quer baixar a documentação do RM para o repositório?" Sim → pergunte a pasta raiz (sugira `docs/alm/<nome>`, mesmo `<nome>` do `pa_<nome>.json`), relativa à raiz do repositório, com `/` | — | `download` `{path}` (`last-sync` é gravado pela alm-sync) |
+| 6 | Opcional: "quer baixar a documentação do RM para o repositório?" Sim → pergunte a pasta raiz (sugira `docs/alm/<nome>`, mesmo `<nome>` do `pa_<nome>.json`), relativa à raiz do repositório, com `/` | — | `download` `{path}` |
 
 O RM não guarda campos nem links: `rm_get_requirement` mostra os nomes do DOORS Next e a gravação usa os mesmos.
 
@@ -157,7 +157,7 @@ de arquivo local, exceto `rm.download.path`, também relativo à raiz do reposit
     "members": { "<login>": "<Nome do Membro>" },
     "folders": { "<Pasta>": "FR_<id>" },
     "requirements-types": { "<Tipo de Requisito>": "OT_<id>" },
-    "download": { "path": "docs/alm/<nome>", "last-sync": "2026-10-06T18:00:00Z" }
+    "download": { "path": "docs/alm/<nome>" }
   },
   "qm": {
     "project-area": "<PROJETO QM>",

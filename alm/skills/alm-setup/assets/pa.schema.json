@@ -153,7 +153,7 @@
             },
             "last-sync": {
               "type": "string",
-              "description": "Instante (ISO 8601 UTC) do último sincronismo.",
+              "description": "Obsoleto e ignorado (aceito só para arquivos antigos): o instante do último sincronismo fica no generated.at do sync.md.",
               "format": "date-time"
             }
           }
